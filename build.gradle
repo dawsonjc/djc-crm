@@ -10,5 +10,5 @@ tasks.register("runApp") {
 }
 
 tasks.register("runAuth") {
-    dependsOn(":auth_service:kt_service:kobwebStart")
+    dependsOn(":auth_service:authDev")
 }

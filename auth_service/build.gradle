@@ -1,0 +1,56 @@
+import static com.varabyte.kobweb.gradle.application.util.KmpExtensionsKt.configAsKobwebApplication
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform' version '2.4.0'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.4.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.4.0'
+    id 'com.varabyte.kobweb.application' version '0.25.0'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+// Kobweb exposes this setup helper as a Kotlin extension. Calling its generated
+// static method keeps the same frontend-only configuration from Groovy DSL.
+configAsKobwebApplication(kotlin, null, false, 'js', 'jvm')
+
+kotlin {
+    js {
+        browser {
+        }
+    }
+
+    sourceSets {
+        jsMain {
+            dependencies {
+                implementation 'androidx.compose.runtime:runtime:1.11.2'
+                implementation 'org.jetbrains.compose.html:html-core:1.11.1'
+                implementation 'com.varabyte.kobweb:kobweb-core:0.25.0'
+                implementation 'com.varabyte.kobweb:kobweb-silk:0.25.0'
+            }
+        }
+    }
+}
+
+tasks.register('authCheck') {
+    group = 'auth service'
+    description = 'Compile and run all available checks for the auth UI.'
+    dependsOn 'check'
+}
+
+tasks.register('authBundle') {
+    group = 'auth service'
+    description = 'Create a production browser bundle for the auth UI.'
+    dependsOn 'jsBrowserProductionWebpack'
+}
+
+tasks.register('authDev') {
+    group = 'auth service'
+    description = 'Start the auth UI development server.'
+    dependsOn 'kobwebStart'
+}

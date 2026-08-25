@@ -4,12 +4,10 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
-        id 'org.podval.tools.scalajs' version '0.9.14'
+        //id 'org.podval.tools.scalajs' version '0.9.14'
     }
 }
 
 rootProject.name = 'djc-crm'
 
-include ':scala_js', ':frontend', ':backend', ':auth_service:kt_service'
-
-project(':auth_service:kt_service').projectDir = file('auth_service/kt_service')
+include ':scala_js', ':frontend', ':backend', ':auth_service'
