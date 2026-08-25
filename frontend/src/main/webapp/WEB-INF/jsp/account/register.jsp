@@ -68,8 +68,8 @@
                     </a>
                 </div>
                 <div class="text-sm">
-                    <a href="<%= request.getContextPath() %>/account/register" class="font-medium text-indigo-600 hover:text-indigo-500">
-                        Register
+                    <a href="<%= request.getContextPath() %>/account/login" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Login
                     </a>
                 </div>
             </div>

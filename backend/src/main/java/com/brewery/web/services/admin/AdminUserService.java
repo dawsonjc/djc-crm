@@ -13,15 +13,17 @@ import java.util.UUID;
 
 @Service
 public class AdminUserService {
+    private final RoleService roleService;
 
-    @Autowired
-    private RoleService roleService;
+    private final UserRolesService userRolesService;
 
-    @Autowired
-    private UserRolesService userRolesService;
+    private final UserTableService userTableService;
 
-    @Autowired
-    private UserTableService userTableService;
+    public AdminUserService(UserTableService userTableService, UserRolesService userRolesService, RoleService roleService ) {
+        this.userTableService = userTableService;
+        this.userRolesService = userRolesService;
+        this.roleService = roleService;
+    }
 
     public List<User> getUnverifiedUsers() {
         return this.userTableService.getUnverifiedUsers();

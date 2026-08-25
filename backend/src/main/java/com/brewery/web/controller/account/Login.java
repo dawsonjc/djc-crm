@@ -2,6 +2,7 @@ package com.brewery.web.controller.account;
 
 import com.brewery.web.model.User;
 import com.brewery.web.services.UserTableService;
+import com.brewery.web.user.SessionUser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -72,7 +73,7 @@ public class Login {
             rolesJsonArray.add(role);
         }
 
-        request.getSession().setAttribute("current_user", user);
+        request.getSession().setAttribute(SessionUser.SESSION_USER, user);
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);
     }

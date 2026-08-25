@@ -36,14 +36,15 @@ public class Register {
         responseJson.put("message", "");
         ObjectNode data = responseJson.putObject("data");
 
+        String password = userData.password();
         if (userData.firstName() == null || userData.lastName() == null ||
             userData.username() == null || userData.email() == null ||
-            userData.password() == null
+                password == null
         ) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
         }
 
-        if(userData.password().length() < 8 || userData.password().length() > 128) {
+        if(password.length() < 8 || password.length() > 128) {
             responseJson.put("message", "Password must be between 8 and 128 characters");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
         }

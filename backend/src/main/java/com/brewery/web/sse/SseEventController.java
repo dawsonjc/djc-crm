@@ -53,22 +53,22 @@ public class SseEventController {
             @RequestParam(defaultValue = "25") int limit
     ) {
         UUID userId = userId(request);
-        return sse.subscribe(userId, () -> this.notifications.snapshot(userId, null, limit));
+        return this.sse.subscribe(userId, () -> this.notifications.snapshot(userId, null, limit));
     }
 
     @PatchMapping("/{eventId}/read")
     public EventDTO markRead(HttpServletRequest request, @PathVariable UUID eventId) {
-        return this.notifications.markRead(userId(request), eventId);
+        return this.notifications.markRead(this.userId(request), eventId);
     }
 
     @PatchMapping("/read-all")
     public NotificationSnapshotDTO markAllRead(HttpServletRequest request) {
-        return this.notifications.markAllRead(userId(request));
+        return this.notifications.markAllRead(this.userId(request));
     }
 
     @PatchMapping("/{eventId}/archive")
     public EventDTO archive(HttpServletRequest request, @PathVariable UUID eventId) {
-        return this.notifications.archive(userId(request), eventId);
+        return this.notifications.archive(this.userId(request), eventId);
     }
 
     private UUID userId(HttpServletRequest request) {

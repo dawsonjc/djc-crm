@@ -24,7 +24,7 @@ public class SseEventService {
     public SseEmitter subscribe(UUID userId, Supplier<NotificationSnapshotDTO> snapshotSupplier) {
         UUID clientId = UUID.randomUUID();
         SseEmitter emitter = new SseEmitter(CONNECTION_TIMEOUT);
-        clientsByUser.computeIfAbsent(userId, ignored -> new ConcurrentHashMap<>())
+        this.clientsByUser.computeIfAbsent(userId, ignored -> new ConcurrentHashMap<>())
                 .put(clientId, emitter);
 
         Runnable removeClient = () -> removeClient(userId, clientId);

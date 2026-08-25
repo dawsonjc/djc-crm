@@ -2,15 +2,26 @@ package com.brewery.web.configuration;
 
 import com.brewery.web.model.User;
 
+import com.brewery.web.user.SessionUser;
 import jakarta.servlet.*;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class AuthHook implements Filter {
+    public static final HashSet<String> PUBLIC_ENDPOINTS = new HashSet<String>(Set.of(
+            "/account/login",
+            "/account/register",
+            "/account/forgot-password"
+    ));
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter.super.init(filterConfig);
@@ -34,7 +45,10 @@ public class AuthHook implements Filter {
             return;
         }
 
-        User loggedIn = (User) request.getSession().getAttribute("current_user");
+        HttpSession session = request.getSession(false);
+        User loggedIn = session == null
+                ? null
+                : (User) session.getAttribute(SessionUser.SESSION_USER);
 
         if(loggedIn == null) {
             if(!servletPath.startsWith("/account")) {
