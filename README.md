@@ -1,6 +1,6 @@
 # JVM CRM Platform
 
-> Working repository name: `Website_Chat`
+> Working repository name: `dawson-crm`
 
 This project is evolving from a real-time chat application into a JVM-first customer relationship management (CRM) platform. The existing account, role, conversation, live-message, moderation, and event foundations are intended to become the collaboration layer around organizations, contacts, leads, deals, tasks, notes, activities, and teams.
 

@@ -8,7 +8,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'Website_Chat'
+rootProject.name = 'djc-crm'
 
 include ':scala_js', ':frontend', ':backend', ':auth_service:kt_service'
 
