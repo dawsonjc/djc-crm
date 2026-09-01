@@ -1,5 +1,5 @@
 'use strict';
-import * as $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6 from "./internal-3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.js";
+import * as $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c from "./internal-07235935c771c9429268cb101d7f2e2e7f60988c.js";
 var $b_Lcom_brewery_web_frontend_user_FormUser;
 function $a_Lcom_brewery_web_frontend_user_FormUser() {
   if ((!$b_Lcom_brewery_web_frontend_user_FormUser)) {
@@ -24,10 +24,10 @@ function $a_Lcom_brewery_web_frontend_user_FormUser() {
       this.password = "";
       if ((userObject !== null)) {
         if ((userObject.username !== null)) {
-          this.username = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$dp_toString__T($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(userObject.username));
+          this.username = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(userObject.username));
         }
         if ((userObject.password !== null)) {
-          this.password = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$dp_toString__T($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(userObject.password));
+          this.password = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(userObject.password));
         }
       }
     }

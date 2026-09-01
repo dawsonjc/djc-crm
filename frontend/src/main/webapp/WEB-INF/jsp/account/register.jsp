@@ -1,6 +1,7 @@
 
 <%
     String title = "Register";
+    request.setAttribute("scalaJsModule", "register");
 %>
 <%@ include file="../header.jsp"%>
 

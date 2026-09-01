@@ -1,0 +1,8 @@
+{
+"version": 3,
+"file": "com.brewery.web.frontend.entry.-Conversations-Main.js",
+"mappings": ";;;AAKO,SAAAA,6DAAA;EAAAC,sFAAA,CAAA,qDAAA,GAAA,OAAA;C;AAAA,SAAAD,6DAAA,oE;",
+"sources": ["file:///D:/Programs/IdeaProjects/djc-crm/scala_js/src/main/scala/com/brewery/web/frontend/entry/ConversationsMain.scala"],
+"names": ["main", "com.brewery.web.frontend.entry.-Conversations-Main$"],
+"lineCount": 7
+}

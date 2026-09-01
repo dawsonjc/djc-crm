@@ -11,6 +11,7 @@
 %>
 
 <%! private final String title = "Admin - Panel"; %>
+<% request.setAttribute("scalaJsModule", "admin"); %>
 <%@ include file="../header.jsp"%>
 <main>
     <div class="overflow-x-auto max-w-5xl mx-auto mt-6">

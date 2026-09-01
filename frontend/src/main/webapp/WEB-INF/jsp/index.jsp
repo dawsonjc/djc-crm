@@ -1,4 +1,5 @@
 <%! private final String title = "Dashboard"; %>
+<% request.setAttribute("scalaJsModule", "shell"); %>
 <%@ include file="header.jsp" %>
 
 <aside class="fixed bottom-0 left-0 top-10 z-40 w-16 overflow-y-auto bg-[#1d2028] text-[#959aa5] sm:w-40" aria-label="Admin navigation">

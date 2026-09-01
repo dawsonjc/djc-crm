@@ -1,0 +1,8 @@
+{
+"version": 3,
+"file": "com.brewery.web.frontend.entry.-Admin-Main.js",
+"mappings": ";;;AAKO,SAAAA,qDAAA;EAAAC,8EAAA,CAAA,6CAAA,GAAA,OAAA;C;AAAA,SAAAD,qDAAA,4D;",
+"sources": ["file:///D:/Programs/IdeaProjects/djc-crm/scala_js/src/main/scala/com/brewery/web/frontend/entry/AdminMain.scala"],
+"names": ["main", "com.brewery.web.frontend.entry.-Admin-Main$"],
+"lineCount": 7
+}

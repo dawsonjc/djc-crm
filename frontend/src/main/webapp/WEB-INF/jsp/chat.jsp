@@ -7,6 +7,7 @@
 <%@ page import="java.time.Instant" %>
 
 <%! private final String title = "Chat"; %>
+<% request.setAttribute("scalaJsModule", "conversations"); %>
 <%@ include file="header.jsp"%>
 
 <main class="bg-gray-100 flex h-lvh overflow-y-auto overflow-x-clip">

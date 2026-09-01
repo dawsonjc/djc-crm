@@ -58,10 +58,30 @@ link {
     experimentalUseWebAssembly = false
 
     moduleInitializers {
-        main {
-            className = 'com.brewery.web.frontend.Main'
+        shell {
+            className = 'com.brewery.web.frontend.entry.ShellMain'
             mainMethodName = 'main'
-            mainMethodHasArgs = true
+            mainMethodHasArgs = false
+        }
+        login {
+            className = 'com.brewery.web.frontend.entry.LoginMain'
+            mainMethodName = 'main'
+            mainMethodHasArgs = false
+        }
+        register {
+            className = 'com.brewery.web.frontend.entry.RegistrationMain'
+            mainMethodName = 'main'
+            mainMethodHasArgs = false
+        }
+        conversations {
+            className = 'com.brewery.web.frontend.entry.ConversationsMain'
+            mainMethodName = 'main'
+            mainMethodHasArgs = false
+        }
+        admin {
+            className = 'com.brewery.web.frontend.entry.AdminMain'
+            mainMethodName = 'main'
+            mainMethodHasArgs = false
         }
     }
 }

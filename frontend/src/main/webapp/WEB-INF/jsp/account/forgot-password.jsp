@@ -1,5 +1,6 @@
 <%
     String title = "Forgot Password";
+    request.setAttribute("scalaJsModule", "shell");
 %>
 <%@ include file="../header.jsp" %>
 

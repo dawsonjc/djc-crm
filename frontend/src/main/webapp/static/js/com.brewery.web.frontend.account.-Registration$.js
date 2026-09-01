@@ -1,17 +1,18 @@
 'use strict';
 import * as $i_jquery from "jquery";
 import * as $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024 from "./com.brewery.web.frontend.-Help-Functions$.js";
-import * as $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6 from "./internal-3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.js";
+import * as $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c from "./internal-07235935c771c9429268cb101d7f2e2e7f60988c.js";
+import * as $j_internal$002d1daf9a19dee7083d9e201a92e94b1040bb961d99 from "./internal-1daf9a19dee7083d9e201a92e94b1040bb961d99.js";
 function $p_Lcom_brewery_web_frontend_account_Registration$__registerSuccess__sjs_js_Any__T__Lio_udash_wrappers_jquery_JQueryXHR__V($thiz, data, status, jqXHR) {
-  var url = new URL($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(window.location.href));
-  window.location.href = ($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(url.origin) + "/account/login");
+  var url = new URL($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(window.location.href));
+  window.location.href = ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(url.origin) + "/account/login");
 }
 export { $p_Lcom_brewery_web_frontend_account_Registration$__registerSuccess__sjs_js_Any__T__Lio_udash_wrappers_jquery_JQueryXHR__V as $p_Lcom_brewery_web_frontend_account_Registration$__registerSuccess__sjs_js_Any__T__Lio_udash_wrappers_jquery_JQueryXHR__V };
 /** @constructor */
 function $c_Lcom_brewery_web_frontend_account_Registration$() {
 }
 export { $c_Lcom_brewery_web_frontend_account_Registration$ as $c_Lcom_brewery_web_frontend_account_Registration$ };
-$c_Lcom_brewery_web_frontend_account_Registration$.prototype = new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$h_O();
+$c_Lcom_brewery_web_frontend_account_Registration$.prototype = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$h_O();
 $c_Lcom_brewery_web_frontend_account_Registration$.prototype.constructor = $c_Lcom_brewery_web_frontend_account_Registration$;
 /** @constructor */
 function $h_Lcom_brewery_web_frontend_account_Registration$() {
@@ -27,10 +28,10 @@ $c_Lcom_brewery_web_frontend_account_Registration$.prototype.register__Lorg_scal
   var emailElement = registerForm.find("#email");
   var passwordElement = registerForm.find("#password");
   var formData = $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().getFormData__Lio_udash_wrappers_jquery_JQuery__sci_Map(registerForm);
-  var email = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$dp_toString__T($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(formData).apply__O__O("email")));
-  var password = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$dp_toString__T($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(formData).apply__O__O("password")));
-  var EmailPattern = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$ct_s_util_matching_Regex__T__sci_Seq__(new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_s_util_matching_Regex(), "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$m_sci_Nil$());
-  if ($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(EmailPattern.findFirstIn__jl_CharSequence__s_Option(email)).isEmpty__Z()) {
+  var email = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(formData).apply__O__O("email")));
+  var password = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(formData).apply__O__O("password")));
+  var EmailPattern = $j_internal$002d1daf9a19dee7083d9e201a92e94b1040bb961d99.$ct_s_util_matching_Regex__T__sci_Seq__(new $j_internal$002d1daf9a19dee7083d9e201a92e94b1040bb961d99.$c_s_util_matching_Regex(), "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sci_Nil$());
+  if ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(EmailPattern.findFirstIn__jl_CharSequence__s_Option(email)).isEmpty__Z()) {
     var element = (0, $i_jquery.default)("<div>");
     element.attr("id", "email-error");
     element.addClass("mb-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 shadow-sm");
@@ -41,44 +42,44 @@ $c_Lcom_brewery_web_frontend_account_Registration$.prototype.register__Lorg_scal
   } else {
     emailElement.removeClass("border-red-500 text-red-900 placeholder-red-300 ring-1 ring-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.45)]").addClass("border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500");
   }
-  var this$7 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$m_sci_Map$();
-  var $x_2 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$m_sr_ScalaRunTime$();
-  var y = new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_sr_AbstractFunction1_$$Lambda$70e1780b84463d18653aacefee3ab989ac625f28(((pass) => {
-    var pass$1 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(pass);
-    var $x_1 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(pass$1);
-    var this$4 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(pass$1);
-    var length = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$f_T__codePointCount__I__I__I($x_1, 0, this$4.length);
+  var this$7 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sci_Map$();
+  var $x_2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
+  var y = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction1_$$Lambda$70e1780b84463d18653aacefee3ab989ac625f28(((pass) => {
+    var pass$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(pass);
+    var $x_1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(pass$1);
+    var this$4 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(pass$1);
+    var length = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$f_T__codePointCount__I__I__I($x_1, 0, this$4.length);
     var message = "";
     var check = ((length >= 8) && (length <= 128));
     if ((!check)) {
       message = "Password must be between 8 and 128 characters";
     }
     var _2 = message;
-    return new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_T2(check, _2);
+    return new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2(check, _2);
   }));
-  var elems = $x_2.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$d_T2.getArrayOf().constr)([new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_T2("lengthCheck", y)]));
+  var elems = $x_2.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("lengthCheck", y)]));
   var validatePassword = this$7.from__sc_IterableOnce__sci_Map(elems);
-  var messages = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_sc_IterableOnceOps($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(validatePassword).map__F1__O(new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_sr_AbstractFunction1_$$Lambda$70e1780b84463d18653aacefee3ab989ac625f28(((entry) => {
-    var entry$1 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T2(entry);
-    var values = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T2($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_F1($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(entry$1).T2__f__2)).apply__O__O(password));
+  var messages = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_sc_IterableOnceOps($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(validatePassword).map__F1__O(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction1_$$Lambda$70e1780b84463d18653aacefee3ab989ac625f28(((entry) => {
+    var entry$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T2(entry);
+    var values = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T2($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d1daf9a19dee7083d9e201a92e94b1040bb961d99.$as_F1($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(entry$1).T2__f__2)).apply__O__O(password));
     var message$1 = "";
-    if ((!$j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$uZ($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(values).T2__f__1))) {
-      message$1 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(values).T2__f__2);
+    if ((!$j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uZ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(values).T2__f__1))) {
+      message$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(values).T2__f__2);
     }
     return message$1;
   }))))).toList__sci_List();
-  var this$8 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(messages);
+  var this$8 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messages);
   _return$1: {
     var these = this$8;
-    while ((!$j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(these).isEmpty__Z())) {
-      var x0 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(these).head__O();
-      var _$1 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(x0);
-      var this$11 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(_$1);
+    while ((!$j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(these).isEmpty__Z())) {
+      var x0 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(these).head__O();
+      var _$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(x0);
+      var this$11 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(_$1);
       if ((!(this$11 === ""))) {
         var $x_3 = true;
         break _return$1;
       }
-      these = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_sci_List($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(these).tail__O());
+      these = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_sci_List($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(these).tail__O());
     }
     var $x_3 = false;
   }
@@ -86,8 +87,8 @@ $c_Lcom_brewery_web_frontend_account_Registration$.prototype.register__Lorg_scal
     var element$2 = (0, $i_jquery.default)("<div>");
     element$2.attr("id", "password-error");
     element$2.addClass("mb-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 shadow-sm");
-    var this$12 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$n(messages);
-    element$2.text($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$f_sc_IterableOnceOps__mkString__T__T__T__T(this$12, "", ", ", ""));
+    var this$12 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messages);
+    element$2.text($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$f_sc_IterableOnceOps__mkString__T__T__T__T(this$12, "", ", ", ""));
     passwordElement.removeClass("border-gray-300 focus:ring-indigo-500 focus:border-indigo-500").addClass("border-red-500 text-red-900 placeholder-red-300 ring-1 ring-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.45)]");
     passwordElement.before(element$2);
     return (void 0);
@@ -95,24 +96,24 @@ $c_Lcom_brewery_web_frontend_account_Registration$.prototype.register__Lorg_scal
     passwordElement.removeClass("border-red-500 text-red-900 placeholder-red-300 ring-1 ring-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.45)]").addClass("border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500");
   }
   var $x_9 = $i_jquery.default;
-  var $x_8 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$m_sr_ScalaRunTime$();
-  var $x_7 = new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_T2("url", "/account/register");
-  var $x_6 = new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_T2("method", "POST");
-  var s = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(registerForm.serialize());
-  var $x_5 = new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_T2("data", s);
-  var _2$1 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, status, jqXHR) => {
-    var status$1 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(status);
+  var $x_8 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
+  var $x_7 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("url", "/account/register");
+  var $x_6 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("method", "POST");
+  var s = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(registerForm.serialize());
+  var $x_5 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("data", s);
+  var _2$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, status, jqXHR) => {
+    var status$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(status);
     $p_Lcom_brewery_web_frontend_account_Registration$__registerSuccess__sjs_js_Any__T__Lio_udash_wrappers_jquery_JQueryXHR__V($m_Lcom_brewery_web_frontend_account_Registration$(), data, status$1, jqXHR);
   })));
-  var $x_4 = new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_T2("success", _2$1);
-  var _2$2 = $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((jqXHR$2, textStatus, errorThrown) => {
-    $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(textStatus);
-    $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$as_T(errorThrown);
+  var $x_4 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("success", _2$1);
+  var _2$2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((jqXHR$2, textStatus, errorThrown) => {
+    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(textStatus);
+    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(errorThrown);
   })));
-  var fields = $x_8.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$d_T2.getArrayOf().constr)([$x_7, $x_6, $x_5, $x_4, new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$c_T2("error", _2$2)]));
-  $x_9.ajax($j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$m_sjs_js_special_package$().objectLiteral__sci_Seq__sjs_js_Object(fields));
+  var fields = $x_8.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([$x_7, $x_6, $x_5, $x_4, new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("error", _2$2)]));
+  $x_9.ajax($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_special_package$().objectLiteral__sci_Seq__sjs_js_Object(fields));
 });
-var $d_Lcom_brewery_web_frontend_account_Registration$ = new $j_internal$002d3ebfae0cba70adf981029a0da5b1e4b5ab5d02c6.$TypeData().initClass($c_Lcom_brewery_web_frontend_account_Registration$, "com.brewery.web.frontend.account.Registration$", ({
+var $d_Lcom_brewery_web_frontend_account_Registration$ = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$TypeData().initClass($c_Lcom_brewery_web_frontend_account_Registration$, "com.brewery.web.frontend.account.Registration$", ({
   Lcom_brewery_web_frontend_account_Registration$: 1
 }));
 export { $d_Lcom_brewery_web_frontend_account_Registration$ as $d_Lcom_brewery_web_frontend_account_Registration$ };
