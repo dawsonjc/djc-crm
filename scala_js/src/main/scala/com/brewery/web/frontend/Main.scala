@@ -13,7 +13,6 @@ object Main {
     
     def main(args: Array[String]): Unit = {
         val pathname: String = org.scalajs.dom.window.location.pathname;
-        org.scalajs.dom.window.console.log(DOMPurify.sanitize("""<img src=x onerror=alert("XSS")><b>Valid Text</b>"""));
         io.udash.wrappers.jquery.jQ(() => {
             PageInitializers.initializeHeader();
             

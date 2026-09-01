@@ -34,7 +34,8 @@
         };
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="<%= request.getContextPath() %>/static/js/main.js"></script>
+    <script type="importmap">{"imports":{"jquery": "<%= request.getContextPath() %>/static/vendor/jquery-module.js"}}</script>
+    <script type="module" src="<%= request.getContextPath() %>/static/js/main.js"></script>
 </head>
 <body class="m-0 min-h-screen bg-[#f2f3f3] font-sans text-[#30343b]">
 <header class="fixed inset-x-0 top-0 z-50 flex h-10 bg-[#1f2229] text-[#d8dadd]">

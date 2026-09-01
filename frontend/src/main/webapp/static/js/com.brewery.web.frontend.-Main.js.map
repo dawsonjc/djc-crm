@@ -1,0 +1,8 @@
+{
+"version": 3,
+"file": "com.brewery.web.frontend.-Main.js",
+"mappings": ";;;AAKO,SAAAA,8CAAA,CAAA,IAAA;EAAAC,0DAAA,CAAA,kCAAA,GAAA,WAAA,CAAA,IAAA;C;AAAA,SAAAD,8CAAA,qD;",
+"sources": ["file:///D:/Programs/IdeaProjects/djc-crm/scala_js/src/main/scala/com/brewery/web/frontend/Main.scala"],
+"names": ["main", "com.brewery.web.frontend.-Main$"],
+"lineCount": 7
+}

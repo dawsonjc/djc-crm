@@ -50,10 +50,10 @@ link {
         println "Linked"
     }
     optimization     = 'Fast'
-    moduleKind       = 'NoModule'
-    moduleSplitStyle = 'FewestModules'
+    moduleKind       = 'ESModule'
+    moduleSplitStyle = 'SmallModulesFor'
     esVersion        = '2021'
-    smallModulesFor  = []
+    smallModulesFor  = ['com.brewery.web.frontend']
     prettyPrint      = false
     experimentalUseWebAssembly = false
 
