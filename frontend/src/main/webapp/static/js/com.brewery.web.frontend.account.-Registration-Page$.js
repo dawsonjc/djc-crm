@@ -14,13 +14,12 @@ function $h_Lcom_brewery_web_frontend_account_RegistrationPage$() {
 export { $h_Lcom_brewery_web_frontend_account_RegistrationPage$ as $h_Lcom_brewery_web_frontend_account_RegistrationPage$ };
 $h_Lcom_brewery_web_frontend_account_RegistrationPage$.prototype = $c_Lcom_brewery_web_frontend_account_RegistrationPage$.prototype;
 $c_Lcom_brewery_web_frontend_account_RegistrationPage$.prototype.initialize__V = (function() {
-  var registerFormValidation = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element, jQueryEvent) => {
-    jQueryEvent.preventDefault();
-    $j_com$002ebrewery$002eweb$002efrontend$002eaccount$002e$002dRegistration$0024.$m_Lcom_brewery_web_frontend_account_Registration$().register__Lorg_scalajs_dom_HTMLFormElement__V(element);
-  }));
   $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$();
   var jquery = (0, $i_jquery.default)("#register-form");
-  new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(jquery).on__T__F2__Lio_udash_wrappers_jquery_JQuery("submit", new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element$2, jQueryEvent$2) => registerFormValidation.apply__O__O__O(element$2, jQueryEvent$2))));
+  new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(jquery).on__T__F2__Lio_udash_wrappers_jquery_JQuery("submit", new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element, jQueryEvent) => {
+    jQueryEvent.preventDefault();
+    $j_com$002ebrewery$002eweb$002efrontend$002eaccount$002e$002dRegistration$0024.$m_Lcom_brewery_web_frontend_account_Registration$().register__Lorg_scalajs_dom_HTMLFormElement__V(element);
+  })));
 });
 var $d_Lcom_brewery_web_frontend_account_RegistrationPage$ = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$TypeData().initClass($c_Lcom_brewery_web_frontend_account_RegistrationPage$, "com.brewery.web.frontend.account.RegistrationPage$", ({
   Lcom_brewery_web_frontend_account_RegistrationPage$: 1

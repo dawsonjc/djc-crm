@@ -2,6 +2,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.UUID" %>
 <%@ page import="com.brewery.web.model.message.Message" %>
+<%@ page import="com.brewery.web.user.SessionUser"%>
 <%@ page import="java.util.List" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.time.Instant" %>
@@ -96,7 +97,7 @@
     <div class="bg-jakarta border-l p-4">
       <div class="flex items-center">
         <form id="send-message" style="display: contents;" method="post" action="<%= request.getContextPath() %>/message">
-          <input type="hidden" name="user-id" value="<%= ((User) request.getSession().getAttribute("current_user")).getUserId() %>" />
+          <input type="hidden" name="user-id" value="<%= ((User) request.getSession().getAttribute(SessionUser.SESSION_USER)).getUserId() %>" />
           <input type="hidden" name="to-user-id" value="" />
           <input type="hidden" name="to-username" value="" />
 

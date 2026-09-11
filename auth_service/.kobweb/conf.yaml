@@ -11,5 +11,7 @@ server:
     prod:
       script: "build/kotlin-webpack/js/productionExecutable/com-example.js"
       siteRoot: ".kobweb/site"
-
+  redirects:
+    - from: "/"
+      to: "/login"
   port: 8443

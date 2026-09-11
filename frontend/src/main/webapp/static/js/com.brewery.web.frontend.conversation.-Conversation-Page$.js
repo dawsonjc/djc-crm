@@ -17,9 +17,9 @@ export { $h_Lcom_brewery_web_frontend_conversation_ConversationPage$ as $h_Lcom_
 $h_Lcom_brewery_web_frontend_conversation_ConversationPage$.prototype = $c_Lcom_brewery_web_frontend_conversation_ConversationPage$.prototype;
 $c_Lcom_brewery_web_frontend_conversation_ConversationPage$.prototype.initialize__V = (function() {
   var messages = (0, $i_jquery.default)("#chat-messages");
-  var x = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uI($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$(), new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(messages)).get__I__s_Option(0)).get__O().scrollHeight);
+  var x = (($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$(), new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(messages)).get__I__s_Option(0).get__O().scrollHeight | 0);
   messages.scrollTop(x);
-  var conversationId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(new URLSearchParams($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(window.location.search)).get("conversationId"));
+  var conversationId = new URLSearchParams(window.location.search).get("conversationId");
   var webSocket = new WebSocket(((("/communication?conversationId=" + conversationId) + "&userId=") + $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().getCookie__T__sjs_js_Dynamic("User-Information").userId));
   webSocket.onmessage = ((messageEvent) => {
     $j_com$002ebrewery$002eweb$002efrontend$002emessage$002e$002dMessage$002dEvent$0024.$m_Lcom_brewery_web_frontend_message_MessageEvent$().buildMessageWebsocket__Lorg_scalajs_dom_MessageEvent__V(messageEvent);

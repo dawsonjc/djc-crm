@@ -15,19 +15,16 @@ function $h_sc_StringOps$() {
 export { $h_sc_StringOps$ as $h_sc_StringOps$ };
 $h_sc_StringOps$.prototype = $c_sc_StringOps$.prototype;
 $c_sc_StringOps$.prototype.stripMargin$extension__T__C__T = (function(this$, marginChar) {
-  var this$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(this$);
-  var sb = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ct_jl_StringBuilder__I__(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_jl_StringBuilder(), this$1.length);
-  var this$4 = new $c_sc_StringOps$$anon$1(this$, false);
-  while ((this$4.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index < this$4.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len)) {
-    var x0 = this$4.next__T();
-    var this$5 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(x0);
-    var len = this$5.length;
+  var sb = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ct_jl_StringBuilder__I__(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_jl_StringBuilder(), this$.length);
+  var this$3 = new $c_sc_StringOps$$anon$1(this$, false);
+  while ((this$3.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index < this$3.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len)) {
+    var x0 = this$3.next__T();
+    var len = x0.length;
     var index = 0;
     while (true) {
       if ((index < len)) {
-        var this$6 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(x0);
         var index$1 = index;
-        var $x_1 = ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$6, index$1) <= 32);
+        var $x_1 = (x0.charCodeAt(index$1) <= 32);
       } else {
         var $x_1 = false;
       }
@@ -38,19 +35,14 @@ $c_sc_StringOps$.prototype.stripMargin$extension__T__C__T = (function(this$, mar
       }
     }
     if ((index < len)) {
-      var this$7 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(x0);
       var index$2 = index;
-      var $x_2 = ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$7, index$2) === marginChar);
+      var $x_2 = (x0.charCodeAt(index$2) === marginChar);
     } else {
       var $x_2 = false;
     }
     if ($x_2) {
-      var this$8 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(x0);
       var beginIndex = ((1 + index) | 0);
-      if (((beginIndex < 0) || (beginIndex > this$8.length))) {
-        $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$8, beginIndex);
-      }
-      var stripped = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$8.substring(beginIndex));
+      var stripped = x0.substring(beginIndex);
     } else {
       var stripped = x0;
     }
@@ -59,15 +51,10 @@ $c_sc_StringOps$.prototype.stripMargin$extension__T__C__T = (function(this$, mar
   return sb.jl_StringBuilder__f_java$lang$StringBuilder$$content;
 });
 $c_sc_StringOps$.prototype.unwrapArg$extension__T__O__O = (function(this$, arg) {
-  if (false) {
-    var x2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_s_math_ScalaNumber(arg);
-    return $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(x2).underlying__O();
-  } else {
-    return arg;
-  }
+  return (false ? arg.underlying__O() : arg);
 });
 $c_sc_StringOps$.prototype.format$extension__T__sci_Seq__T = (function(this$, args) {
-  var args$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$asArrayOf_O($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_sc_IterableOnceOps($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(args).map__F1__O(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction1_$$Lambda$70e1780b84463d18653aacefee3ab989ac625f28(((arg$2$2) => $m_sc_StringOps$().unwrapArg$extension__T__O__O(this$, arg$2$2)))))).toArray__s_reflect_ClassTag__O($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_s_reflect_ManifestFactory$ObjectManifest$()), 1);
+  var args$1 = args.map__F1__O(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction1_$$Lambda$70e1780b84463d18653aacefee3ab989ac625f28(((arg$2$2) => $m_sc_StringOps$().unwrapArg$extension__T__O__O(this$, arg$2$2)))).toArray__s_reflect_ClassTag__O($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_s_reflect_ManifestFactory$ObjectManifest$());
   return $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_jl_String$().format__T__AO__T(this$, args$1);
 });
 var $d_sc_StringOps$ = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$TypeData().initClass($c_sc_StringOps$, "scala.collection.StringOps$", ({
@@ -156,7 +143,7 @@ function $h_sjs_concurrent_QueueExecutionContext$() {
 export { $h_sjs_concurrent_QueueExecutionContext$ as $h_sjs_concurrent_QueueExecutionContext$ };
 $h_sjs_concurrent_QueueExecutionContext$.prototype = $c_sjs_concurrent_QueueExecutionContext$.prototype;
 $c_sjs_concurrent_QueueExecutionContext$.prototype.apply__s_concurrent_ExecutionContextExecutor = (function() {
-  return (($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T((typeof Promise)) === "undefined") ? new $c_sjs_concurrent_QueueExecutionContext$TimeoutsExecutionContext() : new $c_sjs_concurrent_QueueExecutionContext$PromisesExecutionContext());
+  return (((typeof Promise) === "undefined") ? new $c_sjs_concurrent_QueueExecutionContext$TimeoutsExecutionContext() : new $c_sjs_concurrent_QueueExecutionContext$PromisesExecutionContext());
 });
 var $d_sjs_concurrent_QueueExecutionContext$ = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$TypeData().initClass($c_sjs_concurrent_QueueExecutionContext$, "scala.scalajs.concurrent.QueueExecutionContext$", ({
   sjs_concurrent_QueueExecutionContext$: 1
@@ -213,8 +200,7 @@ function $p_sc_StringOps$$anon$1__advance__T($thiz) {
     if (($thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index < $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len)) {
       var this$ = $thiz.sc_StringOps$$anon$1__f_$this$2;
       var i = $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index;
-      var this$2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(this$);
-      var c = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$2, i);
+      var c = this$.charCodeAt(i);
       var $x_1 = (!((c === 13) || (c === 10)));
     } else {
       var $x_1 = false;
@@ -229,14 +215,12 @@ function $p_sc_StringOps$$anon$1__advance__T($thiz) {
   if (($thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index < $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len)) {
     var this$$2 = $thiz.sc_StringOps$$anon$1__f_$this$2;
     var i$1 = $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index;
-    var this$5 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(this$$2);
-    var c$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$5, i$1);
+    var c$1 = this$$2.charCodeAt(i$1);
     $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index = ((1 + $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index) | 0);
     if (($thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index < $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len)) {
       var this$$3 = $thiz.sc_StringOps$$anon$1__f_$this$2;
       var i$2 = $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index;
-      var this$7 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(this$$3);
-      var c$2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$7, i$2);
+      var c$2 = this$$3.charCodeAt(i$2);
       var $x_2 = ((c$1 === 13) && (c$2 === 10));
     } else {
       var $x_2 = false;
@@ -248,18 +232,9 @@ function $p_sc_StringOps$$anon$1__advance__T($thiz) {
       end = $thiz.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index;
     }
   }
-  var this$9 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($thiz.sc_StringOps$$anon$1__f_$this$2);
+  var this$6 = $thiz.sc_StringOps$$anon$1__f_$this$2;
   var endIndex = end;
-  if ((start < 0)) {
-    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$9, start);
-  }
-  if ((endIndex > this$9.length)) {
-    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$9, endIndex);
-  }
-  if ((endIndex < start)) {
-    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$charAt(this$9, (-1));
-  }
-  return $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$9.substring(start, endIndex));
+  return this$6.substring(start, endIndex);
 }
 export { $p_sc_StringOps$$anon$1__advance__T as $p_sc_StringOps$$anon$1__advance__T };
 /** @constructor */
@@ -270,8 +245,7 @@ function $c_sc_StringOps$$anon$1(\u03b4this$2, stripped$1) {
   this.sc_StringOps$$anon$1__f_stripped$1 = false;
   this.sc_StringOps$$anon$1__f_$this$2 = \u03b4this$2;
   this.sc_StringOps$$anon$1__f_stripped$1 = stripped$1;
-  var this$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(\u03b4this$2);
-  this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len = this$1.length;
+  this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len = \u03b4this$2.length;
   this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index = 0;
 }
 export { $c_sc_StringOps$$anon$1 as $c_sc_StringOps$$anon$1 };
@@ -286,7 +260,7 @@ $c_sc_StringOps$$anon$1.prototype.hasNext__Z = (function() {
   return (this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index < this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len);
 });
 $c_sc_StringOps$$anon$1.prototype.next__T = (function() {
-  return ((this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index >= this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len) ? $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sc_Iterator$().sc_Iterator$__f_scala$collection$Iterator$$_empty).next__O()) : $p_sc_StringOps$$anon$1__advance__T(this));
+  return ((this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$index >= this.sc_StringOps$$anon$1__f_scala$collection$StringOps$$anon$$len) ? $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sc_Iterator$().sc_Iterator$__f_scala$collection$Iterator$$_empty.next__O() : $p_sc_StringOps$$anon$1__advance__T(this));
 });
 $c_sc_StringOps$$anon$1.prototype.next__O = (function() {
   return this.next__T();

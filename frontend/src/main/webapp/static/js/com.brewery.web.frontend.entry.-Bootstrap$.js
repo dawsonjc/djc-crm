@@ -16,7 +16,7 @@ $h_Lcom_brewery_web_frontend_entry_Bootstrap$.prototype = $c_Lcom_brewery_web_fr
 $c_Lcom_brewery_web_frontend_entry_Bootstrap$.prototype.start__F0__V = (function(pageInitializer) {
   (0, $i_jquery.default)($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction0__F0__sjs_js_Function0(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction0_$$Lambda$a02b774b97db8234e08c6a02dd06557c99779855((() => {
     $j_com$002ebrewery$002eweb$002efrontend$002edom$002e$002dHeader$002dInitializer$0024.$m_Lcom_brewery_web_frontend_dom_HeaderInitializer$().initialize__V();
-    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(pageInitializer).apply__O();
+    pageInitializer.apply__O();
   }))));
 });
 var $d_Lcom_brewery_web_frontend_entry_Bootstrap$ = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$TypeData().initClass($c_Lcom_brewery_web_frontend_entry_Bootstrap$, "com.brewery.web.frontend.entry.Bootstrap$", ({

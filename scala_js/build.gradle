@@ -49,7 +49,7 @@ link {
         }
         println "Linked"
     }
-    optimization     = 'Fast'
+    optimization     = 'Full'
     moduleKind       = 'ESModule'
     moduleSplitStyle = 'SmallModulesFor'
     esVersion        = '2021'

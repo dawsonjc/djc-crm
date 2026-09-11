@@ -2,12 +2,16 @@ package org.example
 
 import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.core.App
-import com.varabyte.kobweb.silk.SilkApp
+import com.varabyte.kobweb.core.KobwebApp
 
 @App
 @Composable
 fun App(content: @Composable () -> Unit) {
-    SilkApp {
+    KobwebApp {
         content()
     }
+}
+
+fun index() {
+    
 }

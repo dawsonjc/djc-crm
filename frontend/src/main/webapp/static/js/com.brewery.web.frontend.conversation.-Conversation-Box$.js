@@ -26,13 +26,12 @@ function $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip
     var \u03b4toolTip = (0, $i_jquery.default)($j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().stripMargin$extension__T__C__T("<div id=\"tool-tip\">\r\n                  | <ul>\r\n                  |     <li data-action=\"reply\">Reply</li>\r\n                  |     <li data-action=\"add-friend\">Add Friend</li>\r\n                  | </ul>\r\n                  |</div>", 124));
     var this$38 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sci_Map$();
     var $x_2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
-    var y = $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().format$extension__T__sci_Seq__T("%spx", $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ac_O([$j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uD(event.pageY)])));
+    var y = $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().format$extension__T__sci_Seq__T("%spx", $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ac_O([(+event.pageY)])));
     var $x_1 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("top", y);
-    var y$1 = $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().format$extension__T__sci_Seq__T("%spx", $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ac_O([$j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uD(event.pageX)])));
+    var y$1 = $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().format$extension__T__sci_Seq__T("%spx", $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ac_O([(+event.pageX)])));
     var elems$4 = $x_2.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([$x_1, new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("left", y$1)]));
     var positionCss = this$38.from__sc_IterableOnce__sci_Map(elems$4);
-    var this$39 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(customTooltipCss);
-    var toolTipCss = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_sci_Map(this$39.concat__sc_IterableOnce__sc_IterableOps(positionCss));
+    var toolTipCss = customTooltipCss.concat__sc_IterableOnce__sc_IterableOps(positionCss);
     ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$(), new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(\u03b4toolTip)).css__sci_Map__Lio_udash_wrappers_jquery_JQuery(toolTipCss);
     $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$();
     var jquery = \u03b4toolTip.find("ul");
@@ -45,8 +44,7 @@ function $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip
     var jquery$2 = \u03b4toolTip.find("li");
     var jquery$3 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(jquery$2).on__T__F2__Lio_udash_wrappers_jquery_JQuery("mouseenter", new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element$2, event$2) => {
       var this$$1 = (0, $i_jquery.default)(element$2);
-      var this$44 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(liCss);
-      var newCss = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_sci_Map(this$44.concat__sc_IterableOnce__sc_IterableOps(liHover));
+      var newCss = liCss.concat__sc_IterableOnce__sc_IterableOps(liHover);
       return ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$(), new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(this$$1)).css__sci_Map__Lio_udash_wrappers_jquery_JQuery(newCss);
     })));
     new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(jquery$3).on__T__F2__Lio_udash_wrappers_jquery_JQuery("mouseleave", new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element$3, event$3) => {
@@ -58,7 +56,7 @@ function $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip
     var jquery$4 = \u03b4toolTip.find("li[data-action='add-friend']");
     new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(jquery$4).on__T__F2__Lio_udash_wrappers_jquery_JQuery("click", new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element$4, event$4) => {
       $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_s_concurrent_ExecutionContext$().global__s_concurrent_ExecutionContextExecutor();
-      var userId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$.find("input[name='user-id']").val());
+      var userId = this$.find("input[name='user-id']").val();
       var $x_8 = $i_jquery.default;
       var $x_7 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
       var $x_6 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("url", "/add-friend");
@@ -66,14 +64,9 @@ function $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip
       var fields = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$().wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("userId", userId)]));
       var _2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_special_package$().objectLiteral__sci_Seq__sjs_js_Object(fields);
       var $x_4 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("data", _2);
-      var _2$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, textStatus, jqXHR) => {
-        $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(textStatus);
-      })));
+      var _2$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, textStatus, jqXHR) => (void 0))));
       var $x_3 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("success", _2$1);
-      var _2$2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((jqXHR$2, textStatus$2, errorThrown) => {
-        $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(textStatus$2);
-        $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(errorThrown);
-      })));
+      var _2$2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((jqXHR$2, textStatus$2, errorThrown) => (void 0))));
       var fields$1 = $x_7.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([$x_6, $x_5, $x_4, $x_3, new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("failure", _2$2)]));
       $x_8.ajax($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_special_package$().objectLiteral__sci_Seq__sjs_js_Object(fields$1));
     })));
@@ -85,7 +78,7 @@ function $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip
 }
 export { $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip__V as $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip__V };
 function $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__prependMessages__sjs_js_Array__Lio_udash_wrappers_jquery_JQuery__V($thiz, messages, messageBox) {
-  var len = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uI(messages.length);
+  var len = (messages.length | 0);
   var i = 0;
   while ((i < len)) {
     var x0 = messages[i];
@@ -111,14 +104,13 @@ function $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__deleteMessa
   var $x_6 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("url", "/message/delete");
   var $x_5 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("method", "DELETE");
   var $x_3 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
-  var s = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(formData).apply__O__O("message-id")));
+  var s = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(formData.apply__O__O("message-id"));
   var $x_2 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("messageId", s);
   var s$1 = $thiz.Lcom_brewery_web_frontend_conversation_ConversationBox$__f_conversationId;
   var fields = $x_3.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([$x_2, new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("conversationId", s$1)]));
   var _2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_special_package$().objectLiteral__sci_Seq__sjs_js_Object(fields);
   var $x_4 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("data", _2);
   var _2$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, textStatus, jqXHR) => {
-    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(textStatus);
     var \u03b43$ = this$.parent();
     var \u03b44$ = \u03b43$.parent();
     return \u03b44$.remove();
@@ -131,7 +123,7 @@ export { $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__deleteMessa
 function $c_Lcom_brewery_web_frontend_conversation_ConversationBox$() {
   this.Lcom_brewery_web_frontend_conversation_ConversationBox$__f_conversationId = null;
   $n_Lcom_brewery_web_frontend_conversation_ConversationBox$ = this;
-  this.Lcom_brewery_web_frontend_conversation_ConversationBox$__f_conversationId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(new URLSearchParams($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(window.location.search)).get("conversationId"));
+  this.Lcom_brewery_web_frontend_conversation_ConversationBox$__f_conversationId = new URLSearchParams(window.location.search).get("conversationId");
 }
 export { $c_Lcom_brewery_web_frontend_conversation_ConversationBox$ as $c_Lcom_brewery_web_frontend_conversation_ConversationBox$ };
 $c_Lcom_brewery_web_frontend_conversation_ConversationBox$.prototype = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$h_O();
@@ -144,20 +136,19 @@ $h_Lcom_brewery_web_frontend_conversation_ConversationBox$.prototype = $c_Lcom_b
 $c_Lcom_brewery_web_frontend_conversation_ConversationBox$.prototype.initialize__V = (function() {
   var \u03b4messages = (0, $i_jquery.default)("#chat-messages");
   ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$(), new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(\u03b4messages)).on__T__F2__Lio_udash_wrappers_jquery_JQuery("scroll", new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element, jQueryEvent) => {
-    if (($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uD(\u03b4messages.scrollTop()) === 0.0)) {
+    if (((+\u03b4messages.scrollTop()) === 0.0)) {
       var $x_7 = $i_jquery.default;
       var $x_6 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
       var $x_5 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("url", "/message");
       var $x_4 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("method", "GET");
       var _2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, textStatus, jqXHR) => {
-        $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(textStatus);
         $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__prependMessages__sjs_js_Array__Lio_udash_wrappers_jquery_JQuery__V($m_Lcom_brewery_web_frontend_conversation_ConversationBox$(), data.data, \u03b4messages);
       })));
       var $x_3 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("success", _2);
       var $x_2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
       var s = $m_Lcom_brewery_web_frontend_conversation_ConversationBox$().Lcom_brewery_web_frontend_conversation_ConversationBox$__f_conversationId;
       var $x_1 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("conversationId", s);
-      var s$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(\u03b4messages.first().find("input[name='message-date']").val()));
+      var s$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(\u03b4messages.first().find("input[name='message-date']").val());
       var fields = $x_2.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([$x_1, new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("beforeDate", s$1)]));
       var _2$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_special_package$().objectLiteral__sci_Seq__sjs_js_Object(fields);
       var fields$1 = $x_6.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([$x_5, $x_4, $x_3, new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("data", _2$1)]));
@@ -174,9 +165,8 @@ $c_Lcom_brewery_web_frontend_conversation_ConversationBox$.prototype.initialize_
   $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_Lio_udash_wrappers_jquery_JQuery$();
   var jquery = \u03b4messages.find(".message-date");
   new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_Lio_udash_wrappers_jquery_JQuery$JQueryWrapper(jquery).each__F2__Lio_udash_wrappers_jquery_JQuery(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction2_$$Lambda$286cbfc6187197affcadc8465aaec93d6b7d20dc(((element$3, index) => {
-    $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uI(index);
     var this$ = (0, $i_jquery.default)(element$3);
-    var date = ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$.html()) + " UTC");
+    var date = (this$.html() + " UTC");
     return this$.html($j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().formatDate__sjs_js_Date__T(new Date(date)));
   })));
   $p_Lcom_brewery_web_frontend_conversation_ConversationBox$__initToolTip__V(this);

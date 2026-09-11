@@ -24,10 +24,10 @@ function $a_Lcom_brewery_web_frontend_user_FormUser() {
       this.password = "";
       if ((userObject !== null)) {
         if ((userObject.username !== null)) {
-          this.username = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(userObject.username));
+          this.username = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(userObject.username);
         }
         if ((userObject.password !== null)) {
-          this.password = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(userObject.password));
+          this.password = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(userObject.password);
         }
       }
     }

@@ -47,12 +47,7 @@ function $h_sci_Seq$() {
 export { $h_sci_Seq$ as $h_sci_Seq$ };
 $h_sci_Seq$.prototype = $c_sci_Seq$.prototype;
 $c_sci_Seq$.prototype.from__sc_IterableOnce__sci_Seq = (function(it) {
-  if ($is_sci_Seq(it)) {
-    var x2 = $as_sci_Seq(it);
-    return x2;
-  } else {
-    return $as_sci_Seq($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sc_SeqFactory$Delegate.prototype.from__sc_IterableOnce__sc_SeqOps.call(this, it));
-  }
+  return ($is_sci_Seq(it) ? it : $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sc_SeqFactory$Delegate.prototype.from__sc_IterableOnce__sc_SeqOps.call(this, it));
 });
 $c_sci_Seq$.prototype.from__sc_IterableOnce__O = (function(source) {
   return this.from__sc_IterableOnce__sci_Seq(source);
@@ -80,16 +75,8 @@ function $is_sci_Seq(obj) {
   return (!(!((obj && obj.$classData) && obj.$classData.ancestors.sci_Seq)));
 }
 export { $is_sci_Seq as $is_sci_Seq };
-function $as_sci_Seq(obj) {
-  return (($is_sci_Seq(obj) || (obj === null)) ? obj : $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$throwClassCastException(obj, "scala.collection.immutable.Seq"));
-}
-export { $as_sci_Seq as $as_sci_Seq };
 function $isArrayOf_sci_Seq(obj, depth) {
   return (!(!(((obj && obj.$classData) && (obj.$classData.arrayDepth === depth)) && obj.$classData.arrayBase.ancestors.sci_Seq)));
 }
 export { $isArrayOf_sci_Seq as $isArrayOf_sci_Seq };
-function $asArrayOf_sci_Seq(obj, depth) {
-  return (($isArrayOf_sci_Seq(obj, depth) || (obj === null)) ? obj : $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$throwArrayCastException(obj, "Lscala.collection.immutable.Seq;", depth));
-}
-export { $asArrayOf_sci_Seq as $asArrayOf_sci_Seq };
 //# sourceMappingURL=internal-37cfa26efaf23e1af114c96ef59fd12c792af46c.js.map

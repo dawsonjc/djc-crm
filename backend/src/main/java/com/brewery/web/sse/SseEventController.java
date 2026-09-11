@@ -26,6 +26,9 @@ public class SseEventController {
     private final NotificationService notifications;
     private final SseEventService sse;
 
+    private final String DEFAULT_LIMIT = "25";
+
+
     public SseEventController(NotificationService notifications, SseEventService sse) {
         this.notifications = notifications;
         this.sse = sse;
@@ -35,9 +38,11 @@ public class SseEventController {
     @GetMapping
     public NotificationSnapshotDTO list(
             HttpServletRequest request,
-            @RequestParam(defaultValue = "25") int limit,
+            @RequestParam(defaultValue = DEFAULT_LIMIT) int limit,
             @RequestParam(required = false) String type
     ) {
+        Integer i = 1;
+        int x = i.parseInt("123");
         return this.notifications.snapshot(userId(request), parseType(type), limit);
     }
 
@@ -50,7 +55,7 @@ public class SseEventController {
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stream(
             HttpServletRequest request,
-            @RequestParam(defaultValue = "25") int limit
+            @RequestParam(defaultValue = DEFAULT_LIMIT) int limit
     ) {
         UUID userId = userId(request);
         return this.sse.subscribe(userId, () -> this.notifications.snapshot(userId, null, limit));

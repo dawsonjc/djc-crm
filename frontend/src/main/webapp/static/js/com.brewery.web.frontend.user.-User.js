@@ -21,7 +21,7 @@ export { $h_Lcom_brewery_web_frontend_user_User as $h_Lcom_brewery_web_frontend_
 $h_Lcom_brewery_web_frontend_user_User.prototype = $c_Lcom_brewery_web_frontend_user_User.prototype;
 $c_Lcom_brewery_web_frontend_user_User.prototype.toJsObject__sjs_js_Dynamic = (function() {
   var $x_3 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
-  var s = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d112fb39c4df84161e6d2bdc5ed3fa2667610ef32.$as_ju_UUID($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(this.Lcom_brewery_web_frontend_user_User__f_userId).get__O())).toString__T();
+  var s = this.Lcom_brewery_web_frontend_user_User__f_userId.get__O().toString__T();
   var $x_2 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("userId", s);
   var s$1 = this.Lcom_brewery_web_frontend_user_User__f_username;
   var $x_1 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("username", s$1);

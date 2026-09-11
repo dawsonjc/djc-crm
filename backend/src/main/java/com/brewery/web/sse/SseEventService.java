@@ -19,7 +19,7 @@ public class SseEventService {
     private static final long CONNECTION_TIMEOUT = Duration.ofMinutes(30).toMillis();
     private static final long RECONNECT_DELAY = Duration.ofSeconds(3).toMillis();
 
-    private final Map<UUID, Map<UUID, SseEmitter>> clientsByUser = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Map<UUID, SseEmitter>> clientsByUser = new ConcurrentHashMap<>();
 
     public SseEmitter subscribe(UUID userId, Supplier<NotificationSnapshotDTO> snapshotSupplier) {
         UUID clientId = UUID.randomUUID();

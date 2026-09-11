@@ -12,7 +12,7 @@ function $h_sjs_js_ArrayOps$() {
 export { $h_sjs_js_ArrayOps$ as $h_sjs_js_ArrayOps$ };
 $h_sjs_js_ArrayOps$.prototype = $c_sjs_js_ArrayOps$.prototype;
 $c_sjs_js_ArrayOps$.prototype.indexOf$extension__sjs_js_Array__O__I__I = (function(this$, elem, from) {
-  var len = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uI(this$.length);
+  var len = (this$.length | 0);
   var i = from;
   while ((i < len)) {
     var x0 = this$[i];

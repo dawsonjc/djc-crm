@@ -5,6 +5,7 @@ import io.udash.wrappers.jquery.{JQuery, JQueryAjaxSettings, JQueryXHR, jQ}
 import org.scalajs.dom.{HTMLFormElement, URL, window}
 
 import scala.scalajs.js
+import scala.util.matching.Regex
 
 object Registration {
     def register(form: HTMLFormElement): Unit = {
@@ -19,7 +20,7 @@ object Registration {
         val email: String = formData("email").toString;
         val password: String = formData("password").toString;
         
-        val EmailPattern = raw"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$$".r
+        val EmailPattern: Regex = raw"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$$".r
         if (EmailPattern.findFirstIn(email).isEmpty) {
             val element: JQuery = jQ("<div>")
             

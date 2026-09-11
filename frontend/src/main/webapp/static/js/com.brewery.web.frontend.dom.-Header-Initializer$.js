@@ -22,7 +22,6 @@ $c_Lcom_brewery_web_frontend_dom_HeaderInitializer$.prototype.initialize__V = (f
     var $x_2 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("url", "/account/logout");
     var $x_1 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("method", "POST");
     var _2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, textStatus, jqXHR) => {
-      $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(textStatus);
       window.location.href = "/";
     })));
     var fields = $x_3.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([$x_2, $x_1, new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("success", _2)]));

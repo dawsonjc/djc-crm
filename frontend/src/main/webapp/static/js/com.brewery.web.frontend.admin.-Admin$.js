@@ -24,13 +24,12 @@ $c_Lcom_brewery_web_frontend_admin_Admin$.prototype.init__V = (function() {
     var $x_4 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("url", "/admin/user/verify");
     var $x_3 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("method", "POST");
     var $x_1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$();
-    var s = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(formData).apply__O__O("userId")));
+    var s = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(formData.apply__O__O("userId"));
     var fields = $x_1.wrapRefArray__AO__sci_ArraySeq(new ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$d_T2.getArrayOf().constr)([new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("userId", s)]));
     var _2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_special_package$().objectLiteral__sci_Seq__sjs_js_Object(fields);
     var $x_2 = new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_T2("data", _2);
     var _2$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sjs_js_Any$().fromFunction3__F3__sjs_js_Function3(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$c_sr_AbstractFunction3_$$Lambda$26e0a25d9b29f6b82ea50ab7badf4fb70c5c74e1(((data, textStatus, jqXHR) => {
-      $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(textStatus);
-      if ($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uZ(data.success)) {
+      if ((!(!data.success))) {
         var \u03b41$ = this$.parent();
         var \u03b42$ = \u03b41$.parent();
         \u03b42$.remove();

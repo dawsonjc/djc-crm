@@ -6,42 +6,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import com.varabyte.kobweb.browser.dom.ElementTarget
-import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.foundation.layout.Box
-import com.varabyte.kobweb.compose.foundation.layout.Column
-import com.varabyte.kobweb.compose.ui.Alignment
-import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Colors
-import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
-import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
-import com.varabyte.kobweb.compose.ui.modifiers.boxShadow
-import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
-import com.varabyte.kobweb.compose.ui.modifiers.fontSize
-import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
-import com.varabyte.kobweb.compose.ui.modifiers.margin
-import com.varabyte.kobweb.compose.ui.modifiers.maxWidth
-import com.varabyte.kobweb.compose.ui.modifiers.minHeight
-import com.varabyte.kobweb.compose.ui.modifiers.padding
-import com.varabyte.kobweb.compose.ui.modifiers.width
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
-import com.varabyte.kobweb.silk.components.forms.Button
-import com.varabyte.kobweb.silk.components.forms.Input
-import com.varabyte.kobweb.silk.components.forms.Label
-import com.varabyte.kobweb.silk.components.forms.TextInput
-import com.varabyte.kobweb.silk.components.layout.Surface
-import com.varabyte.kobweb.silk.theme.colors.ColorMode
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.web.attributes.ButtonType
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.disabled
+import org.jetbrains.compose.web.attributes.required
+import org.jetbrains.compose.web.attributes.type
 import org.jetbrains.compose.web.css.cssRem
-import org.jetbrains.compose.web.css.percent
-import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.css.vh
+import org.jetbrains.compose.web.css.maxWidth
+import org.jetbrains.compose.web.dom.Button
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.Form
 import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.Input
+import org.jetbrains.compose.web.dom.Label
 import org.jetbrains.compose.web.dom.P
+import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.fetch.RequestInit
 import kotlin.js.JSON
@@ -59,7 +42,9 @@ fun LoginPage() {
     var isSubmitting by remember { mutableStateOf(false) }
 
     fun submitLogin() {
-        if (isSubmitting || email.isBlank() || password.isBlank()) return
+        if(isSubmitting || email.isBlank() || password.isBlank()) {
+            return
+        }
 
         scope.launch {
             isSubmitting = true
@@ -93,91 +78,94 @@ fun LoginPage() {
         }
     }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .minHeight(100.vh)
-            .backgroundColor(Colors.Black),
-        colorModeOverride = ColorMode.DARK,
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .minHeight(100.vh)
-                .padding(1.cssRem),
-            contentAlignment = Alignment.Center,
-        ) {
-            Surface(
-                modifier = Modifier
-                    .width(100.percent)
-                    .maxWidth(28.cssRem)
-                    .padding(2.cssRem)
-                    .borderRadius(1.cssRem)
-                    .boxShadow(blurRadius = 3.cssRem, color = Colors.Black),
-                colorModeOverride = ColorMode.LIGHT,
-            ) {
-                Column(Modifier.fillMaxWidth()) {
-                    H1(attrs = Modifier
-                        .fillMaxWidth()
-                        .margin(0.px)
-                        .fontSize(1.875.cssRem)
-                        .fontWeight(FontWeight.Bold)
-                        .toAttrs()
-                    ) { Text("Sign in") }
+    Div(attrs = {
+        classes(
+            "container-fluid",
+            "min-vh-100",
+            "bg-dark",
+            "d-flex",
+            "align-items-center",
+            "justify-content-center",
+            "py-5",
+        )
+    }) {
+        Div(attrs = {
+            classes("card", "border-0", "shadow-lg", "w-100")
+            style { maxWidth(28.cssRem) }
+        }) {
+            Div(attrs = { classes("card-body", "p-4", "p-md-5") }) {
+                H1(attrs = { classes("card-title", "h2", "text-center", "mb-2") }) {
+                    Text("Sign in")
+                }
+                P(attrs = { classes("text-secondary", "text-center", "mb-4") }) {
+                    Text("Welcome back. Enter your account details to continue.")
+                }
 
-                    P(attrs = Modifier
-                        .fillMaxWidth()
-                        .margin(top = 0.5.cssRem, bottom = 1.5.cssRem)
-                        .toAttrs()
-                    ) { Text("Welcome back. Enter your account details to continue.") }
+                errorMessage?.let { message ->
+                    Div(attrs = {
+                        classes("alert", "alert-danger")
+                        attr("role", "alert")
+                    }) {
+                        Text(message)
+                    }
+                }
 
-                    errorMessage?.let { message ->
-                        Box(Modifier
-                            .fillMaxWidth()
-                            .margin(bottom = 1.cssRem)
-                            .padding(0.75.cssRem)
-                            .borderRadius(0.5.cssRem)
-                            .backgroundColor(Colors.LightPink)
-                        ) { Text(message) }
+                Form {
+                    Div(attrs = { classes("mb-3") }) {
+                        Label(forId = "email", attrs = { classes("form-label") }) {
+                            Text("Email")
+                        }
+                        Input(type = InputType.Email, attrs = {
+                            id("email")
+                            classes("form-control")
+                            value(email)
+                            attr("name", "email")
+                            attr("placeholder", "you@example.com")
+                            attr("autocomplete", "email")
+                            required()
+                            if (isSubmitting) disabled()
+                            onInput { elem -> email = elem.value }
+                            onKeyUp { elem ->
+                                if(elem.key == "Enter") {
+                                    submitLogin()
+                                }
+                            }
+                        })
                     }
 
-                    Label(
-                        target = ElementTarget.NextSibling,
-                        label = "Email",
-                        modifier = Modifier.fillMaxWidth().margin(bottom = 0.375.cssRem),
-                    )
-                    Input(
-                        type = InputType.Email,
-                        value = email,
-                        onValueChange = { email = it },
-                        modifier = Modifier.fillMaxWidth().margin(bottom = 1.cssRem),
-                        placeholder = "you@example.com",
-                        enabled = !isSubmitting,
-                        required = true,
-                        onCommit = { submitLogin() },
-                    )
+                    Div(attrs = { classes("mb-3") }) {
+                        Label(forId = "password", attrs = { classes("form-label") }) {
+                            Text("Password")
+                        }
+                        Input(type = InputType.Password, attrs = {
+                            id("password")
+                            classes("form-control")
+                            value(password)
+                            attr("name", "password")
+                            attr("placeholder", "Enter your password")
+                            attr("autocomplete", "current-password")
+                            required()
+                            if (isSubmitting) disabled()
+                            onInput { elem -> password = elem.value }
+                            onKeyUp { elem ->
+                                if (elem.key == "Enter") submitLogin()
+                            }
+                        })
+                    }
 
-                    Label(
-                        target = ElementTarget.NextSibling,
-                        label = "Password",
-                        modifier = Modifier.fillMaxWidth().margin(bottom = 0.375.cssRem),
-                    )
-                    TextInput(
-                        text = password,
-                        onTextChange = { password = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = "Enter your password",
-                        password = true,
-                        enabled = !isSubmitting,
-                        required = true,
-                        onCommit = { submitLogin() },
-                    )
-
-                    Button(
-                        onClick = { submitLogin() },
-                        modifier = Modifier.fillMaxWidth().margin(top = 1.25.cssRem),
-                        enabled = !isSubmitting,
-                    ) {
+                    Button(attrs = {
+                        classes("btn", "btn-primary", "w-100")
+                        type(ButtonType.Button)
+                        if (isSubmitting) disabled()
+                        onClick { submitLogin() }
+                    }) {
+                        if (isSubmitting) {
+                            Span(attrs = {
+                                classes("spinner-border", "spinner-border-sm", "me-2")
+                                attr("role", "status")
+                                attr("aria-hidden", "true")
+                            })
+                        }
                         Text(if (isSubmitting) "Signing in…" else "Sign in")
                     }
                 }

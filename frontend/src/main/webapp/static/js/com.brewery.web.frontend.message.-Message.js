@@ -6,10 +6,10 @@ import * as $j_internal$002d6cbcec0732cac4bcbf3d66c300b421fad7d904be from "./int
 import * as $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b from "./internal-f33bfacc298d8dab923476fe9af133b88098a05b.js";
 function $s_Lcom_brewery_web_frontend_message_Message__toJQueryElement__Lcom_brewery_web_frontend_message_Message__Lio_udash_wrappers_jquery_JQuery(this$1) {
   var $x_1 = $i_jquery.default;
-  var x = $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().format$extension__T__sci_Seq__T("\r\n      |            <div class=\"my-4 border border-transparent rounded-lg hover:border hover:border-black hover:rounded-lg hover:bg-darker-jakarta hover:transition hover:duration-75 relative\">\r\n      |                <form style=\"display: none\">\r\n      |                    <input type=\"hidden\" name=\"user-id\" value=\"%s\">\r\n      |                    <input type=\"hidden\" name=\"message-id\" value=\"%s\">\r\n      |                    <input type=\"hidden\" name=\"message-date\" value=\"%s\">\r\n      |                </form>\r\n      |                <div class=\"p-2 text-desert-storm information\">\r\n      |                    %s: %s\r\n      |                    <!-- Trash icon in top right -->\r\n      |\r\n      |                </div>\r\n      |                <div class=\"p-2 rounded-lg text-desert-storm break-all\">%s</div>\r\n      |             </div>\r\n           ", $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ac_O([$j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$1.fromUserId), $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$1.messageId), $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().parseToUTCDateTime__sjs_js_Date__T(this$1.createDate), $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$1.fromUsername), $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().formatDate__sjs_js_Date__T(this$1.createDate), $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$1.content)])));
+  var x = $j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().format$extension__T__sci_Seq__T("\r\n      |            <div class=\"my-4 border border-transparent rounded-lg hover:border hover:border-black hover:rounded-lg hover:bg-darker-jakarta hover:transition hover:duration-75 relative\">\r\n      |                <form style=\"display: none\">\r\n      |                    <input type=\"hidden\" name=\"user-id\" value=\"%s\">\r\n      |                    <input type=\"hidden\" name=\"message-id\" value=\"%s\">\r\n      |                    <input type=\"hidden\" name=\"message-date\" value=\"%s\">\r\n      |                </form>\r\n      |                <div class=\"p-2 text-desert-storm information\">\r\n      |                    %s: %s\r\n      |                    <!-- Trash icon in top right -->\r\n      |\r\n      |                </div>\r\n      |                <div class=\"p-2 rounded-lg text-desert-storm break-all\">%s</div>\r\n      |             </div>\r\n           ", $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$ac_O([this$1.fromUserId, this$1.messageId, $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().parseToUTCDateTime__sjs_js_Date__T(this$1.createDate), this$1.fromUsername, $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().formatDate__sjs_js_Date__T(this$1.createDate), this$1.content])));
   var block = $x_1($j_internal$002df33bfacc298d8dab923476fe9af133b88098a05b.$m_sc_StringOps$().stripMargin$extension__T__C__T(x, 124));
   var userInformation = $j_com$002ebrewery$002eweb$002efrontend$002e$002dHelp$002dFunctions$0024.$m_Lcom_brewery_web_frontend_HelpFunctions$().getCookie__T__sjs_js_Dynamic("User-Information");
-  if (($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(userInformation.userId)) === $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$as_T(this$1.fromUserId))) {
+  if (($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(userInformation.userId) === this$1.fromUserId)) {
     var $x_2 = true;
   } else {
     var array = userInformation.roles;
@@ -103,46 +103,44 @@ function $a_Lcom_brewery_web_frontend_message_Message() {
       this.content = "";
       if ((messageJson !== null)) {
         if ((messageJson.messageId !== null)) {
-          this.messageId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.messageId));
+          this.messageId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.messageId);
         }
         if ((messageJson.createDate !== null)) {
-          var sCreateDate = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.createDate));
-          var this$1 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(sCreateDate);
-          if (($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uI(this$1.indexOf("Z")) !== (-1))) {
+          var sCreateDate = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.createDate);
+          if (((sCreateDate.indexOf("Z") | 0) !== (-1))) {
             this.createDate = new Date(sCreateDate);
           } else {
             this.createDate = new Date((sCreateDate + " UTC"));
           }
         }
         if ((messageJson.updateDate !== null)) {
-          var sUpdateDate = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.updateDate));
-          var this$2 = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(sUpdateDate);
-          if (($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$uI(this$2.indexOf("Z")) !== (-1))) {
+          var sUpdateDate = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.updateDate);
+          if (((sUpdateDate.indexOf("Z") | 0) !== (-1))) {
             this.updateDate = new Date(sUpdateDate);
           } else {
             this.updateDate = new Date((sUpdateDate + " UTC"));
           }
         }
         if ((messageJson.status !== null)) {
-          this.status = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.status));
+          this.status = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.status);
         }
         if ((messageJson.conversationId !== null)) {
-          this.conversationId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.conversationId));
+          this.conversationId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.conversationId);
         }
         if ((messageJson.fromUserId !== null)) {
-          this.fromUserId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.fromUserId));
+          this.fromUserId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.fromUserId);
         }
         if ((messageJson.fromUsername !== null)) {
-          this.fromUsername = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.fromUsername));
+          this.fromUsername = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.fromUsername);
         }
         if ((messageJson.toUserId !== null)) {
-          this.toUserId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.toUserId));
+          this.toUserId = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.toUserId);
         }
         if ((messageJson.toUsername !== null)) {
-          this.toUsername = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.toUsername));
+          this.toUsername = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.toUsername);
         }
         if ((messageJson.content !== null)) {
-          this.content = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T($j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$n(messageJson.content));
+          this.content = $j_internal$002d07235935c771c9429268cb101d7f2e2e7f60988c.$dp_toString__T(messageJson.content);
         }
       }
     }
