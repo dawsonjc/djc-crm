@@ -1,8 +1,0 @@
-{
-"version": 3,
-"file": "com.brewery.web.frontend.entry.-Registration-Main.js",
-"mappings": ";;;AAKO,SAAAA,4DAAA;EAAAC,qFAAA,CAAA,oDAAA,GAAA,OAAA;C;AAAA,SAAAD,4DAAA,mE;",
-"sources": ["file:///D:/Programs/IdeaProjects/djc-crm/scala_js/src/main/scala/com/brewery/web/frontend/entry/RegistrationMain.scala"],
-"names": ["main", "com.brewery.web.frontend.entry.-Registration-Main$"],
-"lineCount": 7
-}
