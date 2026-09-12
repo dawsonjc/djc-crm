@@ -38,6 +38,8 @@ out/
 ### VS Code ###
 .vscode/
 
+# Generated Scala.js output
+/frontend/src/main/webapp/static/js/
 
 .env
 
