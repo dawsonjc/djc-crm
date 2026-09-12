@@ -119,5 +119,4 @@ object Registration {
     private def registerFailure(jqXHR: JQueryXHR, textStatus: String, errorThrown: String): Unit = {
     
     }
-    
 }

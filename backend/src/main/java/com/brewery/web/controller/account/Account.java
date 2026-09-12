@@ -2,6 +2,7 @@ package com.brewery.web.controller.account;
 
 import com.brewery.web.model.User;
 import com.brewery.web.services.UserTableService;
+import com.brewery.web.user.SessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,7 +41,7 @@ public class Account {
         responseJson.put("message", "");
         ArrayNode roleJson = responseJson.putArray("data");
 
-        List<String> roles = this.accountService.getUsersRolesByUser((User) request.getSession().getAttribute("current_user"));
+        List<String> roles = this.accountService.getUsersRolesByUser((User) request.getSession().getAttribute(SessionUser.SESSION_USER));
 
         for(String role : roles) {
             roleJson.add(role);

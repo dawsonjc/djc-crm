@@ -2,7 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.brewery.web.model.Role" %>
 <%
-    User admin = (User) request.getSession().getAttribute("current_user");
+    User admin = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
     System.err.println("Accessed");
     if(!admin.getRoles().contains("Admin")) {
         response.sendRedirect("/");

@@ -8,6 +8,7 @@ import com.brewery.web.model.User;
 import com.brewery.web.services.ConversationService;
 import com.brewery.web.services.MessagesService;
 import com.brewery.web.services.UserTableService;
+import com.brewery.web.user.SessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class ConversationController {
     public String doGet(HttpServletRequest request, HttpServletResponse response,
                         @RequestParam(value = "conversationId") UUID conversationId
     ) {
-        User user = (User) request.getSession().getAttribute("current_user");
+        User user = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
         List<Message> messages = this.messagesService.getMessagesByConversationId(conversationId);
 
         ConversationDTO globalChat = this.conversationService.getGlobalChat();
@@ -74,7 +75,7 @@ public class ConversationController {
             responseJson.put("message", "Bad Data");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
         }
-        User currentUser = (User) request.getSession().getAttribute("current_user");
+        User currentUser = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
         Set<UUID> userIds = new HashSet<UUID>();
         userIds.add(currentUser.getUserId());
         userIds.add(potentialFriendId);

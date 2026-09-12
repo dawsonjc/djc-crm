@@ -6,6 +6,7 @@ import com.brewery.web.model.message.Message;
 import com.brewery.web.model.User;
 import com.brewery.web.services.MessagesService;
 
+import com.brewery.web.user.SessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -74,7 +75,7 @@ public class Communications {
         responseJson.put("message", "");
         ObjectNode data = responseJson.putObject("data");
 
-        User user = (User) request.getSession().getAttribute("current_user");
+        User user = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
         Message message = this.service.findMessage(messageId);
 
         if(user.getRoles().contains(Role.Name.ADMIN.toString())) {

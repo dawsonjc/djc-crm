@@ -6,6 +6,7 @@ import com.brewery.web.dto.event.UnreadCountDTO;
 import com.brewery.web.model.User;
 import com.brewery.web.model.event.EventType;
 import com.brewery.web.services.NotificationService;
+import com.brewery.web.user.SessionUser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,7 +79,7 @@ public class SseEventController {
 
     private UUID userId(HttpServletRequest request) {
         // AuthHook protects this route and establishes current_user.
-        User user = (User) request.getSession().getAttribute("current_user");
+        User user = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
         return user.getUserId();
     }
 

@@ -148,7 +148,9 @@ fun LoginPage() {
                             if (isSubmitting) disabled()
                             onInput { elem -> password = elem.value }
                             onKeyUp { elem ->
-                                if (elem.key == "Enter") submitLogin()
+                                if (elem.key == "Enter") {
+                                    submitLogin()
+                                }
                             }
                         })
                     }
