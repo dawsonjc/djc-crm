@@ -1,6 +1,6 @@
-# JVM CRM Platform
+# DJC CRM
 
-> Working repository name: `dawson-crm`
+> Gradle root project: `djc-crm`
 
 This project is evolving from a real-time chat application into a JVM-first customer relationship management (CRM) platform. The existing account, role, conversation, live-message, moderation, and event foundations are intended to become the collaboration layer around organizations, contacts, leads, deals, tasks, notes, activities, and teams.
 
@@ -39,7 +39,7 @@ The CRM should remain query-first and operationally focused. Cassandra is suitab
 | Accounts and sessions | Partial | Registration, bcrypt login, logout, roles, and session authentication exist | Spring Security, robust validation, recovery, verification, workspace membership, and secure session/token lifecycle |
 | Administration | Partial | Admin page can list and verify pending users; route filtering exists | Workspace administration, users, teams, permissions, audit log, settings, and policy enforcement |
 | Chat | Partial | Global Chat, message history, WebSockets, and soft deletion exist | Direct/team/record conversations, mentions, presence, attachments, search, and reliable authorization |
-| Events and notifications | Foundation only | Cassandra models and three event tables exist | Domain-event production, notification service, inbox UI, unread counts, preferences, expiry, and delivery workers |
+| Events and notifications | Backend partial | Persistence, list/count/read/archive APIs, and an SSE service exist; producers and browser integration are missing | Reliable event production, inbox UI, preferences, expiry, and delivery workers |
 | Organizations | Schema only | Canonical and owner/name/domain projections exist | CRUD, ownership, hierarchy, contacts, deals, activity timeline, duplicate detection, and UI |
 | Contacts | Schema only | Canonical and organization/owner/email projections exist | CRUD, organization linkage, consent/preferences, lifecycle, communication history, deduplication, and UI |
 | Leads | Schema only | Canonical, owner/status, and email projections exist | Capture, qualification, scoring, assignment, conversion, source attribution, and UI |
@@ -73,7 +73,7 @@ Implemented or substantially implemented:
 - Conversation navigation and persisted message history.
 - Real-time message delivery over WebSockets.
 - Message deletion by the author or an administrator.
-- Cassandra-backed event and unread-event models.
+- Cassandra-backed notification persistence, list/type-filter/count APIs, read/archive operations, and an SSE service.
 - Cassandra schema foundations for CRM records.
 
 Incomplete or experimental:
@@ -83,6 +83,7 @@ Incomplete or experimental:
 - The `/account` controller view is unfinished.
 - The Kotlin/Kobweb authentication service is separate from the primary application flow.
 - CRM schema tables exist, but corresponding application services and UI are not yet implemented.
+- Notification creation is not yet wired into application workflows, and the browser does not consume the notification API or SSE stream.
 - Automated test coverage is not currently present.
 
 ## Technology stack
@@ -99,6 +100,7 @@ Incomplete or experimental:
 | Experimental UI | Kotlin Multiplatform 2.4.0, Kobweb 0.25.0, Compose HTML |
 | Database | Apache Cassandra 4.1.7 |
 | Live messaging | Jakarta WebSocket |
+| Notification transport | Spring MVC Server-Sent Events (SSE), backend implementation only |
 | Password hashing | jBCrypt 0.4 |
 | Styling | Tailwind browser CDN and Font Awesome CDN in the current JSP UI |
 | Packaging | Executable Spring Boot WAR |
@@ -128,11 +130,11 @@ An exited `cassandra-init` container is expected. It is a one-time job for each 
 ## Repository layout
 
 ```text
-Website_Chat/
+djc-crm/
 ├── backend/                 Java Spring Boot controllers, services, models, and repositories
 ├── frontend/                JSP views, Spring configuration, and executable WAR packaging
 ├── scala_js/                Scala.js source for primary browser behavior
-├── auth_service/kt_service/ Experimental Kotlin/Kobweb authentication UI
+├── auth_service/            Experimental Kotlin/Kobweb authentication UI
 ├── cassandra/               Cassandra image, schemas, and CRM query documentation
 ├── Dockerfile               Multi-stage Java 21 application image
 ├── docker-compose.yml       Cassandra, schema initializer, and application services
@@ -149,9 +151,9 @@ Website_Chat/
 : Depends on `backend`, contains JSP pages and runtime configuration, and packages the executable WAR. Its `bootRun` and `bootWar` tasks link Scala.js first.
 
 `scala_js`
-: Compiles Scala browser code and copies generated `main.js` assets into `frontend/src/main/webapp/static/js`. Generated `.js` and `.js.map` files should generally not be edited manually.
+: Compiles Scala browser code into ES modules and copies the linked output into `frontend/src/main/webapp/static/js`. Page entry modules are `shell.js`, `login.js`, `register.js`, `conversations.js`, and `admin.js`, with shared generated modules. JSP pages select their entry module through `scalaJsModule`. Generated `.js` and `.js.map` files should generally not be edited manually.
 
-`auth_service:kt_service`
+`auth_service`
 : Experimental Kobweb application with a Kotlin/JS login page. It is available through the root `runAuth` task but is not included as a Compose service.
 
 ## Prerequisites
@@ -287,7 +289,16 @@ Run the experimental authentication project separately:
 .\gradlew.bat runAuth
 ```
 
-Its Kobweb configuration currently uses port `8443`. This module is not required to run the Spring Boot chat application.
+Its Kobweb configuration currently uses port `8443` and redirects `/` to `/login`. This module is not required to run the Spring Boot chat application. Its login form posts to the relative URL `/account/login`; the repository does not configure a proxy from the separate Kobweb server to Spring Boot. Running both servers alone does not connect the login flow.
+
+To check or bundle this module without starting its development server:
+
+```powershell
+.\gradlew.bat :auth_service:authCheck
+.\gradlew.bat :auth_service:authBundle
+```
+
+`authCheck` delegates to Gradle's `check` task; it does not imply that automated tests have been added.
 
 ## Configuration
 
@@ -368,9 +379,11 @@ These tables describe planned access patterns; there are not yet Java entities, 
 - Tasks, notes, activities, and future conversations use an entity type plus entity ID to attach work and history to different CRM record types.
 - Teams group users inside a workspace. Team roles must remain distinct from global application roles such as Admin, Moderator, and User.
 
-### Event and notification system direction
+### Event and notification system
 
-The existing event schema is a starting point, not a completed feature:
+`NotificationService` writes the three Cassandra projections, exposes recent notifications and unread counts, and handles mark-read, mark-all-read, and archive operations. `SseEventService` maintains in-memory connections per recipient and publishes snapshots and updates after persistence. See [the notification backend API documentation](backend/SSE-README.md) for payloads and service usage.
+
+This is still a partial backend implementation. Application workflows do not call notification creation, and the current Scala.js/JSP UI does not consume these APIs. SSE also needs runtime validation: the custom servlet filter registration does not explicitly enable async support. There is no cross-instance fan-out, replay, or heartbeat worker.
 
 | Table | Intended responsibility |
 |---|---|
@@ -378,14 +391,14 @@ The existing event schema is a starting point, not a completed feature:
 | `events_by_type` | Per-user filtered history, such as assignments, mentions, reminders, or deal changes |
 | `unread_events` | Sparse projection containing only notifications the user has not read |
 
-A complete implementation should add:
+A complete implementation still needs:
 
 1. A domain-event contract containing event ID, type, actor, recipient, workspace, subject entity, timestamps, human-readable content, action URL, and structured metadata.
 2. Producers in CRM services for assignments, mentions, task reminders, overdue work, stage changes, lead conversion, account verification, and collaboration activity.
-3. A notification service that writes the durable event row and its type/unread projections idempotently.
-4. APIs for paginated inbox reads, type filters, unread counts, mark-one-read, mark-all-read, archive, and notification preferences.
-5. A browser notification center with real-time delivery where appropriate; WebSocket delivery should complement Cassandra persistence rather than replace it.
-6. A scheduler or worker for due reminders, expiry, retries, and optional outbound channels such as email.
+3. Idempotency and retry handling around the existing projection writes; creation currently generates a new event ID for each call.
+4. Cursor pagination and notification preferences around the existing list/count/read/archive APIs. Current lists accept a limit (default 25, maximum 100), and visibility filtering happens after fetching that limit.
+5. A browser notification center consuming the existing API and SSE events, with tested async servlet support and reconnection behavior.
+6. A scheduler or worker for due reminders, expiry, retries, and optional outbound channels such as email. Expired notifications are hidden from lists but are not currently removed from the unread projection or its count.
 7. Audit events separated from user-facing notifications when retention or compliance requirements differ.
 8. Tests proving duplicate delivery does not create duplicate events and read/archive operations keep projections consistent.
 
@@ -427,6 +440,12 @@ Important routes currently include:
 | `POST` | `/add-friend` | Experimental direct-conversation creation |
 | `GET` | `/admin` | Administrator page |
 | `POST` | `/admin/user/verify` | Verify an account |
+| `GET` | `/api/events?limit=25&type=...` | Current user's visible notifications and unread count; type is optional |
+| `GET` | `/api/events/count` | Current user's unread count |
+| `GET` | `/api/events/stream?limit=25` | SSE stream and initial snapshot; runtime validation pending |
+| `PATCH` | `/api/events/{eventId}/read` | Mark one notification read |
+| `PATCH` | `/api/events/read-all` | Mark all notifications read |
+| `PATCH` | `/api/events/{eventId}/archive` | Archive and mark one notification read |
 | WebSocket | `/communication` | Send and receive live conversation messages |
 
 The authentication filter allows account and static-resource routes without a session, restricts `/admin` to the Admin role, and prevents pending accounts from using message endpoints.
@@ -451,7 +470,7 @@ This is a custom authentication system, not Spring Security. That distinction ma
 - Make schema scripts safe to rerun where Cassandra supports `IF NOT EXISTS`.
 - Use stable primary keys for seed records to avoid duplicates.
 - Register explicit Spring Data converters when persisted text differs from Java enum names.
-- Do not edit `frontend/src/main/webapp/static/js/main.js` or its source map directly; edit `scala_js/src/main/scala` and run the Scala.js link task.
+- Do not edit generated modules in `frontend/src/main/webapp/static/js` directly; edit `scala_js/src/main/scala` and run the Scala.js link task. Linking synchronizes that output directory, so keep hand-maintained vendor assets outside it.
 - Preserve Cassandra query-first modeling. Add projection tables for required access patterns instead of relying on broad `ALLOW FILTERING` queries.
 - Never commit credentials, production secrets, or environment-specific `.env` files.
 
@@ -553,7 +572,7 @@ The ordering below treats security, tenant boundaries, and consistency as prereq
 - Add HTTP and WebSocket integration tests and a CI build for `:frontend:bootWar`.
 - Adopt Spring Security for sessions, role checks, CSRF, secure cookie settings, and WebSocket identity.
 - Replace client-supplied WebSocket user identity with authenticated server-side identity.
-- Complete registration conflict handling, direct-conversation persistence, account pages, verification delivery, and password recovery.
+- Harden registration conflict handling against concurrent requests, and complete direct-conversation persistence, account pages, verification delivery, and password recovery.
 - Add structured error responses, request validation, centralized exception handling, and production-safe error configuration.
 - Choose the long-term frontend direction: JSP plus Scala.js, or Kotlin/Kobweb. Avoid indefinitely maintaining two competing UI stacks.
 
@@ -577,7 +596,7 @@ The ordering below treats security, tenant boundaries, and consistency as prereq
 
 ### Phase 3 — events, notifications, and collaboration
 
-- Implement the event producer/consumer model described above.
+- Wire application producers and browser consumers into the existing notification backend, and add projection retry/idempotency handling.
 - Add notification inbox, unread badge, filtering, read/archive operations, preferences, and task reminders.
 - Link conversations to CRM entities and add mentions, assignments, and team channels.
 - Add reliable real-time fan-out while preserving Cassandra as the source of notification history.
