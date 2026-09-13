@@ -30,16 +30,16 @@ import org.w3c.fetch.RequestInit
 import kotlin.js.JSON
 import kotlin.js.json
 
-private const val LOGIN_ENDPOINT = "/account/login"
+private const val LOGIN_ENDPOINT: String = "/account/login"
 
 @Page(routeOverride = "/login")
 @Composable
 fun LoginPage() {
     val scope = rememberCoroutineScope()
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var isSubmitting by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf<String>(value = "") }
+    var password by remember { mutableStateOf<String>(value = "") }
+    var errorMessage by remember { mutableStateOf<String?>(value = null) }
+    var isSubmitting by remember { mutableStateOf<Boolean>(value = false) }
 
     fun submitLogin() {
         if(isSubmitting || email.isBlank() || password.isBlank()) {

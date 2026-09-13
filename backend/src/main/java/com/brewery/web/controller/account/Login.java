@@ -1,5 +1,6 @@
 package com.brewery.web.controller.account;
 
+import com.brewery.web.dto.formdata.LoginFormData;
 import com.brewery.web.model.User;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.SessionUser;
@@ -18,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping(value = { "/account" })
@@ -37,7 +39,7 @@ public class Login {
     @PostMapping(value = { "/login" }, consumes = { "application/json" }, produces = {  "application/json" })
     public ResponseEntity<ObjectNode> login(
             HttpServletRequest request,
-            @RequestBody JsonNode formUser
+            @RequestBody LoginFormData formUser
     ) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode respJson = mapper.createObjectNode();
@@ -45,16 +47,31 @@ public class Login {
         respJson.put("message", "");
         ObjectNode data = respJson.putObject("data");
 
-        if(!formUser.has("username") || !formUser.has("password")) {
+        if(!formUser.verify()) {
+            respJson.set("data", mapper.convertValue(formUser.getErrors(), ObjectNode.class));
             return ResponseEntity.status(400).body(respJson);
         }
 
-        if(!this.userService.userExists(formUser.get("username").asText())) {
-            return ResponseEntity.status(401).body(respJson);
+        Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+
+        boolean isEmail = emailPattern.matcher(formUser.username()).matches();
+
+        UUID userId;
+        if(isEmail) {
+            if(!this.userService.userExistsByEmail(formUser.username())) {
+                return ResponseEntity.status(401).body(respJson);
+            }
+
+            userId = this.userService.getUserIdByEmail(formUser.username());
+        } else {
+            if(!this.userService.userExistsByUsername(formUser.username())) {
+                return ResponseEntity.status(401).body(respJson);
+            }
+
+            userId = this.userService.getUserIdByUsername(formUser.username());
         }
 
-        UUID userId = this.userService.getUserIdByEmail(formUser.get("username").asText());
-        User user = this.userService.getUserByIdAndPassword(userId, formUser.get("password").asText());
+        User user = this.userService.getUserByIdAndPassword(userId, formUser.password());
 
         if(user == null) {
             return ResponseEntity.status(401).body(respJson);

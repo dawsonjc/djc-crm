@@ -11,7 +11,3 @@ fun App(content: @Composable () -> Unit) {
         content()
     }
 }
-
-fun index() {
-    
-}

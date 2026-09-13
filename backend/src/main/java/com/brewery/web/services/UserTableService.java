@@ -30,11 +30,19 @@ public class UserTableService {
     @Autowired
     private RoleService roleService;
 
-    public boolean userExists(String email) {
+    public boolean userExistsByEmail(String email) {
         if(email == null) {
             return false;
         }
         UUID userId = this.getUserIdByEmail(email);
+        return userId != null;
+    }
+
+    public boolean userExistsByUsername(String username) {
+        if(username == null) {
+            return false;
+        }
+        UUID userId = this.getUserIdByUsername(username);
         return userId != null;
     }
 
@@ -50,6 +58,10 @@ public class UserTableService {
         return this.repo.findUserIdByEmail(email);
     }
 
+    public UUID getUserIdByUsername(String username) {
+        return this.repo.findUserIdByUsername(username);
+    }
+
     public User getUserByIdAndPassword(UUID id, String password) {
         User user = this.repo.findById(id).orElse(null);
         if(user == null) {
@@ -59,6 +71,8 @@ public class UserTableService {
         if(!BCrypt.checkpw(password, user.getPassword())) {
             return null;
         }
+
+        // this is bad
         this.populateUserRelations(user);
 
         return user;

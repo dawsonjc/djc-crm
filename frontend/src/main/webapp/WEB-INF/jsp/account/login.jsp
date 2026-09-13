@@ -13,17 +13,17 @@
             <!-- Username | Email input -->
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
-                    <label for="email" class="sr-only">Email address</label>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email address / Username</label>
                     <input name="email" id="email" type="email"
                             class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                            placeholder="Email address" required="required"/>
+                            placeholder="Email Address / Username" required="required"/>
                 </div>
             </div>
 
             <!-- Password input -->
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
-                    <label for="password" class="sr-only">Password</label>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input name="password" id="password" type="password"
                             class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                             placeholder="Password" required="required"/>

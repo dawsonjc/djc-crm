@@ -56,10 +56,19 @@ object Login {
     
     private def loginFailure(jqXHR: JQueryXHR, textStatus: String, errorThrown: String): Unit = {
         val xhr: js.Dynamic = jqXHR.asInstanceOf[js.Dynamic];
-        val jsonResponse: js.Dynamic = xhr.responseJson;
+        val jsonResponse: js.Dynamic = xhr.responseJSON;
     
-        val errors: js.Dynamic = jsonResponse.data.errors;
-    
-    
+        val errors: js.Dynamic = jsonResponse.data;
+        
+        val errorElement = jQ("<div>")
+        errorElement.attr("class", "mb-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 shadow-sm")
+        errorElement.append(jQ("<h3>").text("Login failed"))
+        errorElement.append(jQ("<ul>"))
+        for(error <- js.Object.keys(errors.asInstanceOf[js.Object])) {
+            errorElement.append(jQ("<li>").text(errors(error).toString))
+        }
+        errorElement.append(jQ("</ul>"))
+        
+        jQ("#login-form").prepend(errorElement)
     }
 }

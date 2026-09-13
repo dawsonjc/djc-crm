@@ -46,7 +46,7 @@ public class Register {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
         }
 
-        if(this.userService.userExists(userData.email())) {
+        if(this.userService.userExistsByEmail(userData.email()) || this.userService.userExistsByUsername(userData.username())) {
             responseJson.put("message", "User already exists");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseJson);
         }
