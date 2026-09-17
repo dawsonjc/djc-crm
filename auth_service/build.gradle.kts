@@ -17,13 +17,16 @@ repositories {
 }
 
 kotlin {
-    configAsKobwebApplication(includeServer = false)
+    configAsKobwebApplication(includeServer = true)
 
     js {
         browser()
     }
 
     sourceSets {
+        jvmMain.dependencies {
+            implementation("com.varabyte.kobweb:kobweb-api:0.25.0")
+        }
         jsMain.dependencies {
             implementation("androidx.compose.runtime:runtime:1.11.2")
             implementation("org.jetbrains.compose.html:html-core:1.11.1")

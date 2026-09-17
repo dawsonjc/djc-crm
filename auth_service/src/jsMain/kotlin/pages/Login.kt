@@ -30,7 +30,7 @@ import org.w3c.fetch.RequestInit
 import kotlin.js.JSON
 import kotlin.js.json
 
-private const val LOGIN_ENDPOINT: String = "/account/login"
+private const val LOGIN_ENDPOINT: String = "/api/login"
 
 @Page(routeOverride = "/login")
 @Composable

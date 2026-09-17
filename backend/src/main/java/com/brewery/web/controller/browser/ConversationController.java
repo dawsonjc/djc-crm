@@ -57,7 +57,7 @@ public class ConversationController {
         request.setAttribute("Messages", messages);
         request.setAttribute("Channels", channels);
 
-        return "index";
+        return "chat";
     }
 
     @PostMapping(value = { "/add-friend" })

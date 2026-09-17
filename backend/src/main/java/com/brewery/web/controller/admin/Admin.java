@@ -7,20 +7,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequestMapping(value = { "/admin" })
 public class Admin {
 
     @Autowired
     private AdminUserService adminUserService;
 
-    @GetMapping(value = { "" })
+    @GetMapping(path = { "/login" })
     public String index(HttpServletRequest request) {
         request.setAttribute("unverified_users", this.adminUserService.getUnverifiedUsers());
         request.setAttribute("all_roles", this.adminUserService.getActiveRoles());
@@ -28,7 +27,7 @@ public class Admin {
     }
 
     @ResponseBody
-    @PostMapping(value = { "/user/verify" })
+    @PostMapping(path = { "/user/verify" })
     public ResponseEntity<ObjectNode> verify(
             @RequestParam(value = "userId") UUID userId
     ) {
