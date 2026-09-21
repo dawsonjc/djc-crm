@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/company")
+@RequestMapping(path = "/auth/company")
 public class CompanyController {
     @Value(value = "${AUTH_SERVICE_SECRET_KEY}")
     private String authServiceSecretKey;

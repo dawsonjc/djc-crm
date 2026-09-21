@@ -114,7 +114,7 @@ public class UserTableService {
         user.setFullName(registerFormData.firstName() + " " + registerFormData.lastName());
         user.setLanguagePreference("en");
         user.setTimezone("en/us");
-        user.setAccountVerificationStatus(User.VerificationStatus.PENDING);
+        user.setAccountVerificationStatus(User.VerificationStatus.VERIFIED);
 
         Role defaultRole = this.roleService.getRoleByName("User");
 

@@ -16,6 +16,7 @@ import java.util.UUID;
 @RequestMapping(value = { "/admin" })
 public class Admin {
 
+
     @Autowired
     private AdminUserService adminUserService;
 

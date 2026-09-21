@@ -41,13 +41,13 @@ public class Register {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
         }
         String password = userData.password();
-        if(password.length() < 8 || password.length() > 128) {
-            responseJson.put("message", "Password must be between 8 and 128 characters");
+        if(password.length() < 8 || password.length() > 72) {
+            responseJson.put("message", "Password must be between 8 and 72 characters");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
         }
 
-        if(this.userService.userExistsByEmail(userData.email()) || this.userService.userExistsByUsername(userData.username())) {
-            responseJson.put("message", "User already exists");
+        if(!this.userService.userExistsByEmail(userData.email()) || !this.userService.userExistsByUsername(userData.username())) {
+            responseJson.put("message", "Invalid");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseJson);
         }
 

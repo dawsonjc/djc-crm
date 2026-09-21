@@ -36,6 +36,29 @@ public class Login {
     }
 
     @ResponseBody
+    @PostMapping(path = { "/auth/login" }, produces = { "application/json" })
+    public ResponseEntity<ObjectNode> authLogin(HttpServletRequest request, LoginFormData formData) {
+        boolean isValidAuthLoginRequest = request.getHeader("Authorization") != null && !request.getHeader("Authorization").isEmpty()
+                && request.getHeader("Authorization").equals();
+
+        if(!isValidAuthLoginRequest) {
+            
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode respJson = mapper.createObjectNode();
+        respJson.put("success", false);
+        respJson.put("message", "");
+        ObjectNode data = respJson.putObject("data");
+
+
+
+        return ResponseEntity.status(200).body(respJson);
+    }
+
+
+    @ResponseBody
     @PostMapping(value = { "/login" }, consumes = { "application/json" }, produces = {  "application/json" })
     public ResponseEntity<ObjectNode> login(
             HttpServletRequest request,
@@ -90,7 +113,7 @@ public class Login {
             rolesJsonArray.add(role);
         }
 
-        request.getSession().setAttribute(SessionUser.SESSION_USER, user);
+        request.getSession().setAttribute(SessionUser.SESSION_USER, user.toSessionUser());
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);
     }

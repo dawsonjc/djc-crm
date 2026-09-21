@@ -2,6 +2,7 @@ package com.brewery.web.model;
 
 import com.brewery.web.dto.ConversationDTO;
 import com.brewery.web.model.record.RecordStatus;
+import com.brewery.web.user.SessionUser;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
@@ -312,6 +313,10 @@ public class User {
 
     public void setAuthApiToken(UUID authApiToken) {
         this.authApiToken = authApiToken;
+    }
+
+    public SessionUser toSessionUser() {
+        return new SessionUser(userId.toString(), username, roles);
     }
 
     @Override

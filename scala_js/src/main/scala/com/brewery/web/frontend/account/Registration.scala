@@ -55,9 +55,9 @@ object Registration {
                 val length: Int = pass.codePointCount(0, pass.length);
                 
                 var message: String = "";
-                val check: Boolean = length >= 8 && length <= 128;
+                val check: Boolean = length >= 8 && length <= 72;
                 if (!check) {
-                    message = "Password must be between 8 and 128 characters";
+                    message = "Password must be between 8 and 72 characters";
                 }
                 (check, message)
             }),

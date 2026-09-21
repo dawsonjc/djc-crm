@@ -29,7 +29,7 @@ suspend fun login(ctx: ApiContext) {
         return
     }
 
-    val secretKey = System.getenv("AUTH_SERVICE_SECRET_KEY")?.takeIf { it.isNotBlank() }
+    val secretKey: String? = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
     if (secretKey == null) {
         ctx.res.body = bodyOf("""{"success":false,"message":"Auth service is not configured."}""", "application/json")
         ctx.res.status = 503
@@ -43,10 +43,10 @@ suspend fun login(ctx: ApiContext) {
     }
 
     // Keep the destination server-controlled; never take it from the browser.
-    val backendUrl = System.getenv("AUTH_SERVICE_BACKEND_URL")
-        ?.takeIf { it.isNotBlank() } ?: "http://localhost:8080"
+    val backendUrl: String = "https://${CRM_BACKEND_WHOLE}}"
+        .takeIf { value -> value.replace("https://", "").isNotBlank() } ?: "http://localhost:8080"
     try {
-        val request = HttpRequest.newBuilder(URI.create("${backendUrl.trimEnd('/')}/company/login"))
+        val request = HttpRequest.newBuilder(URI.create("${backendUrl.trimEnd('/')}/account/auth/login"))
             .timeout(Duration.ofSeconds(15))
             .header("Content-Type", requestBody.contentType)
             .header("Accept", "application/json")

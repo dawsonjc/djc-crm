@@ -54,13 +54,6 @@ public class Message {
     @CassandraType(type = CassandraType.Name.TEXT)
     private String content;
 
-    /**
-     * @deprecated
-     * Please use {@link #Message(MessageType)}
-     */
-    @Deprecated
-    public Message() {}
-
     public Message(MessageType messageType) {
         switch(messageType) {
             case MessageType.FILL_DEFAULT -> {
