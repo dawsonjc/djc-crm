@@ -8,7 +8,7 @@ plugins {
     id("com.varabyte.kobweb.application") version "0.25.0"
 }
 
-group = "com.example"
+group = "com.auth_service"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -26,6 +26,7 @@ kotlin {
     sourceSets {
         jvmMain.dependencies {
             implementation("com.varabyte.kobweb:kobweb-api:0.25.0")
+            implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
         }
         jsMain.dependencies {
             implementation("androidx.compose.runtime:runtime:1.11.2")

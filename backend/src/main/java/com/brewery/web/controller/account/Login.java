@@ -4,7 +4,6 @@ import com.brewery.web.dto.formdata.LoginFormData;
 import com.brewery.web.model.User;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.SessionUser;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -34,30 +33,7 @@ public class Login {
         model.addAttribute("login_user", new User());
         return "account/login";
     }
-
-    @ResponseBody
-    @PostMapping(path = { "/auth/login" }, produces = { "application/json" })
-    public ResponseEntity<ObjectNode> authLogin(HttpServletRequest request, LoginFormData formData) {
-        boolean isValidAuthLoginRequest = request.getHeader("Authorization") != null && !request.getHeader("Authorization").isEmpty()
-                && request.getHeader("Authorization").equals();
-
-        if(!isValidAuthLoginRequest) {
-            
-        }
-
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode respJson = mapper.createObjectNode();
-        respJson.put("success", false);
-        respJson.put("message", "");
-        ObjectNode data = respJson.putObject("data");
-
-
-
-        return ResponseEntity.status(200).body(respJson);
-    }
-
-
+    
     @ResponseBody
     @PostMapping(value = { "/login" }, consumes = { "application/json" }, produces = {  "application/json" })
     public ResponseEntity<ObjectNode> login(

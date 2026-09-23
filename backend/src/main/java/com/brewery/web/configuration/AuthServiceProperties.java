@@ -3,16 +3,11 @@ package com.brewery.web.configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Server-side configuration. Never serialize or log the secret. */
 @Component
 public final class AuthServiceProperties {
-    private final String secretKey;
+    private static final String SECRET_KEY = System.getenv("AUTH_SERVICE_SECRET_KEY");
 
-    public AuthServiceProperties(@Value("${AUTH_SERVICE_SECRET_KEY:}") String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public String getSecretKey() {
-        return this.secretKey;
+    public static String getSecretKey() {
+        return SECRET_KEY;
     }
 }

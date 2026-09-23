@@ -19,9 +19,8 @@ public class FilterConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<ServiceAuthenticationFilter> serviceAuthFilter(
-            ServiceCredentialVerifier verifier) {
-        FilterRegistrationBean<ServiceAuthenticationFilter> registration = new FilterRegistrationBean<>();
+    public FilterRegistrationBean<ServiceAuthenticationFilter> serviceAuthFilter(ServiceCredentialVerifier verifier) {
+        FilterRegistrationBean<ServiceAuthenticationFilter> registration = new FilterRegistrationBean<ServiceAuthenticationFilter>();
 
         registration.setFilter(new ServiceAuthenticationFilter(verifier));
         registration.addUrlPatterns("/auth/*");

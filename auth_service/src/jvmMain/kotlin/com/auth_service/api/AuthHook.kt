@@ -1,5 +1,7 @@
 package com.auth_service.api
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.varabyte.kobweb.api.Api
 import com.varabyte.kobweb.api.ApiContext
 import com.varabyte.kobweb.api.http.HttpMethod
@@ -28,10 +30,16 @@ suspend fun login(ctx: ApiContext) {
         ctx.res.status = 405
         return
     }
+    val mapper: ObjectMapper = ObjectMapper();
+    val respJson: ObjectNode = mapper.createObjectNode();
+    respJson.put("success", false)
+    respJson.put("message", "")
+    val data: ObjectNode = respJson.putObject("data")
 
     val secretKey: String? = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
     if (secretKey == null) {
-        ctx.res.body = bodyOf("""{"success":false,"message":"Auth service is not configured."}""", "application/json")
+        respJson.put("message", "Auth Service is not configured.")
+        ctx.res.body = bodyOf(respJson.toString(), "application/json")
         ctx.res.status = 503
         return
     }
@@ -43,10 +51,9 @@ suspend fun login(ctx: ApiContext) {
     }
 
     // Keep the destination server-controlled; never take it from the browser.
-    val backendUrl: String = "https://${CRM_BACKEND_WHOLE}}"
-        .takeIf { value -> value.replace("https://", "").isNotBlank() } ?: "http://localhost:8080"
+    val backendUrl: String = CRM_BACKEND_URL
     try {
-        val request = HttpRequest.newBuilder(URI.create("${backendUrl.trimEnd('/')}/account/auth/login"))
+        val request = HttpRequest.newBuilder(URI.create("${backendUrl}/auth/login"))
             .timeout(Duration.ofSeconds(15))
             .header("Content-Type", requestBody.contentType)
             .header("Accept", "application/json")

@@ -12,6 +12,8 @@ import java.util.UUID;
 @Table(value = "roles")
 public class Role {
     public enum Name {
+        SUPER_ADMIN("Super Admin"),
+        COMPANY_ADMIN("Admin"),
         ADMIN("Admin"),
         MODERATOR("Moderator"),
         USER("User");

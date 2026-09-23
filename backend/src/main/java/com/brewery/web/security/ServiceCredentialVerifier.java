@@ -11,8 +11,8 @@ import java.security.MessageDigest;
 public final class ServiceCredentialVerifier {
     private final byte[] expectedKey;
 
-    public ServiceCredentialVerifier(AuthServiceProperties properties) {
-        String key = properties.getSecretKey();
+    public ServiceCredentialVerifier() {
+        String key = AuthServiceProperties.getSecretKey();
         this.expectedKey = key == null || key.isBlank() ? null : key.getBytes(StandardCharsets.UTF_8);
     }
 

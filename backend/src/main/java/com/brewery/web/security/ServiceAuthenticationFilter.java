@@ -28,6 +28,7 @@ public final class ServiceAuthenticationFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         if(!verifier.isConfigured()) {
+            System.err.println("Service authentication is not configured.");
             reject(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service authentication is not configured.");
             return;
         }
@@ -35,6 +36,7 @@ public final class ServiceAuthenticationFilter implements Filter {
         Enumeration<String> values = request.getHeaders(HEADER_NAME);
         String credential = values != null && values.hasMoreElements() ? values.nextElement() : null;
         if((values != null && values.hasMoreElements()) || !verifier.isValid(credential)) {
+            System.err.println("Invalid service credential.");
             reject(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid service credential.");
             return;
         }

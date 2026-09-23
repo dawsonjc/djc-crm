@@ -5,11 +5,11 @@ server:
   files:
     dev:
       contentRoot: "build/processedResources/js/main/public"
-      script: "build/kotlin-webpack/js/developmentExecutable/com-example.js"
-      api: "build/libs/com-example.jar"
+      script: "build/kotlin-webpack/js/developmentExecutable/com-auth_service.js"
+      api: "build/libs/com-auth_service.jar"
 
     prod:
-      script: "build/kotlin-webpack/js/productionExecutable/com-example.js"
+      script: "build/kotlin-webpack/js/productionExecutable/com-auth_service.js"
       siteRoot: ".kobweb/site"
   redirects:
     - from: "/"
