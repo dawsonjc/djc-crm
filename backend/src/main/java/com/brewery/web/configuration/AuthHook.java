@@ -30,7 +30,7 @@ public class AuthHook implements Filter {
 
         String servletPath = request.getServletPath();
 
-        if (PUBLIC_ENDPOINTS.contains(servletPath) || isPathWithin(servletPath, "/static") || isPathWithin(servletPath, "/company")) {
+        if (PUBLIC_ENDPOINTS.contains(servletPath) || isPathWithin(servletPath, "/static") || isPathWithin(servletPath, "/auth")) {
             filterChain.doFilter(request, response);
             return;
         }

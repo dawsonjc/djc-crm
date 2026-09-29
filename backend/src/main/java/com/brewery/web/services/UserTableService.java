@@ -118,7 +118,7 @@ public class UserTableService {
         user.setTimezone("en/us");
         user.setAccountVerificationStatus(User.VerificationStatus.VERIFIED);
 
-        Role defaultRole = this.roleService.getRoleByName("User");
+        Role defaultRole = this.roleService.getRoleByName(Role.Name.USER.toString());
 
         UserRole userRole = new UserRole();
         userRole.setRoleId(defaultRole.getRoleId());
@@ -128,7 +128,7 @@ public class UserTableService {
         userRole.setUpdateDate(now);
         userRole.setStatus(RecordStatus.ACTIVE);
 
-        user.setRoles(List.of(defaultRole.getRoleName()));
+        user.setRoles(List.of(userRole));
         User savedUser = this.repo.save(user);
         this.userRolesService.save(userRole);
 

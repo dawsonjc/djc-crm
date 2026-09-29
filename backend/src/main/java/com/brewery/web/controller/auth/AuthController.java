@@ -40,14 +40,16 @@ public class AuthController {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
         Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-
         boolean isEmail = emailPattern.matcher(formUser.username()).matches();
 
         if(!isEmail) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
-        UUID userId;
-        userId = this.userTableService.getUserIdByEmail(formUser.username());
+        if(!this.userTableService.userExistsByEmail(formUser.username())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
+        }
+
+        UUID userId = this.userTableService.getUserIdByEmail(formUser.username());
 
         User user = this.userTableService.getUserByIdAndPassword(userId, formUser.password());
 
@@ -57,6 +59,8 @@ public class AuthController {
 
         request.getSession().setAttribute("auth_user", user);
 
-        return ResponseEntity.ok().build();
+        respJson.put("success", true);
+
+        return ResponseEntity.status(HttpStatus.OK).body(respJson);
     }
 }

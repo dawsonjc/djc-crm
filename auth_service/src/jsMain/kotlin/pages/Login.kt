@@ -64,7 +64,7 @@ fun LoginPage() {
                 val body = response.json().await().asDynamic()
 
                 if (response.ok && body.success == true) {
-                    window.location.assign("/")
+                    window.location.assign("/company")
                 } else {
                     errorMessage = body.message?.toString()
                         ?.takeIf { it.isNotBlank() }
@@ -119,7 +119,7 @@ fun LoginPage() {
                             id("email")
                             classes("form-control")
                             value(email)
-                            attr("name", "email")
+                            attr("name", "username")
                             attr("placeholder", "you@example.com")
                             attr("autocomplete", "email")
                             required()

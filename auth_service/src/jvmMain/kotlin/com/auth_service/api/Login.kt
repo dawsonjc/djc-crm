@@ -1,6 +1,8 @@
 package com.auth_service.api
 
 import com.auth_service.http.HttpRequests
+import com.auth_service.auth.AuthSessions
+import com.auth_service.auth.loginSucceeded
 import com.auth_service.http.RequestMethod
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
@@ -55,16 +57,26 @@ suspend fun login(ctx: ApiContext) {
             ),
         )
 
-        ctx.res.body = bodyOf(
-            response.body(),
-            response.headers().firstValue("Content-Type").orElse("application/json"),
-        )
-        ctx.res.status = response.statusCode()
+        if (loginSucceeded(response.statusCode(), response.body())) {
+            val token = AuthSessions.current.create(ctx.req.cookies[AuthSessions.COOKIE_NAME])
+            ctx.res.headers.append("Set-Cookie", AuthSessions.cookie(
+                token, ctx.req.connection.origin.scheme == "https",
+            ))
+            respJson.put("success", true)
+            ctx.res.body = bodyOf(respJson.toString(), "application/json")
+            ctx.res.status = 200
+        } else {
+            ctx.res.body = bodyOf(
+                response.body(),
+                response.headers().firstValue("Content-Type").orElse("application/json"),
+            )
+            ctx.res.status = response.statusCode()
+        }
         response.headers().allValues("Set-Cookie").forEach {
             ctx.res.headers.append("Set-Cookie", it)
         }
-    } catch (_: Exception) {
-        respJson.put("message", "Unable to contact company login.")
+    } catch (e: Exception) {
+        respJson.put("message", e.message)
 
         ctx.res.body = bodyOf(respJson.toString(), "application/json")
         ctx.res.status = 502
