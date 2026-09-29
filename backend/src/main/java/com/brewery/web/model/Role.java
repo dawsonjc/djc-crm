@@ -28,6 +28,14 @@ public class Role {
             return this.name;
         }
 
+        public static Name fromString(String value) {
+            for(Name roleName : Name.values()) {
+                if(roleName.name.equalsIgnoreCase(value)) {
+                    return roleName;
+                }
+            }
+            throw new IllegalArgumentException("Unknown status: " + value);
+        }
     };
 
     @Id

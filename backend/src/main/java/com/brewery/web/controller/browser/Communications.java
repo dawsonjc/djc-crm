@@ -78,7 +78,7 @@ public class Communications {
         User user = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
         Message message = this.service.findMessage(messageId);
 
-        if(user.getRoles().contains(Role.Name.ADMIN.toString())) {
+        if(user.getRoles().stream().anyMatch(role -> role.getRoleName().equals(Role.Name.ADMIN.toString()))) {
             this.service.deleteMessage(message);
             responseJson.put("success", true);
 

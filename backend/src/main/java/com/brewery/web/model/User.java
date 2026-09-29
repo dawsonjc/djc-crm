@@ -93,7 +93,7 @@ public class User {
     private UUID authApiToken;
 
     @Transient
-    private List<String> roles;
+    private List<UserRole> roles;
 
     @Transient
     private List<ConversationDTO> conversations;
@@ -291,11 +291,11 @@ public class User {
         this.blockedUsers = blockedUsers;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(List<UserRole> roles) {
         this.roles = roles;
     }
 
-    public List<String> getRoles() {
+    public List<UserRole> getRoles() {
         return this.roles;
     }
 

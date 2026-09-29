@@ -84,6 +84,10 @@ public class UserRole {
         return roleName;
     }
 
+    public Role.Name getRoleNameEnum() {
+        return Role.Name.fromString(this.roleName);
+    }
+
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }

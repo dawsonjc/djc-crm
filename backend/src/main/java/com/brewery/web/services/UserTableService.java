@@ -86,7 +86,9 @@ public class UserTableService {
         user.setConversations(conversations);
     }
 
-    public List<String> getUsersRolesByUser(User user) {
+
+
+    public List<UserRole> getUsersRolesByUser(User user) {
         return this.userRolesService.getUsersRolesByUserId(user.getUserId());
     }
 

@@ -1,7 +1,9 @@
 package com.brewery.web.controller.account;
 
 import com.brewery.web.dto.formdata.LoginFormData;
+import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
+import com.brewery.web.model.UserRole;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.SessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -84,9 +86,9 @@ public class Login {
         data.put("userId", userId.toString());
         data.put("username", user.getUsername());
         ArrayNode rolesJsonArray = data.putArray("roles");
-        List<String> roles = user.getRoles();
-        for(String role : roles) {
-            rolesJsonArray.add(role);
+        List<UserRole> roles = user.getRoles();
+        for(UserRole role : roles) {
+            rolesJsonArray.add(role.getRoleName());
         }
 
         request.getSession().setAttribute(SessionUser.SESSION_USER, user.toSessionUser());

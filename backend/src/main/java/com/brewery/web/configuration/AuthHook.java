@@ -1,5 +1,6 @@
 package com.brewery.web.configuration;
 
+import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
 import com.brewery.web.user.SessionUser;
 import jakarta.servlet.Filter;
@@ -43,7 +44,7 @@ public class AuthHook implements Filter {
         }
 
         if (isPathWithin(servletPath, "/admin")
-                && (loggedIn.getRoles() == null || !loggedIn.getRoles().contains("Admin"))) {
+                && (loggedIn.getRoles() == null || loggedIn.getRoles().stream().noneMatch(role -> role.getRoleName().equals(Role.Name.ADMIN.toString())))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
             return;
         }

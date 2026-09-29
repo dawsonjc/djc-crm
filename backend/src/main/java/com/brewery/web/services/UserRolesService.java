@@ -15,13 +15,17 @@ public class UserRolesService {
     @Autowired
     private UserRoleRepository repo;
 
-    public List<String> getUsersRolesByUserId(UUID userId) {
-        List<UserRole> roles = this.repo.getAllRoleByUserId(userId);
+    public List<UserRole> getUsersRolesByUserId(UUID userId) {
+        return this.repo.getAllRoleByUserId(userId);
+    }
+
+    public List<String> getUserRoleNamesByUserId(UUID userId) {
+        List<UserRole> roles = this.getUsersRolesByUserId(userId);
 
         List<String> roleNames = new ArrayList<String>(roles.size());
 
-        for(UserRole userRole : roles) {
-            roleNames.add(userRole.getRoleName());
+        for(UserRole role : roles) {
+            roleNames.add(role.getRoleName());
         }
 
         return roleNames;
