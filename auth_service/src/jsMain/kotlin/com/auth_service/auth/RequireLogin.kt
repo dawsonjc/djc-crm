@@ -21,7 +21,13 @@ fun RequireLogin(content: @Composable () -> Unit) {
         if (!publicPage) {
             val authenticated = try {
                 val response: Response = window.fetch("/api/session").await()
-                response.ok && response.json().await().asDynamic().authenticated
+                if (!response.ok) {
+                    false
+                } else {
+                    // Keep the suspension typed before accessing dynamic JSON properties.
+                    val payload: Any? = response.json().await()
+                    payload?.asDynamic()?.authenticated == true
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
