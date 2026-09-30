@@ -1,5 +1,5 @@
 site:
-  title: "My Kobweb App"
+  title: "Authentication Service"
 
 server:
   files:

@@ -15,12 +15,39 @@ dependencies {
 
     //implementation project(":scala_js")
     implementation project(":backend")
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 
 bootRun {
-    dependsOn(":scala_js:link")
+    dependsOn(":scala_js:link", ":backend:classes", "prepareDevReload")
     mainClass = "com.brewery.web.BackendApplication"
+    // DevTools needs editable backend classes in directories, not a packaged jar.
+    doFirst {
+        def backend = project(':backend')
+        classpath = classpath.minus(files(backend.tasks.named('jar').get().archiveFile)) +
+                backend.sourceSets.main.output + files(layout.buildDirectory.dir('dev-reload'))
+    }
+    systemProperty 'spring.devtools.restart.trigger-file', '.reload-trigger'
+}
+
+tasks.register('prepareDevReload') {
+    doLast {
+        def trigger = layout.buildDirectory.file('dev-reload/.reload-trigger').get().asFile
+        trigger.parentFile.mkdirs()
+        if (!trigger.exists()) trigger.text = 'ready\n'
+    }
+}
+
+tasks.register('reloadApp') {
+    group = 'application'
+    description = 'Recompile the app and Scala.js, then trigger a running DevTools restart.'
+    dependsOn(':backend:classes', 'classes', ':scala_js:link')
+    doLast {
+        def trigger = layout.buildDirectory.file('dev-reload/.reload-trigger').get().asFile
+        trigger.parentFile.mkdirs()
+        trigger.text = "${System.nanoTime()}\n"
+    }
 }
 
 bootWar {

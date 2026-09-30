@@ -255,6 +255,36 @@ The root convenience task is equivalent:
 
 The local application connects to `localhost:9042`. Code running inside Compose connects to the service hostname `cassandra:9042`. A host process should not use generated container names such as `website_chat-cassandra-1`.
 
+### Bash launchers and reloading changes
+
+All five scripts load the repository's trusted, Bash-compatible `.env`, accept
+CRLF line endings, and work from any current directory. Use Bash, Git Bash, or WSL:
+
+```bash
+bash run-dev.sh       # Auth and app together; Ctrl+C stops both
+bash run-app.sh       # Only the Spring Boot/JSP/Scala.js app
+bash run-auth.sh      # Only auth; Ctrl+C stops its Kobweb server
+```
+
+Keep the launcher open and run these in another terminal after editing:
+
+```bash
+bash reload-app.sh    # Compile Java/resources, link Scala.js, trigger app restart
+bash reload-auth.sh   # Rebuild Kotlin/JS and JVM auth code, reuse the Kobweb server
+```
+
+App reload uses Spring Boot DevTools and signals a restart only after the build
+succeeds. Allow a few seconds for the restart, then refresh the browser for UI
+changes. Active requests/WebSocket connections may be interrupted during restart.
+Auth reload starts a server if none is running; stop that standalone server with
+`bash ./gradlew :auth_service:kobwebStop`.
+
+Restart launchers that were started before this reload support was added. Changes
+to `.env`, dependencies, or server startup configuration require a full stop/start.
+Do not run two launchers for the same service simultaneously. Extra arguments are
+passed to Gradle, for example `bash run-app.sh --args=--server.port=8081` (also
+supported by `run-dev.sh`). These scripts do not start Cassandra; use Docker above.
+
 ### Build without running
 
 Compile the Scala.js bundle and package the executable WAR:

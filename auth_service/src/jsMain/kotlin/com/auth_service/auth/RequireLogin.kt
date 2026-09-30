@@ -7,6 +7,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.await
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.fetch.Response
 
 /** All pages are private except the exact login route. Never render private content before verification. */
 @Composable
@@ -19,8 +20,8 @@ fun RequireLogin(content: @Composable () -> Unit) {
     LaunchedEffect(path) {
         if (!publicPage) {
             val authenticated = try {
-                val response = window.fetch("/api/session").await()
-                response.ok && response.json().await().asDynamic().authenticated == true
+                val response: Response = window.fetch("/api/session").await()
+                response.ok && response.json().await().asDynamic().authenticated
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
