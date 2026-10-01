@@ -1,0 +1,13 @@
+# Keep this image's context limited to build configuration and auth sources.
+**
+!gradlew
+!gradlew.bat
+!gradle/
+!gradle/**
+!auth_service/
+!auth_service/docker.settings.gradle
+!auth_service/build.gradle.kts
+!auth_service/.kobweb/
+!auth_service/.kobweb/conf.yaml
+!auth_service/src/
+!auth_service/src/**

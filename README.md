@@ -6,7 +6,7 @@ This project is evolving from a real-time chat application into a JVM-first cust
 
 The target product is a multi-workspace CRM in which a team can manage its customer lifecycle, collaborate around customer records, follow a sales pipeline, schedule work, receive actionable notifications, and retain a unified activity history. The current product is not production-ready: chat and basic account workflows are partially functional, the CRM tables are schema-only, and several security and application workflows remain to be built.
 
-The primary runnable path is the Spring Boot/JSP/Scala.js application. A separate Kotlin Multiplatform/Kobweb authentication UI is experimental and is not part of the main Docker Compose runtime.
+The main application uses Spring Boot, JSP, and Scala.js. A separate Kotlin Multiplatform/Kobweb authentication webapp is also included in Docker Compose. It forwards administrator login requests to the backend and maintains its own browser session; it does not yet provide a unified sign-in flow for the main application.
 
 ## Product vision
 
@@ -36,8 +36,8 @@ The CRM should remain query-first and operationally focused. Cassandra is suitab
 
 | Capability | Status | Current reality | Intended destination |
 |---|---|---|---|
-| Accounts and sessions | Partial | Registration, bcrypt login, logout, roles, and session authentication exist | Spring Security, robust validation, recovery, verification, workspace membership, and secure session/token lifecycle |
-| Administration | Partial | Admin page can list and verify pending users; route filtering exists | Workspace administration, users, teams, permissions, audit log, settings, and policy enforcement |
+| Accounts and sessions | Partial | Registration, bcrypt login, logout, roles, and separate auth-service sessions exist; main-app session types are inconsistent | Spring Security, robust validation, recovery, verification, workspace membership, and secure session/token lifecycle |
+| Administration | Partial | Verification endpoint, role filtering, and an admin JSP exist; page rendering needs repair | Workspace administration, users, teams, permissions, audit log, settings, and policy enforcement |
 | Chat | Partial | Global Chat, message history, WebSockets, and soft deletion exist | Direct/team/record conversations, mentions, presence, attachments, search, and reliable authorization |
 | Events and notifications | Backend partial | Persistence, list/count/read/archive APIs, and an SSE service exist; producers and browser integration are missing | Reliable event production, inbox UI, preferences, expiry, and delivery workers |
 | Organizations | Schema only | Canonical and owner/name/domain projections exist | CRUD, ownership, hierarchy, contacts, deals, activity timeline, duplicate detection, and UI |
@@ -47,7 +47,7 @@ The CRM should remain query-first and operationally focused. Cassandra is suitab
 | Tasks | Schema only | Canonical, owner/month, and related-record projections exist | Assignment, reminders, recurring work, completion events, calendars, and UI |
 | Notes and activities | Schema only | Canonical records and timeline projections exist | Unified record timeline for notes, calls, emails, meetings, messages, and system changes |
 | Teams | Schema only | Team and membership projections exist | Workspace-scoped teams, managers, membership lifecycle, permissions, routing, and reporting |
-| Tests and delivery | Not implemented | Builds are manually verified | Automated tests, CI, versioned migrations, observability, backups, and deployment environments |
+| Tests and delivery | Limited | Auth-service JVM tests, Docker images, and development launch/reload scripts exist | Automated tests, CI, versioned migrations, observability, backups, and deployment environments |
 
 ## JVM-first restriction
 
@@ -62,7 +62,7 @@ Scala.js and Kotlin/JS generate JavaScript because browsers execute JavaScript, 
 
 ## Current functionality
 
-Implemented or substantially implemented:
+Existing implementation (some workflows remain blocked by the limitations below):
 
 - User registration and JSON-based login.
 - Session-backed authentication.
@@ -81,21 +81,23 @@ Incomplete or experimental:
 - Friend/conversation creation constructs a conversation but does not currently persist it.
 - Forgot-password submission returns HTTP `501 Not Implemented`.
 - The `/account` controller view is unfinished.
-- The Kotlin/Kobweb authentication service is separate from the primary application flow.
+- Main login stores a `SessionUser` under `current_user`, but `AuthHook` expects a `User` and several controllers cast that attribute to `User`. Protected main-app workflows need consistent session handling before they can be considered functional.
+- The admin page handler is mapped to `/admin/login` on a `@RestController`, so it returns the view name as text instead of rendering the JSP. There is no page handler for `/admin` itself.
+- The Kotlin/Kobweb authentication service connects to backend `/auth/login`, but its session is separate from the main application. Its company page is a heading only, and backend `/auth/company` returns an empty response.
 - CRM schema tables exist, but corresponding application services and UI are not yet implemented.
 - Notification creation is not yet wired into application workflows, and the browser does not consume the notification API or SSE stream.
-- Automated test coverage is not currently present.
+- Automated coverage is limited to auth-service session and HTTP-client tests; the main app and CRM workflows still need coverage.
 
 ## Technology stack
 
 | Area | Technology |
 |---|---|
 | Runtime | Java 21 |
-| Build | Gradle Wrapper 9.2.0 |
+| Build | Gradle Wrapper 9.7.0 |
 | Server | Spring Boot 3.5.5 |
 | HTTP/MVC | Spring Web MVC, Jakarta Servlet, embedded Tomcat |
 | Server-rendered UI | JSP and JSTL |
-| Primary browser code | Scala 3.7.3 and Scala.js 1.20.1 |
+| Primary browser code | Scala 3.7.3 and Scala.js 1.22.0 |
 | Browser interop | scalajs-dom and Udash jQuery wrappers |
 | Experimental UI | Kotlin Multiplatform 2.4.0, Kobweb 0.25.0, Compose HTML |
 | Database | Apache Cassandra 4.1.7 |
@@ -112,6 +114,8 @@ Incomplete or experimental:
 flowchart LR
     Browser[Browser] -->|HTTP / JSP| App[Spring Boot application]
     Browser <-->|WebSocket /communication| App
+    AuthBrowser[Auth webapp browser] -->|HTTP on port 8443| Auth[Kobweb auth service]
+    Auth -->|HTTP /auth/login with service credential| App
     Scala[Scala.js browser bundle] --> Browser
     App -->|CQL on port 9042| Cassandra[(Cassandra)]
     Init[cassandra-init job] -->|project.cql then crm-schema.cql| Cassandra
@@ -124,6 +128,7 @@ The Compose startup order is:
 1. `cassandra` starts and passes its CQL health check.
 2. `cassandra-init` applies the chat schema followed by the CRM schema, then exits with status `0`.
 3. `app` starts only after Cassandra is healthy and initialization succeeds.
+4. `auth_service` starts after the `app` container has started. This dependency does not wait for application readiness.
 
 An exited `cassandra-init` container is expected. It is a one-time job for each Compose invocation, not a second database server.
 
@@ -134,10 +139,10 @@ djc-crm/
 ├── backend/                 Java Spring Boot controllers, services, models, and repositories
 ├── frontend/                JSP views, Spring configuration, and executable WAR packaging
 ├── scala_js/                Scala.js source for primary browser behavior
-├── auth_service/            Experimental Kotlin/Kobweb authentication UI
+├── auth_service/            Kotlin/Kobweb authentication webapp, API, tests, and Docker image
 ├── cassandra/               Cassandra image, schemas, and CRM query documentation
 ├── Dockerfile               Multi-stage Java 21 application image
-├── docker-compose.yml       Cassandra, schema initializer, and application services
+├── docker-compose.yml       Cassandra, schema initializer, main app, and auth service
 ├── build.gradle             Root convenience tasks
 └── settings.gradle          Gradle module declarations
 ```
@@ -154,7 +159,7 @@ djc-crm/
 : Compiles Scala browser code into ES modules and copies the linked output into `frontend/src/main/webapp/static/js`. Page entry modules are `shell.js`, `login.js`, `register.js`, `conversations.js`, and `admin.js`, with shared generated modules. JSP pages select their entry module through `scalaJsModule`. Generated `.js` and `.js.map` files should generally not be edited manually.
 
 `auth_service`
-: Experimental Kobweb application with a Kotlin/JS login page. It is available through the root `runAuth` task but is not included as a Compose service.
+: Kobweb application with a Kotlin/JS login page, JVM API handlers, in-memory sessions, and JVM tests. Run it through `runAuth`, the Bash launchers, or the `auth_service` Compose service. Its Docker build uses isolated module settings in `auth_service/docker.settings.gradle`.
 
 ## Prerequisites
 
@@ -174,7 +179,15 @@ On Windows, commands below use PowerShell and `gradlew.bat`. On Linux or macOS, 
 
 ## Quick start with Docker Compose
 
-Build and start the complete stack from the repository root:
+If `.env` does not already exist, copy the example from the repository root:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Set `AUTH_SERVICE_SECRET_KEY` in `.env` to a non-empty random secret. Compose supplies the same value to both webapps. A blank value leaves auth-service login unavailable; it is not required for the main app's separate `/account/login` endpoint.
+
+Build and start the complete stack:
 
 ```powershell
 docker compose up -d --build
@@ -185,6 +198,7 @@ The initial build can take several minutes because it downloads Java, Gradle, Sc
 Open:
 
 - Application: <http://localhost:8080>
+- Authentication webapp: <http://localhost:8443/login> (HTTP, despite the port number).
 - Cassandra native protocol: `localhost:9042`
 
 Inspect service state:
@@ -198,11 +212,12 @@ Expected state after startup:
 - `cassandra`: running and healthy.
 - `cassandra-init`: exited with code `0`.
 - `app`: running.
+- `auth_service`: running.
 
 Follow application logs:
 
 ```powershell
-docker compose logs -f app
+docker compose logs -f app auth_service
 ```
 
 Follow Cassandra and schema initialization logs:
@@ -255,9 +270,11 @@ The root convenience task is equivalent:
 
 The local application connects to `localhost:9042`. Code running inside Compose connects to the service hostname `cassandra:9042`. A host process should not use generated container names such as `website_chat-cassandra-1`.
 
+Direct Gradle commands do not load the root `.env` file. To use the separate auth service with host-run processes, export the same `AUTH_SERVICE_SECRET_KEY` in both processes or use the Bash launchers below. Stop the containerized auth service with `docker compose stop auth_service` before starting a local auth server on port `8443`.
+
 ### Bash launchers and reloading changes
 
-All five scripts load the repository's trusted, Bash-compatible `.env`, accept
+All five scripts require and load the repository's trusted, Bash-compatible `.env`, accept
 CRLF line endings, and work from any current directory. Use Bash, Git Bash, or WSL:
 
 ```bash
@@ -279,7 +296,7 @@ changes. Active requests/WebSocket connections may be interrupted during restart
 Auth reload starts a server if none is running; stop that standalone server with
 `bash ./gradlew :auth_service:kobwebStop`.
 
-Restart launchers that were started before this reload support was added. Changes
+Changes
 to `.env`, dependencies, or server startup configuration require a full stop/start.
 Do not run two launchers for the same service simultaneously. Extra arguments are
 passed to Gradle, for example `bash run-app.sh --args=--server.port=8081` (also
@@ -311,15 +328,17 @@ Validate the resolved Compose configuration:
 docker compose config
 ```
 
-### Experimental Kotlin/Kobweb UI
+### Kotlin/Kobweb authentication webapp
 
-Run the experimental authentication project separately:
+With the backend running and the shared secret exported, start the authentication project separately:
 
 ```powershell
 .\gradlew.bat runAuth
 ```
 
-Its Kobweb configuration currently uses port `8443` and redirects `/` to `/login`. This module is not required to run the Spring Boot chat application. Its login form posts to the relative URL `/account/login`; the repository does not configure a proxy from the separate Kobweb server to Spring Boot. Running both servers alone does not connect the login flow.
+The server uses HTTP on port `8443` and redirects `/` to `/login`. The browser posts to Kobweb's `/api/login`; its JVM handler forwards the request to backend `/auth/login` with the service secret. The backend currently requires an existing account's email, password, and Admin role. The seeded roles do not create an administrator account.
+
+Successful login creates a 30-minute `AUTH_SERVICE_SESSION` cookie. Sessions are kept in memory and are lost when the auth service restarts. The protected `/company` page is currently a placeholder. Signing in here does not establish the main app's `current_user` session.
 
 To check or bundle this module without starting its development server:
 
@@ -328,7 +347,7 @@ To check or bundle this module without starting its development server:
 .\gradlew.bat :auth_service:authBundle
 ```
 
-`authCheck` delegates to Gradle's `check` task; it does not imply that automated tests have been added.
+`authCheck` delegates to Gradle's `check` task, including the available auth-service tests. Run only the JVM tests with `.\gradlew.bat :auth_service:jvmTest`. `authBundle` builds the browser bundle; the auth Dockerfile uses `kobwebExport` to produce the complete site and server artifacts.
 
 ## Configuration
 
@@ -341,8 +360,14 @@ The primary configuration file is `frontend/src/main/resources/application.yml`.
 | `CASSANDRA_KEYSPACE_NAME` | `mykeyspacename` | Application keyspace |
 | `CASSANDRA_LOCAL_DATACENTER` | `datacenter1` | Driver local datacenter |
 | `CASSANDRA_SCHEMA_ACTION` | `NONE` | Spring Data schema behavior |
+| `AUTH_SERVICE_SECRET_KEY` | Unset | Shared credential required by both webapps for service-to-service login |
+| `CRM_BACKEND_URL` | `http://localhost:8080` | Auth service's backend base URL; overrides hostname and port when set |
+| `CRM_BACKEND_HOSTNAME` | `localhost` | Backend hostname when `CRM_BACKEND_URL` is unset |
+| `CRM_BACKEND_PORT` | `8080` | Backend port when `CRM_BACKEND_URL` is unset |
 
-Compose supplies equivalent `SPRING_CASSANDRA_*` properties and changes the contact point to the internal `cassandra` service hostname.
+Compose supplies equivalent `SPRING_CASSANDRA_*` properties and changes the contact point to the internal `cassandra` service hostname. It sets the auth service's `CRM_BACKEND_URL` to `http://app:8080` and passes the shared secret to both webapps.
+
+The legacy `CRM_BACKEND_HOST`, `KOBWEB_SERVICE_HOSTNAME`, and `KOBWEB_SERVICE_HOSTPORT` entries in `.env.example` are not read by the current application source. Kobweb's port is configured in `auth_service/.kobweb/conf.yaml`.
 
 Schema creation intentionally belongs to `cassandra-init`, so Spring Data uses `schema-action: NONE`. Do not enable automatic table creation while the CQL scripts own the schema; the message projection is a materialized view and can otherwise collide with Spring's table creation logic.
 
@@ -379,11 +404,11 @@ Record statuses are stored as display values such as `Active` and `Disabled`. Re
 - Notes and activities.
 - Teams and memberships.
 
-`workspace_id` is the CRM tenant boundary. Cassandra projections must be maintained explicitly: when a field used in a projection primary key changes, application code must delete the old projection row and insert the replacement. See `cassandra/CRM_SCHEMA.md` and `cassandra/crm-query-examples.cql` for model rules and example queries.
+`workspace_id` is the CRM tenant boundary. Cassandra projections must be maintained explicitly: when a field used in a projection primary key changes, application code must delete the old projection row and insert the replacement. See [CRM schema documentation](cassandra/CRM_SCHEMA.md) and [query examples](cassandra/crm-query-examples.cql) for model rules and example queries.
 
 #### CRM table catalog and intended use
 
-These tables describe planned access patterns; there are not yet Java entities, repositories, services, controllers, or screens for them.
+These tables describe planned access patterns; there are not yet Java entities, repositories, services, or functional CRUD endpoints and screens for them. The auth service's company page and the backend company endpoint are placeholders.
 
 | Domain | Canonical source | Read projections | Intended application behavior |
 |---|---|---|---|
@@ -468,7 +493,7 @@ Important routes currently include:
 | `GET` | `/message` | Load older conversation messages |
 | `DELETE` | `/message/delete` | Soft-delete a message |
 | `POST` | `/add-friend` | Experimental direct-conversation creation |
-| `GET` | `/admin` | Administrator page |
+| `GET` | `/admin/login` | Intended administrator page; currently returns the view name as text |
 | `POST` | `/admin/user/verify` | Verify an account |
 | `GET` | `/api/events?limit=25&type=...` | Current user's visible notifications and unread count; type is optional |
 | `GET` | `/api/events/count` | Current user's unread count |
@@ -478,16 +503,29 @@ Important routes currently include:
 | `PATCH` | `/api/events/{eventId}/archive` | Archive and mark one notification read |
 | WebSocket | `/communication` | Send and receive live conversation messages |
 
-The authentication filter allows account and static-resource routes without a session, restricts `/admin` to the Admin role, and prevents pending accounts from using message endpoints.
+The main authentication filter allows login, registration, password-recovery, and static-resource routes without a session. It is intended to restrict `/admin/*` to the Admin role and `/message/*` to verified accounts, but the session-type mismatch described below currently prevents normal access after login. Backend `/auth/*` routes bypass this user-session filter and instead require the service credential.
+
+The separate authentication flow adds these routes:
+
+| Service | Method | Path | Purpose |
+|---|---|---|---|
+| Kobweb (`8443`) | `GET` | `/login` | Administrator sign-in page |
+| Kobweb (`8443`) | `POST` | `/api/login` | Forward login to the backend and establish an auth-service session |
+| Kobweb (`8443`) | `GET` | `/api/session` | Check the auth-service session; returns `401` when unauthenticated |
+| Kobweb (`8443`) | `GET` | `/company` | Session-guarded placeholder page |
+| Spring Boot (`8080`) | `POST` | `/auth/login` | Credential and Admin-role check; handler currently uses an unrestricted `@RequestMapping` |
+| Spring Boot (`8080`) | `GET` | `/auth/company` | Empty placeholder behind the service-credential filter |
 
 ## Authentication and authorization model
 
-- Login verifies a bcrypt password and stores the `User` in the HTTP session as `current_user`.
+- Main-app login verifies a bcrypt password and stores a `SessionUser` as `current_user`. The filter and several controllers still expect `User`; this mismatch needs repair.
 - Browser sessions expire after 30 minutes according to `web.xml`.
 - Roles are stored separately in Cassandra and attached to the user model.
 - Administrative HTTP routes are checked by the servlet filter.
 - Message deletion is allowed for the original author or an administrator.
 - New accounts require administrator verification before message operations are allowed.
+
+Auth-service login forwards credentials server-side using `X-Auth-Service-Secret-Key`. Missing backend configuration returns `503`; an invalid service credential returns `401`. This credential authenticates the calling service, not an end user. Backend `/auth/login` stores `auth_user` separately. Kobweb issues its own opaque session cookie with `HttpOnly`, `SameSite=Lax`, and `Secure` when the request uses HTTPS.
 
 This is a custom authentication system, not Spring Security. That distinction matters for production hardening.
 
@@ -505,6 +543,14 @@ This is a custom authentication system, not Spring Security. That distinction ma
 - Never commit credentials, production secrets, or environment-specific `.env` files.
 
 ## Troubleshooting
+
+### Auth-service login is unavailable
+
+Ensure both webapps receive the same non-empty `AUTH_SERVICE_SECRET_KEY`, and restart them after changing it. For host-run auth, the backend URL defaults to `http://localhost:8080`; Compose uses `http://app:8080`. Sign in with an existing Admin account's email and password. If auth starts before the backend is ready, retry after the backend has finished starting.
+
+### Main-app login succeeds but redirects back to login
+
+The current main login handler stores `SessionUser`, while `AuthHook` requires `User`. This is an application-code mismatch, not a Cassandra connection or shared-secret configuration issue. The session model must be made consistent across login, filters, and controllers.
 
 ### Application cannot connect to Cassandra during `bootRun`
 
@@ -597,11 +643,12 @@ The ordering below treats security, tenant boundaries, and consistency as prereq
 
 ### Phase 0 — stabilize the foundation
 
-- Add unit tests for services, converters, validation, and authorization decisions.
+- Expand the existing auth-service tests and add unit tests for main-app services, converters, validation, and authorization decisions.
 - Add Cassandra integration tests using disposable infrastructure and test the actual CQL projections.
 - Add HTTP and WebSocket integration tests and a CI build for `:frontend:bootWar`.
 - Adopt Spring Security for sessions, role checks, CSRF, secure cookie settings, and WebSocket identity.
 - Replace client-supplied WebSocket user identity with authenticated server-side identity.
+- Unify the main-app session model and repair admin page rendering; define how auth-service sessions should relate to main-app sessions.
 - Harden registration conflict handling against concurrent requests, and complete direct-conversation persistence, account pages, verification delivery, and password recovery.
 - Add structured error responses, request validation, centralized exception handling, and production-safe error configuration.
 - Choose the long-term frontend direction: JSP plus Scala.js, or Kotlin/Kobweb. Avoid indefinitely maintaining two competing UI stacks.

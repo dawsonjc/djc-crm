@@ -52,6 +52,22 @@ services:
       SPRING_CASSANDRA_KEYSPACE_NAME: mykeyspacename
       SPRING_CASSANDRA_LOCAL_DATACENTER: datacenter1
       SPRING_CASSANDRA_SCHEMA_ACTION: NONE
+      AUTH_SERVICE_SECRET_KEY: ${AUTH_SERVICE_SECRET_KEY:-}
+
+  auth_service:
+    image: website-chat-auth:local
+    build:
+      context: .
+      dockerfile: auth_service/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+    ports:
+      - "8443:8443"
+    environment:
+      CRM_BACKEND_URL: http://app:8080
+      AUTH_SERVICE_SECRET_KEY: ${AUTH_SERVICE_SECRET_KEY:-}
 
 volumes:
   cassandra-data:

@@ -17,7 +17,7 @@ class AuthSessions(private val clock: Clock = Clock.systemUTC()) {
         if (previous != null) sessions.remove(previous)
         val now = clock.instant()
         sessions.entries.removeIf { !it.value.isAfter(now) }
-        val token = Base64.getUrlEncoder().withoutPadding()
+        val token: String = Base64.getUrlEncoder().withoutPadding()
             .encodeToString(ByteArray(32).also(random::nextBytes))
         sessions[token] = now.plus(LIFETIME)
         return token
@@ -25,7 +25,7 @@ class AuthSessions(private val clock: Clock = Clock.systemUTC()) {
 
     fun isAuthenticated(token: String?): Boolean {
         if (token == null) return false
-        val expires = sessions[token] ?: return false
+        val expires: Instant = sessions[token] ?: return false
         if (expires.isAfter(clock.instant())) return true
         sessions.remove(token, expires)
         return false
