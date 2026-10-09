@@ -1,8 +1,8 @@
 <%@ page import="com.brewery.web.model.User" %>
 <%@ page import="com.brewery.web.user.SessionUser" %>
 <%
-    User user = (User) request.getSession(false).getAttribute(SessionUser.SESSION_USER);
-    String displayName = user == null ? "John Doe" : user.getUsername();
+    SessionUser user = (SessionUser) request.getSession(false).getAttribute(SessionUser.SESSION_USER);
+    String displayName = user == null ? "John Doe" : user.username();
     String scalaJsModule = (String) request.getAttribute("scalaJsModule");
     if (scalaJsModule == null) {
         scalaJsModule = "shell";

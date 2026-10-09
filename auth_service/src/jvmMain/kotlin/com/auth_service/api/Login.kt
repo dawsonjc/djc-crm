@@ -67,8 +67,8 @@ suspend fun login(ctx: ApiContext) {
             ctx.res.status = 200
         } else {
             ctx.res.body = bodyOf(
-                response.body(),
-                response.headers().firstValue("Content-Type").orElse("application/json"),
+                bytes = response.body(),
+                contentType = response.headers().firstValue("Content-Type").orElseGet { "application/json" },
             )
             ctx.res.status = response.statusCode()
         }
@@ -76,7 +76,7 @@ suspend fun login(ctx: ApiContext) {
             ctx.res.headers.append("Set-Cookie", it)
         }
     } catch (e: Exception) {
-        respJson.put("message", e.message)
+        respJson.put("message", "Something went wrong!")
 
         ctx.res.body = bodyOf(respJson.toString(), "application/json")
         ctx.res.status = 502

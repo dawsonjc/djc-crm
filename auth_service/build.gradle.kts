@@ -24,18 +24,21 @@ kotlin {
     }
 
     sourceSets {
+        commonMain.dependencies {
+            implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
+        }
         jvmMain.dependencies {
             implementation("com.varabyte.kobweb:kobweb-api:0.25.0")
             implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
-        }
-        jvmTest.dependencies {
-            implementation("org.junit.jupiter:junit-jupiter:5.12.2")
-            runtimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
         }
         jsMain.dependencies {
             implementation("androidx.compose.runtime:runtime:1.11.2")
             implementation("org.jetbrains.compose.html:html-core:1.11.1")
             implementation("com.varabyte.kobweb:kobweb-core:0.25.0")
+        }
+        jvmTest.dependencies {
+            implementation("org.junit.jupiter:junit-jupiter:5.12.2")
+            runtimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
         }
     }
 }

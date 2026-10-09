@@ -19,7 +19,7 @@ object Login {
         val password: String = formData("password").toString;
         
         val formUser: FormUser = new FormUser();
-        formUser.username = HelpFunctions.cleanseString(formData("email").toString);
+        formUser.username = formData("email").toString;
         formUser.password = formData("password").toString;
         
         val res = jQ.ajax(js.Dynamic.literal(

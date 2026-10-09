@@ -85,11 +85,6 @@ public class Login {
 
         data.put("userId", userId.toString());
         data.put("username", user.getUsername());
-        ArrayNode rolesJsonArray = data.putArray("roles");
-        List<UserRole> roles = user.getRoles();
-        for(UserRole role : roles) {
-            rolesJsonArray.add(role.getRoleName());
-        }
 
         request.getSession().setAttribute(SessionUser.SESSION_USER, user.toSessionUser());
 

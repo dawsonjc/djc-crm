@@ -61,7 +61,7 @@ fun LoginPage() {
                         )),
                     ),
                 ).await()
-                val body = response.json().await().asDynamic()
+                val body: dynamic = response.json().await().asDynamic()
 
                 if (response.ok && body.success == true) {
                     window.location.assign("/company")
