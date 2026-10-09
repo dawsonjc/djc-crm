@@ -6,5 +6,5 @@ import com.varabyte.kobweb.api.http.HttpMethod
 
 @Api(routeOverride = "/company/add")
 fun companyAdd(context: ApiContext) {
-    if (context.req.method != HttpMethod.POST) return
+    if(context.req.method != HttpMethod.POST) return
 }

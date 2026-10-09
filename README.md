@@ -41,7 +41,7 @@ The CRM should remain query-first and operationally focused. Cassandra is suitab
 | Chat | Partial | Global Chat, message history, WebSockets, and soft deletion exist | Direct/team/record conversations, mentions, presence, attachments, search, and reliable authorization |
 | Events and notifications | Backend partial | Persistence, list/count/read/archive APIs, and an SSE service exist; producers and browser integration are missing | Reliable event production, inbox UI, preferences, expiry, and delivery workers |
 | Organizations | Schema only | Canonical and owner/name/domain projections exist | CRUD, ownership, hierarchy, contacts, deals, activity timeline, duplicate detection, and UI |
-| Contacts | Schema only | Canonical and organization/owner/email projections exist | CRUD, organization linkage, consent/preferences, lifecycle, communication history, deduplication, and UI |
+| Contacts | Schema only | Canonical and company/owner/email projections exist | CRUD, company linkage, consent/preferences, lifecycle, communication history, deduplication, and UI |
 | Leads | Schema only | Canonical, owner/status, and email projections exist | Capture, qualification, scoring, assignment, conversion, source attribution, and UI |
 | Pipelines and deals | Schema only | Pipeline, stages, opportunity records, and primary board/list projections exist | Configurable boards, stage transitions, forecasting, close outcomes, automation, and UI |
 | Tasks | Schema only | Canonical, owner/month, and related-record projections exist | Assignment, reminders, recurring work, completion events, calendars, and UI |
@@ -414,13 +414,13 @@ These tables describe planned access patterns; there are not yet Java entities, 
 |---|---|---|---|
 | Organizations | `crm_organizations_by_id` | `crm_organizations_by_owner`, `crm_organization_ids_by_name`, `crm_organization_ids_by_domain` | Account/company profiles, ownership queues, parent organizations, name/domain lookup, duplicate detection, and related contacts/deals |
 | Contacts | `crm_contacts_by_id` | `crm_contacts_by_organization`, `crm_contacts_by_owner`, `crm_contact_ids_by_email` | People associated with organizations, ownership, lifecycle stage, consent flags, contact lookup, and customer timelines |
-| Leads | `crm_leads_by_id` | `crm_leads_by_owner_status`, `crm_lead_ids_by_email` | Unqualified prospects, assignment, scoring, source tracking, qualification, and conversion into organization/contact/deal records |
+| Leads | `crm_leads_by_id` | `crm_leads_by_owner_status`, `crm_lead_ids_by_email` | Unqualified prospects, assignment, scoring, source tracking, qualification, and conversion into company/contact/deal records |
 | Pipelines | `crm_pipelines_by_id` | `crm_pipelines_by_workspace`, `crm_pipeline_stages_by_pipeline` | Workspace-configurable sales processes with ordered stages, probabilities, and won/lost semantics |
 | Deals | `crm_deals_by_id` | `crm_deals_by_pipeline_stage`, `crm_deals_by_owner_status`, `crm_deals_by_organization`, `crm_deals_by_contact` | Opportunities, kanban board queries, owner forecasts, expected close dates, relationship views, and win/loss tracking |
 | Tasks | `crm_tasks_by_id` | `crm_tasks_by_owner_due_month`, `crm_tasks_by_entity` | Follow-ups and internal work, owner queues, due-date views, reminders, priorities, completion, and links to CRM records |
 | Notes | `crm_notes_by_id` | `crm_notes_by_entity` | User-authored, optionally pinned context attached to organizations, contacts, leads, deals, or other supported entities |
 | Activities | `crm_activities_by_id` | `crm_activities_by_entity`, `crm_activities_by_owner_day` | Immutable-style timeline entries for calls, emails, meetings, messages, state changes, and other customer interactions |
-| Teams | `crm_teams_by_id` | `crm_teams_by_workspace`, `crm_team_members_by_team`, `crm_teams_by_user` | Workspace organization, managers, memberships, team-local roles, assignment/routing, and team-filtered views |
+| Teams | `crm_teams_by_id` | `crm_teams_by_workspace`, `crm_team_members_by_team`, `crm_teams_by_user` | Workspace company, managers, memberships, team-local roles, assignment/routing, and team-filtered views |
 
 `*_by_id` rows are canonical application records, not relational parents enforced by Cassandra. Projection consistency is an application responsibility. A write service should update the canonical row and every affected projection together as a deliberate workflow, ideally with idempotency and retry handling. Cassandra batches are appropriate only when the participating writes share a partition and atomicity is genuinely required; they should not be treated as relational transactions.
 
@@ -428,9 +428,9 @@ These tables describe planned access patterns; there are not yet Java entities, 
 
 - A workspace is the tenant boundary for all CRM records. A first-class workspace/member model still needs to be added; `workspace_id` currently exists only as a schema key.
 - A user may own organizations, contacts, leads, deals, tasks, and activities.
-- An organization may contain contacts and may have multiple deals, notes, tasks, activities, and conversations.
-- A lead is pre-conversion. Conversion should create or link an organization, contact, and optionally a deal, then record their IDs and emit a conversion event.
-- A deal belongs to a pipeline stage and may reference an organization and primary contact.
+- An company may contain contacts and may have multiple deals, notes, tasks, activities, and conversations.
+- A lead is pre-conversion. Conversion should create or link an company, contact, and optionally a deal, then record their IDs and emit a conversion event.
+- A deal belongs to a pipeline stage and may reference an company and primary contact.
 - Tasks, notes, activities, and future conversations use an entity type plus entity ID to attach work and history to different CRM record types.
 - Teams group users inside a workspace. Team roles must remain distinct from global application roles such as Admin, Moderator, and User.
 
@@ -657,7 +657,7 @@ The ordering below treats security, tenant boundaries, and consistency as prereq
 
 - Add canonical workspace and workspace-membership tables, services, roles, and invitation flow.
 - Define permission rules for workspace admins, managers, record owners, team members, and ordinary members.
-- Implement organization and contact entities, repositories, projection writers, services, APIs, and screens.
+- Implement company and contact entities, repositories, projection writers, services, APIs, and screens.
 - Add normalization and duplicate-detection policies for names, domains, emails, and phone numbers.
 - Implement notes, tasks, and a unified activity timeline attached to organizations and contacts.
 - Record create/update/assignment actions as activities and domain events.
@@ -665,9 +665,9 @@ The ordering below treats security, tenant boundaries, and consistency as prereq
 ### Phase 2 — leads and sales pipeline
 
 - Implement lead capture, assignment, qualification, scoring, status transitions, and source attribution.
-- Implement transactional-in-intent lead conversion with idempotent creation/linking of organization, contact, and deal records.
+- Implement transactional-in-intent lead conversion with idempotent creation/linking of company, contact, and deal records.
 - Build pipeline and ordered-stage administration.
-- Build deal CRUD, stage movement, owner views, organization/contact views, and pipeline board.
+- Build deal CRUD, stage movement, owner views, company/contact views, and pipeline board.
 - Calculate expected revenue consistently and retain stage-change and close history as activities.
 - Add won/lost workflows, loss reasons, forecasts, and safe projection-key migration when stage, owner, or status changes.
 
@@ -707,9 +707,9 @@ An initial usable release should not be considered complete until it supports al
 | Term | Meaning in this project |
 |---|---|
 | Workspace | Tenant boundary containing CRM data, users, teams, configuration, and permissions |
-| Organization | A company, account, nonprofit, household, or other customer organization |
-| Contact | A person associated with an organization or managed independently |
-| Lead | An unqualified prospect that may later become a contact, organization, and deal |
+| Organization | A company, account, nonprofit, household, or other customer company |
+| Contact | A person associated with an company or managed independently |
+| Lead | An unqualified prospect that may later become a contact, company, and deal |
 | Deal / opportunity | A revenue or outcome opportunity moving through a pipeline |
 | Pipeline stage | An ordered step with probability and open/won/lost meaning |
 | Activity | Timeline record of an interaction or meaningful system/user action |

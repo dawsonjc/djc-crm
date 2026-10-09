@@ -47,13 +47,14 @@ public class MessageSocket {
         UUID conversationUUID = UUID.fromString(paramMap.get("conversationId").getFirst());
         String conversationId = conversationUUID.toString();
         String userId = paramMap.get("userId").getFirst();
-        Map<String, Object> userProps = session.getUserProperties();
 
         User user = this.userTableService.getUserById(UUID.fromString(userId));
         List<com.brewery.web.dto.ConversationDTO> conversations = user.getConversations();
         if(conversations.stream().noneMatch((dto) -> {
             return dto.conversationId().equals(conversationUUID);
         })) { return; };
+        Map<String, Object> userProps = session.getUserProperties();
+
         userProps.put("conversationId", conversationId);
         userProps.put("userId", userId);
         conversationSessions.computeIfAbsent(conversationId, (k) -> {
