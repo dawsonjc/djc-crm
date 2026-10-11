@@ -6,6 +6,7 @@ import com.auth_service.http.HttpRequests
 import com.auth_service.http.RequestMethod
 import com.auth_service.model.Company
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.varabyte.kobweb.api.http.bytes
 import java.net.http.HttpResponse
@@ -13,13 +14,14 @@ import java.net.http.HttpResponse
 private val companyClient: HttpRequests = HttpRequests()
 
 class CompanyStore {
-    suspend fun add(company: Company) {
+    suspend fun add(company: Company): Unit {
 
     }
 
     suspend fun getAll(): List<Company> {
         val secretKey: String? = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
         if(secretKey == null) {
+            println("SECRET KEY NULL ON CompanyStore.getAll")
             return listOf()
         }
 
@@ -36,9 +38,12 @@ class CompanyStore {
                 )
             )
         } catch (e: Exception) {
+            e.printStackTrace()
+            println("ERROR ON CompanyStore.getAll ${e.message}")
             return listOf()
         }
         if(response.statusCode() !in 200..299) {
+            println("ERROR ON CompanyStore.getAll ${response.statusCode()}")
             return listOf();
         }
 
@@ -46,11 +51,10 @@ class CompanyStore {
 
         val res: ByteArray = response.body()
         val body: ObjectNode = mapper.readTree(res) as ObjectNode;
+        val data =  body.get("data") as ArrayNode
 
-        body.stream().map {
+        println("Success with data ${body.toString()}")
 
-        }
-
-        return listOf();
+        return ;
     }
 }

@@ -1,5 +1,6 @@
 package com.brewery.web.model.company;
 
+import com.brewery.web.model.record.RecordStatus;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.Instant;
@@ -20,7 +21,7 @@ public class CompaniesByOwner {
     private UUID ownerUserId;
 
     @PrimaryKeyColumn(name = "status", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
-    private String status;
+    private RecordStatus status;
 
     @PrimaryKeyColumn(name = "updated_at", ordinal = 3, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     private Instant updatedAt;
@@ -52,7 +53,7 @@ public class CompaniesByOwner {
         return this.ownerUserId;
     }
 
-    public String getStatus() {
+    public RecordStatus getStatus() {
         return this.status;
     }
 
@@ -84,7 +85,7 @@ public class CompaniesByOwner {
     public static class Builder {
         private UUID workspaceId;
         private UUID ownerUserId;
-        private String status;
+        private RecordStatus status;
         private Instant updatedAt;
         private UUID companyId;
         private String name;
@@ -104,7 +105,7 @@ public class CompaniesByOwner {
             return this;
         }
 
-        public Builder withStatus(String status) {
+        public Builder withStatus(RecordStatus status) {
             this.status = status;
             return this;
         }

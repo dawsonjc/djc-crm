@@ -5,6 +5,7 @@ import kotlinx.html.script
 plugins {
     kotlin("multiplatform") version "2.4.0"
     kotlin("plugin.compose") version "2.4.0"
+    kotlin("plugin.serialization") version "2.4.0"
     id("com.varabyte.kobweb.application") version "0.25.0"
 }
 
@@ -25,7 +26,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+            implementation("com.varabyte.kobwebx:kobwebx-serialization-kotlinx:0.25.0")
         }
         jvmMain.dependencies {
             implementation("com.varabyte.kobweb:kobweb-api:0.25.0")

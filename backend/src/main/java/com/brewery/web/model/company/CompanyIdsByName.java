@@ -1,5 +1,6 @@
 package com.brewery.web.model.company;
 
+import com.brewery.web.model.record.RecordStatus;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class CompanyIdsByName {
     private String name;
 
     @Column("status")
-    private String status;
+    private RecordStatus status;
 
     public static Builder builder() {
         return new Builder();
@@ -47,7 +48,7 @@ public class CompanyIdsByName {
         return this.name;
     }
 
-    public String getStatus() {
+    public RecordStatus getStatus() {
         return this.status;
     }
 
@@ -57,7 +58,7 @@ public class CompanyIdsByName {
         private String normalizedName;
         private UUID companyId;
         private String name;
-        private String status;
+        private RecordStatus status;
 
         private Builder() {}
 
@@ -81,7 +82,7 @@ public class CompanyIdsByName {
             return this;
         }
 
-        public Builder withStatus(String status) {
+        public Builder withStatus(RecordStatus status) {
             this.status = status;
             return this;
         }

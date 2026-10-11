@@ -1,6 +1,7 @@
 package com.brewery.web.dto.company;
 
 import com.brewery.web.model.company.*;
+import com.brewery.web.model.record.RecordStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -30,7 +31,7 @@ public record CompanyDTO(
         CrmAddress billingAddress,
         CrmAddress shippingAddress,
         String description,
-        String status,
+        RecordStatus status,
         Map<String, String> customFields,
         Instant createdAt,
         Instant updatedAt,
@@ -44,7 +45,7 @@ public record CompanyDTO(
     public static CompanyDTO from(Company company) {
         return builder()
                 .withWorkspaceId(company.getWorkspaceId())
-                .withCompanyId(company.getcompanyId())
+                .withCompanyId(company.getCompanyId())
                 .withName(company.getName())
                 .withNormalizedName(company.getNormalizedName())
                 .withCompanyType(company.getCompanyType())
@@ -150,7 +151,7 @@ public record CompanyDTO(
         private CrmAddress billingAddress;
         private CrmAddress shippingAddress;
         private String description;
-        private String status;
+        private RecordStatus status;
         private Map<String, String> customFields;
         private Instant createdAt;
         private Instant updatedAt;
@@ -244,7 +245,7 @@ public record CompanyDTO(
             return this;
         }
 
-        public Builder withStatus(String status) {
+        public Builder withStatus(RecordStatus status) {
             this.status = status;
             return this;
         }

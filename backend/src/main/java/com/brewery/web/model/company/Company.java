@@ -1,5 +1,6 @@
 package com.brewery.web.model.company;
 
+import com.brewery.web.model.record.RecordStatus;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.math.BigDecimal;
@@ -72,7 +73,7 @@ public class Company {
     private String description;
 
     @Column("status")
-    private String status;
+    private RecordStatus status;
 
     @Column("custom_fields")
     private Map<String, String> customFields;
@@ -97,7 +98,7 @@ public class Company {
         return this.workspaceId;
     }
 
-    public UUID getcompanyId() {
+    public UUID getCompanyId() {
         return this.companyId;
     }
 
@@ -161,7 +162,7 @@ public class Company {
         return this.description;
     }
 
-    public String getStatus() {
+    public RecordStatus getStatus() {
         return this.status;
     }
 
@@ -204,7 +205,7 @@ public class Company {
         private CrmAddress billingAddress;
         private CrmAddress shippingAddress;
         private String description;
-        private String status;
+        private RecordStatus status;
         private Map<String, String> customFields;
         private Instant createdAt;
         private Instant updatedAt;
@@ -298,7 +299,7 @@ public class Company {
             return this;
         }
 
-        public Builder withStatus(String status) {
+        public Builder withStatus(RecordStatus status) {
             this.status = status;
             return this;
         }
