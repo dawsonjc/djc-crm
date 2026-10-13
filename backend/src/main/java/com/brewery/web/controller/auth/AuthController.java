@@ -4,6 +4,7 @@ import com.brewery.web.dto.formdata.LoginFormData;
 import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
 import com.brewery.web.services.UserTableService;
+import com.brewery.web.user.AuthSessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,8 +58,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
-        request.getSession().setAttribute("auth_user", user);
-
+        System.err.println("User logged in: " + user);
+        request.getSession(true ).setAttribute(AuthSessionUser.AUTH_SESSION_USER, user);
+        System.err.println("User logged in: " + request.getSession().getAttribute(AuthSessionUser.AUTH_SESSION_USER));
         respJson.put("success", true);
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);

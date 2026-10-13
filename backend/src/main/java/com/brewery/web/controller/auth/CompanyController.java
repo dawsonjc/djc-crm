@@ -2,15 +2,19 @@ package com.brewery.web.controller.auth;
 
 import com.brewery.web.dto.company.CompanyDTO;
 import com.brewery.web.dto.formdata.auth.CompanyFormData;
+import com.brewery.web.model.User;
 import com.brewery.web.model.company.Company;
 import com.brewery.web.services.auth.CompanyService;
+import com.brewery.web.user.AuthSessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.beans.factory.annotation.Value;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -45,7 +49,8 @@ public class CompanyController {
 
     @PostMapping(path = { "/add" })
     public ResponseEntity<ObjectNode> addCompany(
-            @RequestBody CompanyFormData formData
+            @RequestBody CompanyFormData formData,
+            HttpServletRequest request
     ) {
         ObjectNode respJson = mapper.createObjectNode();
         respJson.put("success", false);
@@ -53,15 +58,23 @@ public class CompanyController {
 
         ObjectNode data = respJson.putObject("data");
 
+        HttpSession session = request.getSession(false);
+        Object sessionUser = session == null ? null : session.getAttribute(AuthSessionUser.AUTH_SESSION_USER);
+        if (!(sessionUser instanceof User user)) {
+            respJson.put("message", "Please sign in again.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
+        }
+
+
         if(!formData.verify()) {
             respJson.put("message", "Invalid form data");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
-        Company saved = this.companyService.addCompany(Company.fromCompanyFormData(formData));
+
+        Company saved = this.companyService.addCompanyByFormData(formData, user);
         respJson.put("success", true);
         respJson.set("data", mapper.valueToTree(CompanyDTO.from(saved)));
-
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);
     }

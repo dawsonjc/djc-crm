@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/** Editable tenant details; IDs and timestamps are assigned by the backend. */
+/** Editable tenant details; the backend assigns IDs and timestamps. */
 public record CompanyFormData(
         String name,
         String legalName,

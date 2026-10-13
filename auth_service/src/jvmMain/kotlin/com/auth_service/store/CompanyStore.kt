@@ -19,21 +19,29 @@ private val json: Json = Json {
     ignoreUnknownKeys = true
 }
 
-class CompanyStore {
-    suspend fun add(company: Company): Company {
-        val secretKey: String = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
+class BackendSessionExpiredException : RuntimeException("Please sign in again.")
+
+class CompanyStore(
+    private val backendUrl: String = CRM_BACKEND_URL,
+    private val serviceSecretKey: String = AUTH_SERVICE_SECRET_KEY,
+    private val client: HttpRequests = companyClient,
+) {
+    suspend fun add(company: Company, backendSessionId: String): Company {
+        val secretKey: String = serviceSecretKey.takeIf { it.isNotBlank() }
             ?: error("AUTH_SERVICE_SECRET_KEY is required to add a company")
 
-        val response: HttpResponse<ByteArray> = companyClient.requestBytes(
-            url = "${CRM_BACKEND_URL}/auth/company/add",
+        val response: HttpResponse<ByteArray> = client.requestBytes(
+            url = "${backendUrl}/auth/company/add",
             method = RequestMethod.POST,
             body = json.encodeToString(company).encodeToByteArray(),
             contentType = "application/json; charset=UTF-8",
             headers = mapOf(
                 "Accept" to "application/json",
                 "X-Auth-Service-Secret-Key" to secretKey,
+                "Cookie" to "JSESSIONID=$backendSessionId",
             ),
         )
+        if (response.statusCode() == 401) throw BackendSessionExpiredException()
         check(response.statusCode() in 200..299) {
             "Company creation failed with HTTP ${response.statusCode()}"
         }
@@ -53,17 +61,15 @@ class CompanyStore {
     }
 
     suspend fun getAll(): List<Company> {
-        val secretKey: String? = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
+        val secretKey: String? = serviceSecretKey.takeIf { it.isNotBlank() }
         if(secretKey == null) {
             println("SECRET KEY NULL ON CompanyStore.getAll")
             return listOf()
         }
 
-        val backendUrl: String = CRM_BACKEND_URL
-
         val response: HttpResponse<ByteArray>
         try {
-            response = companyClient.requestBytes(
+            response = client.requestBytes(
                 url = "${backendUrl}/auth/company/all",
                 method = RequestMethod.GET,
                 headers = mapOf(

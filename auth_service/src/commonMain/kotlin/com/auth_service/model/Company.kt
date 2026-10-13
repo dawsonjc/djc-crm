@@ -15,7 +15,6 @@ data class CrmAddress(
     val countryCode: String? = null
 )
 
-/** A tenant business using DJC CRM, not one of that business's customer organizations. */
 @Serializable
 data class Company(
     val companyId: Uuid? = null,
@@ -32,7 +31,6 @@ data class Company(
     val createdByUserId: Uuid? = null,
     val updatedByUserId: Uuid? = null,
 
-    // Membership records are stored separately, never embedded in the company row.
     @Transient
     val companyUsers: List<CompanyUser> = emptyList()
 )

@@ -166,4 +166,4 @@ INSERT INTO mykeyspacename.roles(roleid, create_date, update_date, status, role_
 INSERT INTO mykeyspacename.roles(roleid, create_date, update_date, status, role_name, description) VALUES (00000000-0000-0000-0000-000000000104, totimestamp(now()), totimestamp(now()), 'Active', 'Moderator', 'Moderator');
 INSERT INTO mykeyspacename.roles(roleid, create_date, update_date, status, role_name, description) VALUES (00000000-0000-0000-0000-000000000105, totimestamp(now()), totimestamp(now()), 'Active', 'User', 'User');
 
--- INSERT INTO mykeyspacename.user_role(create_date, update_date, status, userid, roleid, role_name) VALUES(totimestamp(now()), totimestamp(now()), 'Active', ..., ..., 'Admin');
+-- INSERT INTO mykeyspacename.user_role(create_date, update_date, status, userid, roleid, role_name) VALUES(totimestamp(now()), totimestamp(now()), 'Active', ..., 00000000-0000-0000-0000-000000000101, 'Super Admin');

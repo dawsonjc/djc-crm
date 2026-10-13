@@ -18,6 +18,15 @@ public class Company {
     @PrimaryKey("company_id")
     private UUID companyId;
 
+    @Column("created_at")
+    private Instant createdAt;
+
+    @Column("updated_at")
+    private Instant updatedAt;
+
+    @Column("status")
+    private RecordStatus status;
+
     @Column("name")
     private String name;
 
@@ -40,20 +49,13 @@ public class Company {
     @Frozen
     private CrmAddress billingAddress;
 
-    @Column("status")
-    private RecordStatus status;
-
-    @Column("created_at")
-    private Instant createdAt;
-
-    @Column("updated_at")
-    private Instant updatedAt;
-
     @Column("created_by_user_id")
     private UUID createdByUserId;
 
     @Column("updated_by_user_id")
     private UUID updatedByUserId;
+
+    private Company() {}
 
     public static Builder builder() { return new Builder(); }
 
@@ -72,9 +74,7 @@ public class Company {
     public UUID getUpdatedByUserId() { return updatedByUserId; }
 
     public static Company fromCompanyFormData(CompanyFormData data) {
-        Instant now = Instant.now();
         return builder()
-                .withCompanyId(UUID.randomUUID())
                 .withName(data.name().trim())
                 .withLegalName(data.legalName())
                 .withBillingEmail(data.billingEmail())
@@ -83,8 +83,6 @@ public class Company {
                 .withPrimaryAdminUserId(data.primaryAdminUserId())
                 .withBillingAddress(data.billingAddress())
                 .withStatus(data.status() == null ? RecordStatus.ACTIVE : RecordStatus.fromString(data.status()))
-                .withCreatedAt(now)
-                .withUpdatedAt(now)
                 .build();
     }
 
