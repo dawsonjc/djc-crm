@@ -1,4 +1,4 @@
-package com.brewery.web.model.company;
+package com.brewery.web.model.organization;
 
 import com.brewery.web.model.record.RecordStatus;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,8 +12,8 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table("crm_organizations_by_owner")
-@JsonDeserialize(builder = CompaniesByOwner.Builder.class)
-public class CompaniesByOwner {
+@JsonDeserialize(builder = OrganizationsByOwner.Builder.class)
+public class OrganizationsByOwner {
     @PrimaryKeyColumn(name = "workspace_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private UUID workspaceId;
 
@@ -27,13 +27,13 @@ public class CompaniesByOwner {
     private Instant updatedAt;
 
     @PrimaryKeyColumn(name = "organization_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.ASCENDING)
-    private UUID companyId;
+    private UUID organizationId;
 
     @Column("name")
     private String name;
 
     @Column("organization_type")
-    private String companyType;
+    private String organizationType;
 
     @Column("industry")
     private String industry;
@@ -61,16 +61,16 @@ public class CompaniesByOwner {
         return this.updatedAt;
     }
 
-    public UUID getCompanyId() {
-        return this.companyId;
+    public UUID getOrganizationId() {
+        return this.organizationId;
     }
 
     public String getName() {
         return this.name;
     }
 
-    public String getCompanyType() {
-        return this.companyType;
+    public String getOrganizationType() {
+        return this.organizationType;
     }
 
     public String getIndustry() {
@@ -87,9 +87,9 @@ public class CompaniesByOwner {
         private UUID ownerUserId;
         private RecordStatus status;
         private Instant updatedAt;
-        private UUID companyId;
+        private UUID organizationId;
         private String name;
-        private String companyType;
+        private String organizationType;
         private String industry;
         private String phone;
 
@@ -115,8 +115,8 @@ public class CompaniesByOwner {
             return this;
         }
 
-        public Builder withCompanyId(UUID companyId) {
-            this.companyId = companyId;
+        public Builder withOrganizationId(UUID organizationId) {
+            this.organizationId = organizationId;
             return this;
         }
 
@@ -125,8 +125,8 @@ public class CompaniesByOwner {
             return this;
         }
 
-        public Builder withCompanyType(String companyType) {
-            this.companyType = companyType;
+        public Builder withOrganizationType(String organizationType) {
+            this.organizationType = organizationType;
             return this;
         }
 
@@ -140,15 +140,15 @@ public class CompaniesByOwner {
             return this;
         }
 
-        public CompaniesByOwner build() {
-            CompaniesByOwner value = new CompaniesByOwner();
+        public OrganizationsByOwner build() {
+            OrganizationsByOwner value = new OrganizationsByOwner();
             value.workspaceId = this.workspaceId;
             value.ownerUserId = this.ownerUserId;
             value.status = this.status;
             value.updatedAt = this.updatedAt;
-            value.companyId = this.companyId;
+            value.organizationId = this.organizationId;
             value.name = this.name;
-            value.companyType = this.companyType;
+            value.organizationType = this.organizationType;
             value.industry = this.industry;
             value.phone = this.phone;
             return value;

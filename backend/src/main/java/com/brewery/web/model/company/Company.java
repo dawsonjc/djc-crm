@@ -1,82 +1,47 @@
 package com.brewery.web.model.company;
 
+import com.brewery.web.dto.formdata.auth.CompanyFormData;
 import com.brewery.web.model.record.RecordStatus;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
-import org.springframework.data.cassandra.core.mapping.CassandraType;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.Frozen;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-@Table("crm_organizations_by_id")
+/** A business using DJC CRM. Its ID is the tenant boundary, not a customer organization ID. */
+@Table("companies_by_id")
 @JsonDeserialize(builder = Company.Builder.class)
 public class Company {
-    @PrimaryKeyColumn(name = "workspace_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    private UUID workspaceId;
-
-    @PrimaryKeyColumn(name = "organization_id", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKey("company_id")
     private UUID companyId;
 
     @Column("name")
     private String name;
 
-    @Column("normalized_name")
-    private String normalizedName;
+    @Column("legal_name")
+    private String legalName;
 
-    @Column("organization_type")
-    private String companyType;
-
-    @Column("industry")
-    private String industry;
-
-    @Column("website")
-    private String website;
-
-    @Column("email_domain")
-    private String emailDomain;
+    @Column("billing_email")
+    private String billingEmail;
 
     @Column("phone")
     private String phone;
 
-    @Column("owner_user_id")
-    private UUID ownerUserId;
+    @Column("website")
+    private String website;
 
-    @Column("parent_organization_id")
-    private UUID parentCompanyId;
-
-    @Column("employee_count")
-    private Integer employeeCount;
-
-    @Column("annual_revenue")
-    private BigDecimal annualRevenue;
-
-    @Column("currency")
-    private String currency;
+    @Column("primary_admin_user_id")
+    private UUID primaryAdminUserId;
 
     @Column("billing_address")
     @Frozen
-    @CassandraType(type = CassandraType.Name.UDT, userTypeName = "crm_address")
     private CrmAddress billingAddress;
-
-    @Column("shipping_address")
-    @Frozen
-    @CassandraType(type = CassandraType.Name.UDT, userTypeName = "crm_address")
-    private CrmAddress shippingAddress;
-
-    @Column("description")
-    private String description;
 
     @Column("status")
     private RecordStatus status;
-
-    @Column("custom_fields")
-    private Map<String, String> customFields;
 
     @Column("created_at")
     private Instant createdAt;
@@ -90,134 +55,54 @@ public class Company {
     @Column("updated_by_user_id")
     private UUID updatedByUserId;
 
-    public static Builder builder() {
-        return new Builder();
-    }
+    public static Builder builder() { return new Builder(); }
 
-    public UUID getWorkspaceId() {
-        return this.workspaceId;
-    }
+    public UUID getCompanyId() { return companyId; }
+    public String getName() { return name; }
+    public String getLegalName() { return legalName; }
+    public String getBillingEmail() { return billingEmail; }
+    public String getPhone() { return phone; }
+    public String getWebsite() { return website; }
+    public UUID getPrimaryAdminUserId() { return primaryAdminUserId; }
+    public CrmAddress getBillingAddress() { return billingAddress; }
+    public RecordStatus getStatus() { return status; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public UUID getCreatedByUserId() { return createdByUserId; }
+    public UUID getUpdatedByUserId() { return updatedByUserId; }
 
-    public UUID getCompanyId() {
-        return this.companyId;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getNormalizedName() {
-        return this.normalizedName;
-    }
-
-    public String getCompanyType() {
-        return this.companyType;
-    }
-
-    public String getIndustry() {
-        return this.industry;
-    }
-
-    public String getWebsite() {
-        return this.website;
-    }
-
-    public String getEmailDomain() {
-        return this.emailDomain;
-    }
-
-    public String getPhone() {
-        return this.phone;
-    }
-
-    public UUID getOwnerUserId() {
-        return this.ownerUserId;
-    }
-
-    public UUID getParentCompanyId() {
-        return this.parentCompanyId;
-    }
-
-    public Integer getEmployeeCount() {
-        return this.employeeCount;
-    }
-
-    public BigDecimal getAnnualRevenue() {
-        return this.annualRevenue;
-    }
-
-    public String getCurrency() {
-        return this.currency;
-    }
-
-    public CrmAddress getBillingAddress() {
-        return this.billingAddress;
-    }
-
-    public CrmAddress getShippingAddress() {
-        return this.shippingAddress;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public RecordStatus getStatus() {
-        return this.status;
-    }
-
-    public Map<String, String> getCustomFields() {
-        return this.customFields;
-    }
-
-    public Instant getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return this.updatedAt;
-    }
-
-    public UUID getCreatedByUserId() {
-        return this.createdByUserId;
-    }
-
-    public UUID getUpdatedByUserId() {
-        return this.updatedByUserId;
+    public static Company fromCompanyFormData(CompanyFormData data) {
+        Instant now = Instant.now();
+        return builder()
+                .withCompanyId(UUID.randomUUID())
+                .withName(data.name().trim())
+                .withLegalName(data.legalName())
+                .withBillingEmail(data.billingEmail())
+                .withPhone(data.phone())
+                .withWebsite(data.website())
+                .withPrimaryAdminUserId(data.primaryAdminUserId())
+                .withBillingAddress(data.billingAddress())
+                .withStatus(data.status() == null ? RecordStatus.ACTIVE : RecordStatus.fromString(data.status()))
+                .withCreatedAt(now)
+                .withUpdatedAt(now)
+                .build();
     }
 
     @JsonPOJOBuilder(withPrefix = "with")
     public static class Builder {
-        private UUID workspaceId;
         private UUID companyId;
         private String name;
-        private String normalizedName;
-        private String companyType;
-        private String industry;
-        private String website;
-        private String emailDomain;
+        private String legalName;
+        private String billingEmail;
         private String phone;
-        private UUID ownerUserId;
-        private UUID parentCompanyId;
-        private Integer employeeCount;
-        private BigDecimal annualRevenue;
-        private String currency;
+        private String website;
+        private UUID primaryAdminUserId;
         private CrmAddress billingAddress;
-        private CrmAddress shippingAddress;
-        private String description;
         private RecordStatus status;
-        private Map<String, String> customFields;
         private Instant createdAt;
         private Instant updatedAt;
         private UUID createdByUserId;
         private UUID updatedByUserId;
-
-        private Builder() {}
-
-        public Builder withWorkspaceId(UUID workspaceId) {
-            this.workspaceId = workspaceId;
-            return this;
-        }
 
         public Builder withCompanyId(UUID companyId) {
             this.companyId = companyId;
@@ -229,28 +114,13 @@ public class Company {
             return this;
         }
 
-        public Builder withNormalizedName(String normalizedName) {
-            this.normalizedName = normalizedName;
+        public Builder withLegalName(String legalName) {
+            this.legalName = legalName;
             return this;
         }
 
-        public Builder withCompanyType(String companyType) {
-            this.companyType = companyType;
-            return this;
-        }
-
-        public Builder withIndustry(String industry) {
-            this.industry = industry;
-            return this;
-        }
-
-        public Builder withWebsite(String website) {
-            this.website = website;
-            return this;
-        }
-
-        public Builder withEmailDomain(String emailDomain) {
-            this.emailDomain = emailDomain;
+        public Builder withBillingEmail(String billingEmail) {
+            this.billingEmail = billingEmail;
             return this;
         }
 
@@ -259,28 +129,13 @@ public class Company {
             return this;
         }
 
-        public Builder withOwnerUserId(UUID ownerUserId) {
-            this.ownerUserId = ownerUserId;
+        public Builder withWebsite(String website) {
+            this.website = website;
             return this;
         }
 
-        public Builder withParentCompanyId(UUID parentCompanyId) {
-            this.parentCompanyId = parentCompanyId;
-            return this;
-        }
-
-        public Builder withEmployeeCount(Integer employeeCount) {
-            this.employeeCount = employeeCount;
-            return this;
-        }
-
-        public Builder withAnnualRevenue(BigDecimal annualRevenue) {
-            this.annualRevenue = annualRevenue;
-            return this;
-        }
-
-        public Builder withCurrency(String currency) {
-            this.currency = currency;
+        public Builder withPrimaryAdminUserId(UUID primaryAdminUserId) {
+            this.primaryAdminUserId = primaryAdminUserId;
             return this;
         }
 
@@ -289,23 +144,8 @@ public class Company {
             return this;
         }
 
-        public Builder withShippingAddress(CrmAddress shippingAddress) {
-            this.shippingAddress = shippingAddress;
-            return this;
-        }
-
-        public Builder withDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
         public Builder withStatus(RecordStatus status) {
             this.status = status;
-            return this;
-        }
-
-        public Builder withCustomFields(Map<String, String> customFields) {
-            this.customFields = customFields;
             return this;
         }
 
@@ -331,29 +171,19 @@ public class Company {
 
         public Company build() {
             Company value = new Company();
-            value.workspaceId = this.workspaceId;
-            value.companyId = this.companyId;
-            value.name = this.name;
-            value.normalizedName = this.normalizedName;
-            value.companyType = this.companyType;
-            value.industry = this.industry;
-            value.website = this.website;
-            value.emailDomain = this.emailDomain;
-            value.phone = this.phone;
-            value.ownerUserId = this.ownerUserId;
-            value.parentCompanyId = this.parentCompanyId;
-            value.employeeCount = this.employeeCount;
-            value.annualRevenue = this.annualRevenue;
-            value.currency = this.currency;
-            value.billingAddress = this.billingAddress;
-            value.shippingAddress = this.shippingAddress;
-            value.description = this.description;
-            value.status = this.status;
-            value.customFields = this.customFields;
-            value.createdAt = this.createdAt;
-            value.updatedAt = this.updatedAt;
-            value.createdByUserId = this.createdByUserId;
-            value.updatedByUserId = this.updatedByUserId;
+            value.companyId = companyId;
+            value.name = name;
+            value.legalName = legalName;
+            value.billingEmail = billingEmail;
+            value.phone = phone;
+            value.website = website;
+            value.primaryAdminUserId = primaryAdminUserId;
+            value.billingAddress = billingAddress;
+            value.status = status;
+            value.createdAt = createdAt;
+            value.updatedAt = updatedAt;
+            value.createdByUserId = createdByUserId;
+            value.updatedByUserId = updatedByUserId;
             return value;
         }
     }

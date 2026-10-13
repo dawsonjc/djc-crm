@@ -4,9 +4,17 @@
 
 This project is evolving from a real-time chat application into a JVM-first customer relationship management (CRM) platform. The existing account, role, conversation, live-message, moderation, and event foundations are intended to become the collaboration layer around organizations, contacts, leads, deals, tasks, notes, activities, and teams.
 
-The target product is a multi-workspace CRM in which a team can manage its customer lifecycle, collaborate around customer records, follow a sales pipeline, schedule work, receive actionable notifications, and retain a unified activity history. The current product is not production-ready: chat and basic account workflows are partially functional, the CRM tables are schema-only, and several security and application workflows remain to be built.
+The target product is a multi-company CRM in which a team can manage its customer lifecycle, collaborate around customer records, follow a sales pipeline, schedule work, receive actionable notifications, and retain a unified activity history. The current product is not production-ready: chat and basic account workflows are partially functional, the CRM tables are schema-only, and several security and application workflows remain to be built.
 
 The main application uses Spring Boot, JSP, and Scala.js. A separate Kotlin Multiplatform/Kobweb authentication webapp is also included in Docker Compose. It forwards administrator login requests to the backend and maintains its own browser session; it does not yet provide a unified sign-in flow for the main application.
+
+## Company and tenant model
+
+A **Company** is a business subscribing to DJC CRM, administered through `auth_service`. A **Customer Organization** is a customer or prospect that a subscribing company manages inside the CRM. They have separate storage and models.
+
+Tenant companies store business identity, billing/contact details, an optional primary administrator reference, audit fields, and the existing `RecordStatus` (`Active` or `Disabled`). Employee memberships link company IDs to user IDs with company-scoped roles and record status; credentials, profiles, and verification remain on users. The company model does not contain customer-sales fields such as industry, annual revenue, or shipping address.
+
+The current change defines the company and membership data structures and aligns the company form/API. Membership provisioning, invitations, registration changes, and tenant access enforcement are future work. Existing CRM `workspace_id` columns are retained and will refer to the subscribing company's ID. See [schema application and migration notes](cassandra/TENANT_COMPANIES.md) before using an existing database; old organization rows are not automatically migrated.
 
 ## Product vision
 
@@ -22,7 +30,7 @@ The CRM should remain query-first and operationally focused. Cassandra is suitab
 
 ## Project goals
 
-- Deliver a usable multi-workspace CRM for teams managing customers and revenue workflows.
+- Deliver a usable multi-company CRM for teams managing customers and revenue workflows.
 - Provide authenticated, browser-based real-time collaboration around CRM records.
 - Support a shared Global Chat, direct/team conversations, and eventually record-linked channels.
 - Persist users, roles, CRM records, conversations, messages, events, and notifications in Cassandra.
@@ -40,6 +48,7 @@ The CRM should remain query-first and operationally focused. Cassandra is suitab
 | Administration | Partial | Verification endpoint, role filtering, and an admin JSP exist; page rendering needs repair | Workspace administration, users, teams, permissions, audit log, settings, and policy enforcement |
 | Chat | Partial | Global Chat, message history, WebSockets, and soft deletion exist | Direct/team/record conversations, mentions, presence, attachments, search, and reliable authorization |
 | Events and notifications | Backend partial | Persistence, list/count/read/archive APIs, and an SSE service exist; producers and browser integration are missing | Reliable event production, inbox UI, preferences, expiry, and delivery workers |
+| Tenant companies | Partial | Company table, membership model, and company details form/API exist | Employee provisioning, invitations, tenant access enforcement, and account administration |
 | Organizations | Schema only | Canonical and owner/name/domain projections exist | CRUD, ownership, hierarchy, contacts, deals, activity timeline, duplicate detection, and UI |
 | Contacts | Schema only | Canonical and company/owner/email projections exist | CRUD, company linkage, consent/preferences, lifecycle, communication history, deduplication, and UI |
 | Leads | Schema only | Canonical, owner/status, and email projections exist | Capture, qualification, scoring, assignment, conversion, source attribution, and UI |
@@ -83,7 +92,7 @@ Incomplete or experimental:
 - The `/account` controller view is unfinished.
 - Main login stores a `SessionUser` under `current_user`, but `AuthHook` expects a `User` and several controllers cast that attribute to `User`. Protected main-app workflows need consistent session handling before they can be considered functional.
 - The admin page handler is mapped to `/admin/login` on a `@RestController`, so it returns the view name as text instead of rendering the JSP. There is no page handler for `/admin` itself.
-- The Kotlin/Kobweb authentication service connects to backend `/auth/login`, but its session is separate from the main application. Its company page is a heading only, and backend `/auth/company` returns an empty response.
+- The Kotlin/Kobweb authentication service connects to backend `/auth/login`, but its session is separate from the main application. Its company screen and `/auth/company/all` and `/auth/company/add` endpoints manage subscribing businesses; employee provisioning and tenant access enforcement remain unfinished.
 - CRM schema tables exist, but corresponding application services and UI are not yet implemented.
 - Notification creation is not yet wired into application workflows, and the browser does not consume the notification API or SSE stream.
 - Automated coverage is limited to auth-service session and HTTP-client tests; the main app and CRM workflows still need coverage.
@@ -338,7 +347,7 @@ With the backend running and the shared secret exported, start the authenticatio
 
 The server uses HTTP on port `8443` and redirects `/` to `/login`. The browser posts to Kobweb's `/api/login`; its JVM handler forwards the request to backend `/auth/login` with the service secret. The backend currently requires an existing account's email, password, and Admin role. The seeded roles do not create an administrator account.
 
-Successful login creates a 30-minute `AUTH_SERVICE_SESSION` cookie. Sessions are kept in memory and are lost when the auth service restarts. The protected `/company` page is currently a placeholder. Signing in here does not establish the main app's `current_user` session.
+Successful login creates a 30-minute `AUTH_SERVICE_SESSION` cookie. Sessions are kept in memory and are lost when the auth service restarts. The protected `/company` page manages tenant business details. Signing in here does not establish the main app's `current_user` session.
 
 To check or bundle this module without starting its development server:
 
@@ -408,7 +417,7 @@ Record statuses are stored as display values such as `Active` and `Disabled`. Re
 
 #### CRM table catalog and intended use
 
-These tables describe planned access patterns; there are not yet Java entities, repositories, services, or functional CRUD endpoints and screens for them. The auth service's company page and the backend company endpoint are placeholders.
+These tables describe planned access patterns; there are not yet Java entities, repositories, services, or functional CRUD endpoints and screens for them. The auth service's company page manages tenant businesses separately from these customer-organization tables.
 
 | Domain | Canonical source | Read projections | Intended application behavior |
 |---|---|---|---|
@@ -426,11 +435,11 @@ These tables describe planned access patterns; there are not yet Java entities, 
 
 #### Domain relationships
 
-- A workspace is the tenant boundary for all CRM records. A first-class workspace/member model still needs to be added; `workspace_id` currently exists only as a schema key.
+- A subscribing company is the tenant boundary. Company and membership tables are defined; membership workflows and authorization remain to be implemented. Existing CRM `workspace_id` columns will refer to that company's ID.
 - A user may own organizations, contacts, leads, deals, tasks, and activities.
-- An company may contain contacts and may have multiple deals, notes, tasks, activities, and conversations.
-- A lead is pre-conversion. Conversion should create or link an company, contact, and optionally a deal, then record their IDs and emit a conversion event.
-- A deal belongs to a pipeline stage and may reference an company and primary contact.
+- A customer organization may contain contacts and may have multiple deals, notes, tasks, activities, and conversations.
+- A lead is pre-conversion. Conversion should create or link a customer organization, contact, and optionally a deal, then record their IDs and emit a conversion event.
+- A deal belongs to a pipeline stage and may reference a customer organization and primary contact.
 - Tasks, notes, activities, and future conversations use an entity type plus entity ID to attach work and history to different CRM record types.
 - Teams group users inside a workspace. Team roles must remain distinct from global application roles such as Admin, Moderator, and User.
 
@@ -512,9 +521,10 @@ The separate authentication flow adds these routes:
 | Kobweb (`8443`) | `GET` | `/login` | Administrator sign-in page |
 | Kobweb (`8443`) | `POST` | `/api/login` | Forward login to the backend and establish an auth-service session |
 | Kobweb (`8443`) | `GET` | `/api/session` | Check the auth-service session; returns `401` when unauthenticated |
-| Kobweb (`8443`) | `GET` | `/company` | Session-guarded placeholder page |
+| Kobweb (`8443`) | `GET` | `/company` | Tenant company list and creation form |
 | Spring Boot (`8080`) | `POST` | `/auth/login` | Credential and Admin-role check; handler currently uses an unrestricted `@RequestMapping` |
-| Spring Boot (`8080`) | `GET` | `/auth/company` | Empty placeholder behind the service-credential filter |
+| Spring Boot (`8080`) | `GET` | `/auth/company/all` | List tenant companies behind the service-credential filter |
+| Spring Boot (`8080`) | `POST` | `/auth/company/add` | Save tenant business details and return the saved company |
 
 ## Authentication and authorization model
 
@@ -653,9 +663,9 @@ The ordering below treats security, tenant boundaries, and consistency as prereq
 - Add structured error responses, request validation, centralized exception handling, and production-safe error configuration.
 - Choose the long-term frontend direction: JSP plus Scala.js, or Kotlin/Kobweb. Avoid indefinitely maintaining two competing UI stacks.
 
-### Phase 1 — workspace and CRM core
+### Phase 1 — company membership and CRM core
 
-- Add canonical workspace and workspace-membership tables, services, roles, and invitation flow.
+- Implement employee provisioning, company-scoped roles, and invitation acceptance using the company and membership tables.
 - Define permission rules for workspace admins, managers, record owners, team members, and ordinary members.
 - Implement company and contact entities, repositories, projection writers, services, APIs, and screens.
 - Add normalization and duplicate-detection policies for names, domains, emails, and phone numbers.
@@ -692,7 +702,7 @@ The ordering below treats security, tenant boundaries, and consistency as prereq
 
 An initial usable release should not be considered complete until it supports all of the following:
 
-- Workspace creation and membership with enforced tenant isolation.
+- Company onboarding and employee membership with enforced tenant isolation.
 - Secure authentication, recovery, verification, logout, and role-based authorization.
 - Organization and contact CRUD with ownership, search/lookup, notes, tasks, and activity history.
 - Lead qualification and conversion.
@@ -706,9 +716,11 @@ An initial usable release should not be considered complete until it supports al
 
 | Term | Meaning in this project |
 |---|---|
-| Workspace | Tenant boundary containing CRM data, users, teams, configuration, and permissions |
-| Organization | A company, account, nonprofit, household, or other customer company |
-| Contact | A person associated with an company or managed independently |
+| Company | Subscribing business using DJC CRM; the tenant boundary |
+| Company membership | A user's association with a company, including company-scoped role and record status |
+| Workspace | Legacy CRM schema name for the company tenant boundary; no separate hierarchy is implemented |
+| Organization | Customer/prospect business managed inside a subscribing company's CRM |
+| Contact | A person associated with a customer organization or managed independently; not necessarily a login user |
 | Lead | An unqualified prospect that may later become a contact, company, and deal |
 | Deal / opportunity | A revenue or outcome opportunity moving through a pipeline |
 | Pipeline stage | An ordered step with probability and open/won/lost meaning |

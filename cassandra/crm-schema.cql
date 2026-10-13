@@ -12,7 +12,40 @@ CREATE TYPE IF NOT EXISTS crm_address
         country_code text
     );
 
--- Organization / company / account
+-- Tenant businesses using DJC CRM. Separate from their customer organizations.
+-- RecordStatus values are Active and Disabled; no registration behavior is encoded here.
+CREATE TABLE IF NOT EXISTS companies_by_id
+(
+    company_id uuid PRIMARY KEY,
+    name text,
+    legal_name text,
+    billing_email text,
+    phone text,
+    website text,
+    primary_admin_user_id uuid,
+    billing_address frozen<crm_address>,
+    status text,
+    created_at timestamp,
+    updated_at timestamp,
+    created_by_user_id uuid,
+    updated_by_user_id uuid
+);
+
+-- Membership links an existing user identity to a tenant.
+-- User verification, credentials and profile are not duplicated here.
+CREATE TABLE IF NOT EXISTS company_users_by_company
+(
+    company_id uuid,
+    user_id uuid,
+    role text,
+    status text,
+    created_at timestamp,
+    updated_at timestamp,
+    PRIMARY KEY ((company_id), user_id)
+);
+
+
+-- Customer organization / account (belongs to a tenant company)
 CREATE TABLE IF NOT EXISTS crm_organizations_by_id
 (
     workspace_id           uuid,

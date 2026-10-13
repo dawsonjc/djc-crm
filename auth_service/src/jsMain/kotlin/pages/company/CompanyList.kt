@@ -7,12 +7,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.auth_service.model.Company
 import com.auth_service.model.CrmAddress
 import com.varabyte.kobweb.browser.api
 import com.varabyte.kobweb.browser.http.bodyAsBytes
 import com.varabyte.kobweb.core.Page
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
 import org.example.pages.company.AddCompanyModal
 import org.jetbrains.compose.web.attributes.colspan
 import org.jetbrains.compose.web.dom.Button
@@ -27,11 +33,12 @@ import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.Th
 import org.jetbrains.compose.web.dom.Thead
 import org.jetbrains.compose.web.dom.Tr
+import org.w3c.fetch.Response
 
 private data class TableCompany(
-    val name: String,
-    val address: CrmAddress,
-    val phone: String
+    val name: String?,
+    val address: CrmAddress?,
+    val phone: String?
 )
 
 @Page(routeOverride = "/company")
@@ -46,19 +53,32 @@ fun CompanyListPage() {
     var error by remember { mutableStateOf<String?>(null) }
     var selectedId by remember { mutableStateOf<String?>(null) }
 
-
-
     LaunchedEffect(Unit) {
         try {
-            val response = window.api.get("/company/get/all").bodyAsBytes().decodeToString();
-        } catch(e: Exception) {
+            val response: Response = window.api.get("/company/get/all");
 
-        } finally {
+            val body: JsonObject = Json.parseToJsonElement(
+                response.bodyAsBytes().decodeToString()
+            ).jsonObject
+
+            val data = body["data"] ?: throw Exception("Data not found in response")
+
+            val companies: List<Company> = Json.decodeFromJsonElement<List<Company>>(data)
+
+            tableCompanies = companies.map { company ->
+                TableCompany(
+                    name = company.name,
+                    address = company.billingAddress,
+                    phone = company.phone
+                )
+            }
+        } catch(e: Exception) {}
+        finally {
             loadTable = false;
         }
     }
 
-    val columns: Array<String> = arrayOf("Name", "Address", "Phone")
+    val columns: Array<String> = arrayOf("Name", "Billing address", "Phone")
     Div(attrs = {
         classes("row")
     }) {
@@ -127,10 +147,24 @@ fun CompanyListPage() {
                             return@Tbody
                         }
 
-                        for(company in tableCompanies) {
+                        for(company: TableCompany in tableCompanies) {
                             Tr {
                                 Td {
-                                    Text(company.name)
+                                    Button(attrs = {
+                                        classes("btn", "btn-sm", "btn-outline-primary")
+                                        onClick { console.log("Edit button clicked for company: ${company.name}") }
+                                    }) {
+                                        Text("Edit")
+                                    }
+                                }
+                                Td {
+                                    company.name?.let { Text(it) }
+                                }
+                                Td {
+                                    Text(company.address.toString())
+                                }
+                                Td {
+                                    company.phone?.let { Text(it) }
                                 }
                             }
                         }

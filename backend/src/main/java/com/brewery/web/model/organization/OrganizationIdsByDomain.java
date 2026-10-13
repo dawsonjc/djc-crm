@@ -1,4 +1,4 @@
-package com.brewery.web.model.company;
+package com.brewery.web.model.organization;
 
 import com.brewery.web.model.record.RecordStatus;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -11,8 +11,8 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table("crm_organization_ids_by_domain")
-@JsonDeserialize(builder = CompanyIdsByDomain.Builder.class)
-public class CompanyIdsByDomain {
+@JsonDeserialize(builder = OrganizationIdsByDomain.Builder.class)
+public class OrganizationIdsByDomain {
     @PrimaryKeyColumn(name = "workspace_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private UUID workspaceId;
 
@@ -20,7 +20,7 @@ public class CompanyIdsByDomain {
     private String emailDomain;
 
     @PrimaryKeyColumn(name = "organization_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.ASCENDING)
-    private UUID companyId;
+    private UUID organizationId;
 
     @Column("name")
     private String name;
@@ -40,8 +40,8 @@ public class CompanyIdsByDomain {
         return this.emailDomain;
     }
 
-    public UUID getCompanyId() {
-        return this.companyId;
+    public UUID getOrganizationId() {
+        return this.organizationId;
     }
 
     public String getName() {
@@ -56,7 +56,7 @@ public class CompanyIdsByDomain {
     public static class Builder {
         private UUID workspaceId;
         private String emailDomain;
-        private UUID companyId;
+        private UUID organizationId;
         private String name;
         private RecordStatus status;
 
@@ -72,8 +72,8 @@ public class CompanyIdsByDomain {
             return this;
         }
 
-        public Builder withOrganizationId(UUID companyId) {
-            this.companyId = companyId;
+        public Builder withOrganizationId(UUID organizationId) {
+            this.organizationId = organizationId;
             return this;
         }
 
@@ -87,11 +87,11 @@ public class CompanyIdsByDomain {
             return this;
         }
 
-        public CompanyIdsByDomain build() {
-            CompanyIdsByDomain value = new CompanyIdsByDomain();
+        public OrganizationIdsByDomain build() {
+            OrganizationIdsByDomain value = new OrganizationIdsByDomain();
             value.workspaceId = this.workspaceId;
             value.emailDomain = this.emailDomain;
-            value.companyId = this.companyId;
+            value.organizationId = this.organizationId;
             value.name = this.name;
             value.status = this.status;
             return value;
