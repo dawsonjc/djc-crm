@@ -72,7 +72,6 @@ public class UserTableService {
             return null;
         }
 
-        // this is bad
         this.populateUserRelations(user);
 
         return user;
@@ -80,10 +79,10 @@ public class UserTableService {
 
     private void populateUserRelations(User user) {
         user.setRoles(this.getUsersRolesByUser(user));
-        List<ConversationDTO> conversations = this.conversationService.getConversationsByUserId(user.getUserId());
-        conversations.add(this.conversationService.getGlobalChat());
-
-        user.setConversations(conversations);
+//        List<ConversationDTO> conversations = this.conversationService.getConversationsByUserId(user.getUserId());
+//        conversations.add(this.conversationService.getGlobalChat());
+//
+//        user.setConversations(conversations);
     }
 
 

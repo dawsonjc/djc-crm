@@ -6,7 +6,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
+import com.auth_service.serialization.AppJson
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H1
@@ -55,7 +55,7 @@ fun AddCompanyModal() {
                                         RequestInit(
                                             method = "POST",
                                             headers = json("Content-Type" to "application/json"),
-                                            body = Json.encodeToString(company),
+                                            body = AppJson.encodeToString(company),
                                         ),
                                     ).await()
                                     val body: dynamic = response.json().await().asDynamic()

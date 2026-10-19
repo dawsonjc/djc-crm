@@ -33,7 +33,6 @@ fun CompanyForm(
             Div(attrs = { classes("alert", "alert-danger"); attr("role", "alert") }) { Text(message) }
         }
         H2(attrs = { classes("h5", "mb-3") }) { Text("Business account") }
-        P(attrs = { classes("text-muted") }) { Text("The business using DJC CRM and its billing contact details.") }
         Div(attrs = { classes("row", "g-3", "mb-4") }) {
             CompanyField("$formId-name", "Company name", draft.name, required = true) { draft = draft.copy(name = it) }
             CompanyField("$formId-legal-name", "Legal business name", draft.legalName) { draft = draft.copy(legalName = it) }

@@ -4,6 +4,7 @@ import com.brewery.web.dto.company.CompanyDTO;
 import com.brewery.web.dto.formdata.auth.CompanyFormData;
 import com.brewery.web.model.User;
 import com.brewery.web.model.company.Company;
+import com.brewery.web.model.record.RecordStatus;
 import com.brewery.web.repositories.company.CompanyRepository;
 import com.brewery.web.user.AuthSessionUser;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +41,7 @@ public class CompanyService {
                 .withCompanyId(UUID.randomUUID())
                 .withCreatedAt(now)
                 .withUpdatedAt(now)
+                .withStatus(RecordStatus.fromString(formData.status()))
                 .withName(formData.name())
                 .withLegalName(formData.legalName())
                 .withBillingEmail(formData.billingEmail())

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/auth/company")
@@ -77,6 +78,44 @@ public class CompanyController {
         respJson.set("data", mapper.valueToTree(CompanyDTO.from(saved)));
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);
+    }
+
+    @GetMapping(path = { "/{id}" })
+    public ResponseEntity<ObjectNode> getById(
+            @PathVariable(name = "id") String id,
+            HttpServletRequest request
+    ) {
+        ObjectNode respJson = mapper.createObjectNode();
+        respJson.put("success", false);
+        respJson.put("message", "");
+
+        ObjectNode data = respJson.putObject("data");
+
+        HttpSession session = request.getSession(false);
+        Object sessionUser = session == null ? null : session.getAttribute(AuthSessionUser.AUTH_SESSION_USER);
+        if (!(sessionUser instanceof User user)) {
+            respJson.put("message", "Please sign in again.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
+        }
+
+        UUID companyId;
+        try {
+            companyId = UUID.fromString(id);
+        } catch(IllegalArgumentException e) {
+            respJson.put("message", "Invalid company id.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
+        }
+
+        Company company = this.companyService.getCompanyById(companyId);
+        if(company == null) {
+            respJson.put("message", "Company not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respJson);
+        }
+        respJson.put("success", true);
+
+        respJson.set("data", mapper.valueToTree(company));
+
+        return ResponseEntity.ok().body(respJson);
     }
 
 }

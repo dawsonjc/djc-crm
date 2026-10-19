@@ -6,18 +6,18 @@ import com.auth_service.http.HttpRequests
 import com.auth_service.http.RequestMethod
 import com.auth_service.model.Company
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.auth_service.serialization.AppJson
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import java.net.http.HttpResponse
+import kotlin.uuid.Uuid
 
 private val companyClient: HttpRequests = HttpRequests()
-private val json: Json = Json {
-    ignoreUnknownKeys = true
-}
+private val json = com.auth_service.serialization.AppJson
 
 class BackendSessionExpiredException : RuntimeException("Please sign in again.")
 
@@ -95,5 +95,30 @@ class CompanyStore(
             ?: error("Company response is missing 'data'")
 
         return json.decodeFromJsonElement<List<Company>>(data)
+    }
+
+    suspend fun getById(id: Uuid, backendSessionId: String): Company {
+        val secretKey: String = serviceSecretKey.takeIf { it.isNotBlank() }
+            ?: error("AUTH_SERVICE_SECRET_KEY is required to add a company")
+
+        val response: HttpResponse<ByteArray> = client.requestBytes(
+            url = "${backendUrl}/auth/company/$id",
+            method = RequestMethod.GET,
+            contentType = "application/json; charset=UTF-8",
+            headers = mapOf(
+                "Accept" to "application/json",
+                "X-Auth-Service-Secret-Key" to secretKey,
+                "Cookie" to "JSESSIONID=$backendSessionId",
+            ),
+        )
+
+        val body: JsonObject = json.parseToJsonElement(
+            response.body().decodeToString()
+        ).jsonObject
+
+        val data = body["data"]
+            ?: error("Company response is missing 'data'")
+
+        return json.decodeFromJsonElement<Company>(data)
     }
 }

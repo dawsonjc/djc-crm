@@ -34,3 +34,10 @@ data class Company(
     @Transient
     val companyUsers: List<CompanyUser> = emptyList()
 )
+
+@Serializable
+data class CompanyResponse<T>(
+    var success: Boolean = false,
+    var message: String = "",
+    var data: T? = null
+)

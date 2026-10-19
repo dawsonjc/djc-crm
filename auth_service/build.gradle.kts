@@ -54,6 +54,14 @@ kobweb {
         index {
             description.set("Sign in to DJC CRM.")
             head.add {
+                // DataTables test page: load core before its Bootstrap integration.
+                link {
+                    rel = "stylesheet"
+                    href = "https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css"
+                }
+                script { src = "https://code.jquery.com/jquery-3.7.1.min.js" }
+                script { src = "https://cdn.datatables.net/2.3.4/js/dataTables.min.js" }
+                script { src = "https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js" }
                 link {
                     rel = "stylesheet"
                     href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
