@@ -11,7 +11,7 @@ import com.auth_service.serialization.AppJson
 import kotlin.uuid.Uuid
 
 @Api(routeOverride = "/company/get/{id}")
-suspend fun GetCompanyById(context: ApiContext): Unit {
+suspend fun getCompanyById(context: ApiContext): Unit {
     if(context.req.method != HttpMethod.GET) return;
     val respJson: ApiResponse<Company> = ApiResponse<Company>();
 

@@ -31,8 +31,8 @@ public class Login {
 
     @GetMapping(value = { "/login" })
     public String loginView(Model model, HttpServletRequest request) {
-        model.addAttribute("new_user", new User());
-        model.addAttribute("login_user", new User());
+        model.addAttribute("new_user", User.builder().build());
+        model.addAttribute("login_user", User.builder().build());
         return "account/login";
     }
     
@@ -77,8 +77,10 @@ public class Login {
         if(user == null) {
             return ResponseEntity.status(401).body(respJson);
         }
-        user.setLastLoginDate(Instant.now());
-        user.setAuthApiToken(UUID.randomUUID());
+        user = user.toBuilder()
+                .withLastLoginDate(Instant.now())
+                .withAuthApiToken(UUID.randomUUID())
+                .build();
         this.userService.save(user); // last login date
 
         respJson.put("success", true);

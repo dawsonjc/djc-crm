@@ -38,7 +38,9 @@ public class Admin {
         responseJson.put("message", "");
         User user = this.adminUserService.getUserById(userId);
 
-        user.setAccountVerificationStatus(User.VerificationStatus.VERIFIED);
+        user = user.toBuilder()
+                .withAccountVerificationStatus(User.VerificationStatus.VERIFIED)
+                .build();
 
         this.adminUserService.saveUser(user);
 

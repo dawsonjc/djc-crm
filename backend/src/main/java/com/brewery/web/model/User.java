@@ -3,6 +3,8 @@ package com.brewery.web.model;
 import com.brewery.web.dto.ConversationDTO;
 import com.brewery.web.model.record.RecordStatus;
 import com.brewery.web.user.SessionUser;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
@@ -13,10 +15,10 @@ import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Table(value = "user_table")
+@JsonDeserialize(builder = User.Builder.class)
 public class User {
 
     @Id
@@ -80,13 +82,13 @@ public class User {
     @CassandraType(type = CassandraType.Name.BOOLEAN)
     private Boolean twoFactorAuthentication;
 
-    @Column(value = "friends_connections")
-    @CassandraType(type = CassandraType.Name.SET, typeArguments = { CassandraType.Name.UUID })
-    private Set<UUID> friendsConnections;
+    @Column(value = "company_id")
+    @CassandraType(type = CassandraType.Name.UUID)
+    private UUID companyId;
 
-    @Column(value = "blocked_users")
-    @CassandraType(type = CassandraType.Name.SET, typeArguments = { CassandraType.Name.UUID })
-    private Set<UUID> blockedUsers;
+    @Column(value = "company_name")
+    @CassandraType(type = CassandraType.Name.TEXT)
+    private String companyName;
     
     @Column(value = "auth_api_token")
     @CassandraType(type = CassandraType.Name.UUID)
@@ -98,14 +100,42 @@ public class User {
     @Transient
     private List<ConversationDTO> conversations;
 
-    public User() {}
+    private User() {}
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return builder()
+                .withUserId(this.userId)
+                .withCreateDate(this.createDate)
+                .withUpdateDate(this.updateDate)
+                .withStatus(this.status)
+                .withUsername(this.username)
+                .withEmail(this.email)
+                .withPassword(this.password)
+                .withFirstName(this.firstName)
+                .withLastName(this.lastName)
+                .withFullName(this.fullName)
+                .withLanguagePreference(this.languagePreference)
+                .withTimezone(this.timezone)
+                .withLastLoginDate(this.lastLoginDate)
+                .withAccountVerificationStatus(this.accountVerificationStatus)
+                .withTwoFactorAuthentication(this.twoFactorAuthentication)
+                .withCompanyId(this.companyId)
+                .withCompanyName(this.companyName)
+                .withRoles(this.roles)
+                .withConversations(this.conversations)
+                .withAuthApiToken(this.authApiToken);
+    }
 
     public User(UUID userId, Instant createDate, Instant updateDate, RecordStatus status,
                 String username, String email, String password, String firstName,
                 String lastName, String fullName,
                 String languagePreference, String timezone, Instant lastLoginDate,
                 VerificationStatus accountVerificationStatus, Boolean twoFactorAuthentication,
-                Set<UUID> friendsConnections, Set<UUID> blockedUsers, UUID authApiToken
+                UUID companyId, String companyName, UUID authApiToken
     ) {
         this.userId = userId;
         this.createDate = createDate;
@@ -122,8 +152,8 @@ public class User {
         this.lastLoginDate = lastLoginDate;
         this.accountVerificationStatus = accountVerificationStatus;
         this.twoFactorAuthentication = twoFactorAuthentication;
-        this.friendsConnections = friendsConnections;
-        this.blockedUsers = blockedUsers;
+        this.companyId = companyId;
+        this.companyName = companyName;
         this.authApiToken = authApiToken;
     }
 
@@ -159,148 +189,72 @@ public class User {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
     public Instant getCreateDate() {
         return createDate;
-    }
-
-    public void setCreateDate(Instant createDate) {
-        this.createDate = createDate;
     }
 
     public Instant getUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(Instant updateDate) {
-        this.updateDate = updateDate;
-    }
-
     public RecordStatus getStatus() {
         return status;
-    }
-
-    public void setStatus(RecordStatus status) {
-        this.status = status;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getFirstName() {
         return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getFullName() {
         return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 
     public String getLanguagePreference() {
         return languagePreference;
     }
 
-    public void setLanguagePreference(String languagePreference) {
-        this.languagePreference = languagePreference;
-    }
-
     public String getTimezone() {
         return timezone;
-    }
-
-    public void setTimezone(String timezone) {
-        this.timezone = timezone;
     }
 
     public Instant getLastLoginDate() {
         return lastLoginDate;
     }
 
-    public void setLastLoginDate(Instant lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
-    }
-
     public VerificationStatus getAccountVerificationStatus() {
         return accountVerificationStatus;
-    }
-
-    public void setAccountVerificationStatus(VerificationStatus accountVerificationStatus) {
-        this.accountVerificationStatus = accountVerificationStatus;
     }
 
     public Boolean isTwoFactorAuthentication() {
         return twoFactorAuthentication;
     }
 
-    public void setTwoFactorAuthentication(Boolean twoFactorAuthentication) {
-        this.twoFactorAuthentication = twoFactorAuthentication;
+    public UUID getCompanyId() {
+        return companyId;
     }
 
-    public Set<UUID> getFriendsConnections() {
-        return friendsConnections;
-    }
-
-    public void setFriendsConnections(Set<UUID> friendsConnections) {
-        this.friendsConnections = friendsConnections;
-    }
-
-    public Set<UUID> getBlockedUsers() {
-        return blockedUsers;
-    }
-
-    public void setBlockedUsers(Set<UUID> blockedUsers) {
-        this.blockedUsers = blockedUsers;
-    }
-
-    public void setRoles(List<UserRole> roles) {
-        this.roles = roles;
+    public String getCompanyName() {
+        return companyName;
     }
 
     public List<UserRole> getRoles() {
         return this.roles;
-    }
-
-    public void setConversations(List<ConversationDTO> conversations) {
-        this.conversations = conversations;
     }
 
     public List<ConversationDTO> getConversations() {
@@ -309,10 +263,6 @@ public class User {
 
     public UUID getAuthApiToken() {
         return this.authApiToken;
-    }
-
-    public void setAuthApiToken(UUID authApiToken) {
-        this.authApiToken = authApiToken;
     }
 
     public SessionUser toSessionUser() {
@@ -337,8 +287,159 @@ public class User {
                 ", lastLoginDate=" + lastLoginDate +
                 ", accountVerificationStatus='" + accountVerificationStatus + '\'' +
                 ", twoFactorAuthentication=" + twoFactorAuthentication +
-                ", friendsConnections=" + friendsConnections +
-                ", blockedUsers=" + blockedUsers +
+                ", companyId=" + companyId +
+                ", companyName='" + companyName + '\'' +
                 '}';
+    }
+
+    @JsonPOJOBuilder(withPrefix = "with")
+    public static class Builder {
+        private UUID userId;
+        private Instant createDate;
+        private Instant updateDate;
+        private RecordStatus status;
+        private String username;
+        private String email;
+        private String password;
+        private String firstName;
+        private String lastName;
+        private String fullName;
+        private String languagePreference;
+        private String timezone;
+        private Instant lastLoginDate;
+        private VerificationStatus accountVerificationStatus;
+        private Boolean twoFactorAuthentication;
+        private UUID companyId;
+        private String companyName;
+        private UUID authApiToken;
+        private List<UserRole> roles;
+        private List<ConversationDTO> conversations;
+
+        private Builder() {}
+
+        public Builder withUserId(UUID userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder withCreateDate(Instant createDate) {
+            this.createDate = createDate;
+            return this;
+        }
+
+        public Builder withUpdateDate(Instant updateDate) {
+            this.updateDate = updateDate;
+            return this;
+        }
+
+        public Builder withStatus(RecordStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder withUsername(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder withEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder withFirstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public Builder withLastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder withFullName(String fullName) {
+            this.fullName = fullName;
+            return this;
+        }
+
+        public Builder withLanguagePreference(String languagePreference) {
+            this.languagePreference = languagePreference;
+            return this;
+        }
+
+        public Builder withTimezone(String timezone) {
+            this.timezone = timezone;
+            return this;
+        }
+
+        public Builder withLastLoginDate(Instant lastLoginDate) {
+            this.lastLoginDate = lastLoginDate;
+            return this;
+        }
+
+        public Builder withAccountVerificationStatus(VerificationStatus accountVerificationStatus) {
+            this.accountVerificationStatus = accountVerificationStatus;
+            return this;
+        }
+
+        public Builder withTwoFactorAuthentication(Boolean twoFactorAuthentication) {
+            this.twoFactorAuthentication = twoFactorAuthentication;
+            return this;
+        }
+
+        public Builder withCompanyId(UUID companyId) {
+            this.companyId = companyId;
+            return this;
+        }
+
+        public Builder withCompanyName(String companyName) {
+            this.companyName = companyName;
+            return this;
+        }
+
+        public Builder withAuthApiToken(UUID authApiToken) {
+            this.authApiToken = authApiToken;
+            return this;
+        }
+
+        public Builder withRoles(List<UserRole> roles) {
+            this.roles = roles;
+            return this;
+        }
+
+        public Builder withConversations(List<ConversationDTO> conversations) {
+            this.conversations = conversations;
+            return this;
+        }
+
+        public User build() {
+            User user = new User();
+            user.userId = this.userId;
+            user.createDate = this.createDate;
+            user.updateDate = this.updateDate;
+            user.status = this.status;
+            user.username = this.username;
+            user.email = this.email;
+            user.password = this.password;
+            user.firstName = this.firstName;
+            user.lastName = this.lastName;
+            user.fullName = this.fullName;
+            user.languagePreference = this.languagePreference;
+            user.timezone = this.timezone;
+            user.lastLoginDate = this.lastLoginDate;
+            user.accountVerificationStatus = this.accountVerificationStatus;
+            user.twoFactorAuthentication = this.twoFactorAuthentication;
+            user.companyId = this.companyId;
+            user.companyName = this.companyName;
+            user.authApiToken = this.authApiToken;
+            user.roles = this.roles;
+            user.conversations = this.conversations;
+            return user;
+        }
     }
 }

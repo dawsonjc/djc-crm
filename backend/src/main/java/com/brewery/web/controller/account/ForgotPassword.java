@@ -18,7 +18,7 @@ public class ForgotPassword {
 
     @GetMapping(path = { "/forgot-password" })
     public String forgetPasswordView(HttpServletRequest request) {
-        request.setAttribute("user", new User());
+        request.setAttribute("user", User.builder().build());
         return "account/forgot-password";
     }
 

@@ -1,6 +1,5 @@
 package com.brewery.web.services;
 
-import com.brewery.web.dto.ConversationDTO;
 import com.brewery.web.dto.formdata.RegisterFormData;
 import com.brewery.web.model.record.RecordStatus;
 import com.brewery.web.model.Role;
@@ -49,7 +48,7 @@ public class UserTableService {
     public User getUserById(UUID id) {
         User user = this.repo.findById(id).orElse(null);
         if(user != null) {
-            this.populateUserRelations(user);
+            user = this.populateUserRelations(user);
         }
         return user;
     }
@@ -72,17 +71,15 @@ public class UserTableService {
             return null;
         }
 
-        this.populateUserRelations(user);
+        user = this.populateUserRelations(user);
 
         return user;
     }
 
-    private void populateUserRelations(User user) {
-        user.setRoles(this.getUsersRolesByUser(user));
-//        List<ConversationDTO> conversations = this.conversationService.getConversationsByUserId(user.getUserId());
-//        conversations.add(this.conversationService.getGlobalChat());
-//
-//        user.setConversations(conversations);
+    private User populateUserRelations(User user) {
+        return user.toBuilder()
+                .withRoles(this.getUsersRolesByUser(user))
+                .build();
     }
 
 
@@ -102,21 +99,6 @@ public class UserTableService {
 
         UUID userId = UUID.randomUUID();
 
-        User user = new User();
-        user.setUserId(userId);
-        user.setCreateDate(now);
-        user.setUpdateDate(now);
-        user.setStatus(RecordStatus.ACTIVE);
-        user.setUsername(registerFormData.username());
-        user.setEmail(registerFormData.email());
-        user.setPassword(hashed);
-        user.setFirstName(registerFormData.firstName());
-        user.setLastName(registerFormData.lastName());
-        user.setFullName(registerFormData.firstName() + " " + registerFormData.lastName());
-        user.setLanguagePreference("en");
-        user.setTimezone("en/us");
-        user.setAccountVerificationStatus(User.VerificationStatus.VERIFIED);
-
         Role defaultRole = this.roleService.getRoleByName(Role.Name.USER.toString());
 
         UserRole userRole = new UserRole();
@@ -127,7 +109,22 @@ public class UserTableService {
         userRole.setUpdateDate(now);
         userRole.setStatus(RecordStatus.ACTIVE);
 
-        user.setRoles(List.of(userRole));
+        User user = User.builder()
+                .withUserId(userId)
+                .withCreateDate(now)
+                .withUpdateDate(now)
+                .withStatus(RecordStatus.ACTIVE)
+                .withUsername(registerFormData.username())
+                .withEmail(registerFormData.email())
+                .withPassword(hashed)
+                .withFirstName(registerFormData.firstName())
+                .withLastName(registerFormData.lastName())
+                .withFullName(registerFormData.firstName() + " " + registerFormData.lastName())
+                .withLanguagePreference("en")
+                .withTimezone("en/us")
+                .withAccountVerificationStatus(User.VerificationStatus.VERIFIED)
+                .withRoles(List.of(userRole))
+                .build();
         User savedUser = this.repo.save(user);
         this.userRolesService.save(userRole);
 

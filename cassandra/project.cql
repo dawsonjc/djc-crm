@@ -1,16 +1,5 @@
 CREATE KEYSPACE IF NOT EXISTS mykeyspacename WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'datacenter1' : 1 };
 
-CREATE TABLE IF NOT EXISTS mykeyspacename.user_credential (
-    id UUID,
-    create_date TIMESTAMP,
-    update_date TIMESTAMP,
-    status TEXT,
-    user_id UUID,
-    special_key TEXT,
-
-    PRIMARY KEY ( id )
-);
-
 CREATE TABLE IF NOT EXISTS mykeyspacename.user_table (
     userid UUID,
     create_date TIMESTAMP,
@@ -27,8 +16,8 @@ CREATE TABLE IF NOT EXISTS mykeyspacename.user_table (
     last_login_date TIMESTAMP,
     account_verification_status TEXT,
     two_factor_authentication BOOLEAN,
-    friends_connections SET<UUID>,
-    blocked_users SET<UUID>,
+    company_id UUID,
+    company_name TEXT,
     auth_api_token UUID,
 
     PRIMARY KEY ( userid )

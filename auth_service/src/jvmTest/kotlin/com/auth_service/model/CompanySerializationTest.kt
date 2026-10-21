@@ -28,14 +28,38 @@ class CompanySerializationTest {
     }
 
     @Test
-    fun `company membership is separate from profile and verification`() {
-        val membership = Json.decodeFromString<CompanyUser>("""
-            {"companyId":"00000000-0000-0000-0000-000000000001",
-             "userId":"00000000-0000-0000-0000-000000000002",
-             "role":"Admin","status":"Disabled"}
-        """.trimIndent())
-        assertEquals("Disabled", membership.status)
-        assertEquals("Admin", membership.role)
-        assertEquals(membership, Json.decodeFromString<CompanyUser>(Json.encodeToString(membership)))
+    fun `user profile mirrors User bean fields including nested roles and conversations`() {
+        val payload = """
+            {"userId":"00000000-0000-0000-0000-000000000002",
+             "username":"alex","email":"alex@example.com","firstName":"Alex","lastName":"Smith",
+             "fullName":"Alex Smith","status":"ACTIVE","accountVerificationStatus":"VERIFIED",
+             "createDate":"2026-10-19T00:00:00Z","updateDate":"2026-10-19T01:00:00Z",
+             "lastLoginDate":"2026-10-19T02:00:00Z","twoFactorAuthentication":true,
+             "languagePreference":"en","timezone":"America/Phoenix",
+             "password":"test-placeholder","authApiToken":"00000000-0000-0000-0000-000000000003",
+             "friendsConnections":["00000000-0000-0000-0000-000000000004"],"blockedUsers":[],
+             "roles":[{"roleName":"Admin","roleNameEnum":"ADMIN","status":"Active"}],
+             "conversations":[{"conversationId":"00000000-0000-0000-0000-000000000005",
+                "name":"Example","users":["00000000-0000-0000-0000-000000000002"]}]}
+        """.trimIndent()
+        val user = Json.decodeFromString<CompanyUser>(payload)
+        assertEquals("alex", user.username)
+        assertEquals("VERIFIED", user.accountVerificationStatus)
+        assertEquals(true, user.twoFactorAuthentication)
+        assertEquals("Admin", user.roles?.single()?.roleName)
+        assertEquals(1, user.conversations?.single()?.users?.size)
+        assertNotNull(user.createDate)
+        assertEquals(user, Json.decodeFromString<CompanyUser>(Json.encodeToString(user)))
+        val edited = user.copy(firstName = "Updated")
+        assertEquals(user.roles, edited.roles)
+        assertEquals(user.lastLoginDate, edited.lastLoginDate)
+    }
+
+    @Test
+    fun `partial profile accepts missing optional fields`() {
+        val user = Json.decodeFromString<CompanyUser>("""{"username":"alex"}""")
+        assertEquals("alex", user.username)
+        assertNull(user.userId)
+        assertNull(user.twoFactorAuthentication)
     }
 }

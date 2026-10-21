@@ -14,7 +14,9 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.jetbrains.compose.web.attributes.*
 import org.jetbrains.compose.web.dom.*
-import kotlin.uuid.Uuid
+import org.example.pages.users.AddUserModal
+import org.example.pages.users.EditUserModal
+import org.example.pages.users.ViewUserModal
 
 @Page(routeOverride = "/company/id/{id}")
 @Composable
@@ -62,6 +64,7 @@ private fun CompanyDetails(company: Company) {
     var users by remember(company.companyId) { mutableStateOf(company.companyUsers) }
     var dialog by remember { mutableStateOf<String?>(null) }
     var selectedUser by remember { mutableStateOf<CompanyUser?>(null) }
+    var selectedIndex by remember { mutableStateOf(-1) }
     var changed by remember { mutableStateOf(false) }
 
     Div(attrs = { classes("card", "shadow-sm", "mb-4") }) {
@@ -98,27 +101,35 @@ private fun CompanyDetails(company: Company) {
             Div(attrs = { classes("table-responsive") }) {
                 Table(attrs = { classes("table", "table-sm", "table-hover", "align-middle", "mb-0") }) {
                     Thead(attrs = { classes("table-light") }) {
-                        Tr { listOf("User ID", "Role", "Status", "Actions").forEach { label ->
+                        Tr { listOf("Name / Username", "Email", "Status", "Verification", "Last login", "Actions").forEach { label ->
                             Th(attrs = { attr("scope", "col") }) { Text(label) }
                         } }
                     }
                     Tbody {
                         if (users.isEmpty()) Tr {
-                            Td(attrs = { colspan(4); classes("text-center", "text-body-secondary", "py-4") }) {
+                            Td(attrs = { colspan(6); classes("text-center", "text-body-secondary", "py-4") }) {
                                 Text("No users loaded. Add a user to preview the table.")
                             }
                         }
-                        users.forEach { user ->
+                        users.forEachIndexed { index, user ->
                             Tr {
-                                Td(attrs = { classes("small", "text-break", "py-3") }) { Text(user.userId.toString()) }
-                                Td { Text(user.role) }
-                                Td { Span(attrs = { classes("badge", if (user.status == "Active") "text-bg-success" else "text-bg-secondary") }) { Text(user.status) } }
+                                Td(attrs = { classes("py-3") }) {
+                                    Div(attrs = { classes("fw-semibold") }) {
+                                        Text(user.fullName?.takeIf(String::isNotBlank)
+                                            ?: listOfNotNull(user.firstName, user.lastName).joinToString(" ").ifBlank { user.username ?: "Unnamed user" })
+                                    }
+                                    Div(attrs = { classes("small", "text-body-secondary") }) { Text(user.username ?: "—") }
+                                }
+                                Td(attrs = { classes("text-break") }) { Text(user.email ?: "—") }
+                                Td { Span(attrs = { classes("badge", if (user.status.equals("Active", true)) "text-bg-success" else "text-bg-secondary") }) { Text(user.status ?: "—") } }
+                                Td { Text(user.accountVerificationStatus ?: "—") }
+                                Td(attrs = { classes("small") }) { Text(user.lastLoginDate?.toString() ?: "—") }
                                 Td(attrs = { classes("text-nowrap") }) {
                                     listOf("Edit", "View").forEach { action ->
                                         Button(attrs = {
                                             classes("btn", "btn-sm", "me-2", if (action == "Edit") "btn-outline-primary" else "btn-outline-secondary")
                                             attr("type", "button")
-                                            onClick { selectedUser = user; dialog = action }
+                                            onClick { selectedUser = user; selectedIndex = index; dialog = action }
                                         }) { Text(action) }
                                     }
                                 }
@@ -129,94 +140,28 @@ private fun CompanyDetails(company: Company) {
             }
         }
     }
-    dialog?.let { mode ->
-        key(mode, selectedUser) {
-            CompanyUserDialog(mode, company, selectedUser, onClose = { dialog = null }, onSave = { draft ->
-                users = if (mode == "Add") users + draft else users.map { if (it.userId == draft.userId) draft else it }
+    // Hook the submit callbacks to your APIs when ready. Until then only this local list changes.
+    when (dialog) {
+        "Add" -> AddUserModal(company = company, onClose = { dialog = null }, onSubmit = { draft ->
+            users = if (draft.companyId == company.companyId) users + draft else users
+            changed = true
+            dialog = null
+        })
+        "Edit" -> selectedUser?.let { user ->
+            EditUserModal(user, company = company, onClose = { dialog = null }, onSubmit = { draft ->
+                users = users.mapIndexed { index, existing -> if (index == selectedIndex) draft else existing }
+                    .filterIndexed { index, existing -> index != selectedIndex || existing.companyId == company.companyId }
                 changed = true
                 dialog = null
-            }, existingIds = users.map { it.userId })
+            })
         }
+        "View" -> selectedUser?.let { ViewUserModal(it, onClose = { dialog = null }) }
     }
 }
-
 @Composable
 private fun Detail(label: String, value: String?) {
     Div(attrs = { classes("col-12", "col-md-6") }) {
         Div(attrs = { classes("small", "text-body-secondary", "mb-1") }) { Text(label) }
         Div(attrs = { classes("text-break") }) { Text(value?.takeIf(String::isNotBlank) ?: "—") }
-    }
-}
-
-@Composable
-private fun CompanyUserDialog(
-    mode: String, company: Company, user: CompanyUser?, onClose: () -> Unit,
-    onSave: (CompanyUser) -> Unit, existingIds: List<Uuid>,
-) {
-    var userId by remember { mutableStateOf(user?.userId?.toString().orEmpty()) }
-    var role by remember { mutableStateOf(user?.role.orEmpty()) }
-    var status by remember { mutableStateOf(user?.status ?: "Active") }
-    var error by remember { mutableStateOf<String?>(null) }
-    val readOnly = mode == "View"
-
-    // Native dialog provides modal focus handling, Escape, and focus restoration.
-    TagElement<org.w3c.dom.HTMLDialogElement>("dialog", applyAttrs = {
-        classes("border", "rounded-3", "shadow", "p-0")
-        attr("style", "width: min(560px, calc(100vw - 32px));")
-        attr("aria-labelledby", "company-user-dialog-title")
-        ref { element ->
-            element.showModal()
-            val cancel: (org.w3c.dom.events.Event) -> Unit = { it.preventDefault(); onClose() }
-            element.addEventListener("cancel", cancel)
-            onDispose { element.removeEventListener("cancel", cancel); element.close() }
-        }
-    }) {
-        Form(attrs = {
-            onSubmit { event ->
-                event.preventDefault()
-                val parsed = runCatching { Uuid.parse(userId.trim()) }.getOrNull()
-                when {
-                    parsed == null -> error = "Enter a valid user UUID."
-                    role.isBlank() -> error = "Enter a role."
-                    mode == "Add" && parsed in existingIds -> error = "This user is already in the table."
-                    company.companyId == null -> error = "A company ID is required."
-                    else -> onSave(CompanyUser(company.companyId, parsed, role.trim(), status, user?.createdAt, user?.updatedAt))
-                }
-            }
-        }) {
-            Div(attrs = { classes("p-3", "border-bottom", "d-flex", "justify-content-between", "align-items-center") }) {
-                H2(attrs = { id("company-user-dialog-title"); classes("h5", "mb-0") }) { Text("$mode company user") }
-                Button(attrs = { classes("btn-close"); attr("type", "button"); attr("aria-label", "Close"); onClick { onClose() } })
-            }
-            Div(attrs = { classes("p-3") }) {
-                error?.let { Div(attrs = { classes("alert", "alert-danger"); attr("role", "alert") }) { Text(it) } }
-                if (readOnly) {
-                    Detail("User ID", userId)
-                    Detail("Company ID", company.companyId?.toString())
-                    Detail("Role", role)
-                    Detail("Status", status)
-                    Detail("Created", user?.createdAt?.toString())
-                    Detail("Last updated", user?.updatedAt?.toString())
-                } else {
-                    Label(forId = "member-user-id", attrs = { classes("form-label") }) { Text("User ID") }
-                    Input(InputType.Text, attrs = {
-                        id("member-user-id"); classes("form-control", "mb-3"); value(userId)
-                        if (mode == "Edit") attr("readonly", "")
-                        onInput { userId = it.value }
-                    })
-                    Label(forId = "member-role", attrs = { classes("form-label") }) { Text("Role") }
-                    Input(InputType.Text, attrs = { id("member-role"); classes("form-control", "mb-3"); value(role); onInput { role = it.value } })
-                    Label(forId = "member-status", attrs = { classes("form-label") }) { Text("Status") }
-                    Select(attrs = { id("member-status"); classes("form-select"); onChange { status = it.value ?: "Active" } }) {
-                        listOf("Active", "Disabled").forEach { value -> Option(value, attrs = { if (value == status) selected() }) { Text(value) } }
-                    }
-                    P(attrs = { classes("small", "text-body-secondary", "mt-3", "mb-0") }) { Text("Local draft only. No changes will be sent to the server.") }
-                }
-            }
-            Div(attrs = { classes("p-3", "border-top", "d-flex", "justify-content-end", "gap-2") }) {
-                Button(attrs = { classes("btn", "btn-outline-secondary"); attr("type", "button"); onClick { onClose() } }) { Text("Close") }
-                if (!readOnly) Button(attrs = { classes("btn", "btn-primary"); attr("type", "submit") }) { Text("Save local draft") }
-            }
-        }
     }
 }

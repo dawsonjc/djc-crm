@@ -16,7 +16,7 @@ import kotlinx.serialization.json.put
 
 @Api(routeOverride = "/company/add")
 suspend fun companyAdd(context: ApiContext) {
-    if (context.req.method != HttpMethod.POST) return
+    if(context.req.method != HttpMethod.POST) return
     val respJson: ApiResponse<Company> = ApiResponse<Company>();
 
     val backendSessionId = context.req.cookies["JSESSIONID"]?.takeIf { it.isNotBlank() } ?: run {

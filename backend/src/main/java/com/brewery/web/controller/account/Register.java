@@ -21,7 +21,7 @@ public class Register {
 
     @RequestMapping(value = { "/register" })
     public String registerView(Model model) {
-        model.addAttribute("register_user", new User());
+        model.addAttribute("register_user", User.builder().build());
         return "account/register";
     }
 
