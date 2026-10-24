@@ -2,6 +2,7 @@ package com.auth_service.store
 
 import com.auth_service.http.HttpRequests
 import com.auth_service.model.Company
+import com.varabyte.kobweb.api.log.Logger
 import com.sun.net.httpserver.HttpServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -15,7 +16,21 @@ import kotlin.coroutines.startCoroutine
 
 class CompanyStoreSessionTest {
     private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply { start() }
-    private val store = CompanyStore("http://127.0.0.1:${server.address.port}", "test-secret", HttpRequests())
+    private val errors = mutableListOf<String>()
+    private val logger = object : Logger {
+        override fun trace(message: String) = Unit
+        override fun debug(message: String) = Unit
+        override fun info(message: String) = Unit
+        override fun warn(message: String) = Unit
+        override fun error(message: String) { errors.add(message) }
+    }
+    private val store = CompanyStore("http://127.0.0.1:${server.address.port}", "test-secret", HttpRequests(), logger)
+    @Test
+    fun `missing configuration is logged without a request context`() {
+        val unconfigured = CompanyStore(serviceSecretKey = "", logger = logger)
+        assertTrue(await { unconfigured.getAll("test-session") }.isEmpty())
+        assertTrue(errors.single().contains("AUTH_SERVICE_SECRET_KEY is not configured"))
+    }
     @AfterEach
     fun stopServer() = server.stop(0)
     @Test

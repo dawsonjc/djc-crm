@@ -12,12 +12,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+import java.util.regex.Pattern;
+
 @Controller
 @RequestMapping(value = { "/account" })
 public class Register {
 
-    @Autowired
-    private UserTableService userService;
+    private final UserTableService userService;
+
+    public Register(UserTableService userService) {
+        this.userService = userService;
+    }
+
 
     @RequestMapping(value = { "/register" })
     public String registerView(Model model) {
@@ -36,7 +43,7 @@ public class Register {
         responseJson.put("message", "");
         ObjectNode data = responseJson.putObject("data");
 
-        if (!userData.verify()) {
+        if(!userData.verify()) {
             responseJson.set("data", mapper.convertValue(userData.getErrors(), ObjectNode.class));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
         }
@@ -50,8 +57,14 @@ public class Register {
             responseJson.put("message", "Invalid");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseJson);
         }
+        UUID userId = this.userService.getUserIdByEmail(userData.email());
+        User user = this.userService.getUserById(userId);
+        if (user == null || user.getAccountVerificationStatus() == User.VerificationStatus.VERIFIED) {
+            responseJson.put("message", "Invalid");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseJson);
+        }
 
-        this.userService.register(userData);
+        this.userService.authenticateRegisteredUser(userData);
 
         responseJson.put("success", true);
 

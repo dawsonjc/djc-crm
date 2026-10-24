@@ -9,12 +9,9 @@ import com.brewery.web.user.AuthSessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -51,21 +48,13 @@ public class CompanyController {
     @PostMapping(path = { "/add" })
     public ResponseEntity<ObjectNode> addCompany(
             @RequestBody CompanyFormData formData,
-            HttpServletRequest request
+            @RequestAttribute(AuthSessionUser.AUTH_SESSION_USER) User user
     ) {
         ObjectNode respJson = mapper.createObjectNode();
         respJson.put("success", false);
         respJson.put("message", "");
 
         ObjectNode data = respJson.putObject("data");
-
-        HttpSession session = request.getSession(false);
-        Object sessionUser = session == null ? null : session.getAttribute(AuthSessionUser.AUTH_SESSION_USER);
-        if (!(sessionUser instanceof User user)) {
-            respJson.put("message", "Please sign in again.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
-        }
-
 
         if(!formData.verify()) {
             respJson.put("message", "Invalid form data");
@@ -82,21 +71,13 @@ public class CompanyController {
 
     @GetMapping(path = { "/{id}" })
     public ResponseEntity<ObjectNode> getById(
-            @PathVariable(name = "id") String id,
-            HttpServletRequest request
+            @PathVariable(name = "id") String id
     ) {
         ObjectNode respJson = mapper.createObjectNode();
         respJson.put("success", false);
         respJson.put("message", "");
 
         ObjectNode data = respJson.putObject("data");
-
-        HttpSession session = request.getSession(false);
-        Object sessionUser = session == null ? null : session.getAttribute(AuthSessionUser.AUTH_SESSION_USER);
-        if (!(sessionUser instanceof User user)) {
-            respJson.put("message", "Please sign in again.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
-        }
 
         UUID companyId;
         try {

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +28,7 @@ public class AuthController {
     }
 
 
-    @RequestMapping(path = { "/login" })
+    @PostMapping(path = { "/login" })
     public ResponseEntity<ObjectNode> login(
             @RequestBody LoginFormData formUser,
             HttpServletRequest request
@@ -58,9 +59,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
-        System.err.println("User logged in: " + user);
         request.getSession(true ).setAttribute(AuthSessionUser.AUTH_SESSION_USER, user);
-        System.err.println("User logged in: " + request.getSession().getAttribute(AuthSessionUser.AUTH_SESSION_USER));
+
         respJson.put("success", true);
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);

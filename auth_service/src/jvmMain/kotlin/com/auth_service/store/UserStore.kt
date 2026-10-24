@@ -5,6 +5,7 @@ import com.auth_service.api.CRM_BACKEND_URL
 import com.auth_service.http.HttpRequests
 import com.auth_service.http.RequestMethod
 import com.auth_service.model.CompanyUser
+import com.varabyte.kobweb.api.log.Logger
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -19,6 +20,7 @@ class UserStore(
     private val backendUrl: String = CRM_BACKEND_URL,
     private val serviceSecretKey: String = AUTH_SERVICE_SECRET_KEY,
     private val client: HttpRequests = userClient,
+    private val logger: Logger,
 ) {
     suspend fun add(user: CompanyUser, backendSessionId: String): CompanyUser {
         val secretKey: String = serviceSecretKey.takeIf { it.isNotBlank() }
@@ -35,6 +37,7 @@ class UserStore(
                 "Cookie" to "JSESSIONID=$backendSessionId",
             ),
         )
+        logger.debug("UserStore.add: backend returned HTTP ${response.statusCode()}")
         if (response.statusCode() == 401) throw BackendSessionExpiredException()
         check(response.statusCode() in 200..299) {
             "User creation failed with HTTP ${response.statusCode()}"

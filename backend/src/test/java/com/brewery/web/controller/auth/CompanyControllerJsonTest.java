@@ -4,14 +4,12 @@ import com.brewery.web.dto.company.CompanyDTO;
 import com.brewery.web.dto.formdata.auth.CompanyFormData;
 import com.brewery.web.model.company.Company;
 import com.brewery.web.model.User;
-import com.brewery.web.user.AuthSessionUser;
 import com.brewery.web.services.auth.CompanyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.time.Instant;
 import java.util.List;
@@ -36,11 +34,9 @@ class CompanyControllerJsonTest {
             when(service.addCompanyByFormData(any(), any())).thenReturn(company);
             CompanyController controller = new CompanyController(service, mapper);
 
-            MockHttpServletRequest request = new MockHttpServletRequest();
-            request.getSession().setAttribute(AuthSessionUser.AUTH_SESSION_USER, User.builder().build());
             var response = controller.addCompany(
                     new CompanyFormData("Brewery", null, null, null, null, null, null, "Active"),
-                    request);
+                    User.builder().build());
             var json = mapper.readTree(mapper.writeValueAsString(response.getBody()));
 
             assertThat(json.path("success").asBoolean()).isTrue();

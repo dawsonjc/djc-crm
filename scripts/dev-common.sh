@@ -13,12 +13,26 @@ set -a
 source <(sed 's/\r$//' .env)
 set +a
 
+AUTH_STARTED=0
+AUTH_LOG_PID=''
+
+follow_auth_log() {
+    tail -n +1 -F auth_service/build/logs/auth.log &
+    AUTH_LOG_PID=$!
+}
+
 stop_auth_on_exit() {
     local status=$?
     trap - EXIT INT TERM
-    printf '\nStopping auth_service...\n'
-    if ! bash ./gradlew :auth_service:kobwebStop --console=plain; then
-        printf 'Could not stop auth_service. Run: bash ./gradlew :auth_service:kobwebStop\n' >&2
+    if [[ "$AUTH_STARTED" == 1 ]]; then
+        printf '\nStopping auth_service...\n'
+        if ! bash ./gradlew :auth_service:kobwebStop --console=plain; then
+            printf 'Could not stop auth_service. Run: bash ./gradlew :auth_service:kobwebStop\n' >&2
+        fi
+    fi
+    if [[ -n "$AUTH_LOG_PID" ]]; then
+        kill "$AUTH_LOG_PID" 2>/dev/null || true
+        wait "$AUTH_LOG_PID" 2>/dev/null || true
     fi
     exit "$status"
 }

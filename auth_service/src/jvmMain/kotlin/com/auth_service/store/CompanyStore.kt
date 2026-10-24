@@ -4,12 +4,15 @@ import com.auth_service.api.AUTH_SERVICE_SECRET_KEY
 import com.auth_service.api.CRM_BACKEND_URL
 import com.auth_service.http.HttpRequests
 import com.auth_service.http.RequestMethod
+import com.auth_service.model.ApiResponse
 import com.auth_service.model.Company
+import com.varabyte.kobweb.api.log.Logger
 import kotlinx.serialization.encodeToString
 import com.auth_service.serialization.AppJson
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
@@ -25,6 +28,7 @@ class CompanyStore(
     private val backendUrl: String = CRM_BACKEND_URL,
     private val serviceSecretKey: String = AUTH_SERVICE_SECRET_KEY,
     private val client: HttpRequests = companyClient,
+    private val logger: Logger,
 ) {
     suspend fun add(company: Company, backendSessionId: String): Company {
         val secretKey: String = serviceSecretKey.takeIf { it.isNotBlank() }
@@ -60,10 +64,10 @@ class CompanyStore(
         return json.decodeFromJsonElement<Company>(data)
     }
 
-    suspend fun getAll(): List<Company> {
+    suspend fun getAll(backendSessionId: String): List<Company> {
         val secretKey: String? = serviceSecretKey.takeIf { it.isNotBlank() }
         if(secretKey == null) {
-            println("SECRET KEY NULL ON CompanyStore.getAll")
+            logger.error("CompanyStore.getAll: AUTH_SERVICE_SECRET_KEY is not configured")
             return listOf()
         }
 
@@ -75,21 +79,24 @@ class CompanyStore(
                 headers = mapOf(
                     "Accept" to "application/json",
                     "X-Auth-Service-Secret-Key" to secretKey,
+                    "Cookie" to "JSESSIONID=$backendSessionId",
                 )
             )
         } catch (e: Exception) {
-            e.printStackTrace()
-            println("ERROR ON CompanyStore.getAll ${e.message}")
+            logger.error("CompanyStore.getAll: backend request failed\n${e.stackTraceToString()}")
             return listOf()
-        }
-        if(response.statusCode() !in 200..299) {
-            println("ERROR ON CompanyStore.getAll ${response.statusCode()}")
-            return listOf();
         }
 
         val body: JsonObject = json.parseToJsonElement(
             response.body().decodeToString()
         ).jsonObject
+
+        if(response.statusCode() !in 200..299) {
+            logger.warn("CompanyStore.getAll: backend returned HTTP ${response.statusCode()} with $body")
+            return listOf();
+        }
+
+
 
         val data = body["data"]
             ?: error("Company response is missing 'data'")

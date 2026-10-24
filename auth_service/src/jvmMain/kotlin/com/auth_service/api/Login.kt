@@ -4,6 +4,8 @@ import com.auth_service.http.HttpRequests
 import com.auth_service.auth.AuthSessions
 import com.auth_service.auth.loginSucceeded
 import com.auth_service.http.RequestMethod
+import com.auth_service.http.jsonBodyOf
+import com.auth_service.model.ApiResponse
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.varabyte.kobweb.api.Api
@@ -11,6 +13,7 @@ import com.varabyte.kobweb.api.ApiContext
 import com.varabyte.kobweb.api.http.HttpMethod
 import com.varabyte.kobweb.api.http.bodyOf
 import com.varabyte.kobweb.api.http.bytes
+import kotlinx.serialization.json.JsonElement
 import java.net.http.HttpResponse
 
 private val loginClient = HttpRequests()
@@ -23,16 +26,12 @@ suspend fun login(ctx: ApiContext) {
         ctx.res.status = 405
         return
     }
-    val mapper: ObjectMapper = ObjectMapper();
-    val respJson: ObjectNode = mapper.createObjectNode();
-    respJson.put("success", false)
-    respJson.put("message", "")
-    val data: ObjectNode = respJson.putObject("data")
+    val respJson: ApiResponse<JsonElement> = ApiResponse<JsonElement>()
 
     val secretKey: String? = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
     if (secretKey == null) {
-        respJson.put("message", "Auth Service is not configured.")
-        ctx.res.body = bodyOf(respJson.toString(), "application/json")
+        respJson.message = "Auth Service is not configured."
+        ctx.res.body = jsonBodyOf(respJson)
         ctx.res.status = 503
         return
     }
@@ -62,23 +61,21 @@ suspend fun login(ctx: ApiContext) {
             ctx.res.headers.append("Set-Cookie", AuthSessions.cookie(
                 token, ctx.req.connection.origin.scheme == "https",
             ))
-            respJson.put("success", true)
-            ctx.res.body = bodyOf(respJson.toString(), "application/json")
+            respJson.success = true
+            ctx.res.body = jsonBodyOf(respJson)
             ctx.res.status = 200
         } else {
-            ctx.res.body = bodyOf(
-                bytes = response.body(),
-                contentType = response.headers().firstValue("Content-Type").orElseGet { "application/json" },
-            )
+            respJson.message = "Something went wrong!"
+            ctx.res.body = jsonBodyOf(respJson)
             ctx.res.status = response.statusCode()
         }
         response.headers().allValues("Set-Cookie").forEach {
             ctx.res.headers.append("Set-Cookie", it)
         }
     } catch (e: Exception) {
-        respJson.put("message", "Something went wrong!")
+        respJson.message = "Something went wrong!"
 
-        ctx.res.body = bodyOf(respJson.toString(), "application/json")
+        ctx.res.body = jsonBodyOf(respJson)
         ctx.res.status = 502
     }
 }

@@ -47,12 +47,11 @@ public class AuthHook implements Filter {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
             return;
         }
-// TODO: fix
-//        if (isPathWithin(servletPath, "/message")
-//                && loggedIn.getAccountVerificationStatus() != User.VerificationStatus.VERIFIED) {
-//            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-//            return;
-//        }
+        // disable for now
+        if(isPathWithin(servletPath, "/message")) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
+            return;
+        }
 
         filterChain.doFilter(request, response);
     }

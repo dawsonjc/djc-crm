@@ -2,6 +2,15 @@ site:
   title: "Authentication Service"
 
 server:
+  logging:
+    level: INFO
+    enableConsoleLogging: true
+    enableFileLogging: true
+    logRoot: "build/logs"
+    logFileBaseName: "auth"
+    clearLogsOnStart: true
+    maxFileCount: 7
+    compressHistory: true
   files:
     dev:
       contentRoot: "build/processedResources/js/main/public"

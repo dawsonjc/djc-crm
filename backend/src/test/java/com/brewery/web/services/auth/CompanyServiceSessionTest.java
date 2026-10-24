@@ -1,8 +1,7 @@
 package com.brewery.web.services.auth;
 
 import com.brewery.web.dto.formdata.auth.CompanyFormData;
-import com.brewery.web.controller.auth.CompanyController;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.brewery.web.security.AuthSessionFilter;
 import com.brewery.web.model.User;
 import com.brewery.web.model.company.Company;
 import com.brewery.web.repositories.company.CompanyRepository;
@@ -10,6 +9,8 @@ import com.brewery.web.user.AuthSessionUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpSession;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,21 +21,25 @@ class CompanyServiceSessionTest {
     private final CompanyRepository repository = mock(CompanyRepository.class);
     private final CompanyService service = new CompanyService(repository);
     @Test
-    void rejectsMissingSessionWithoutCreatingOneOrSavingCompany() {
+    void rejectsMissingSessionWithoutCreatingOneOrSavingCompany() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        var response = new CompanyController(service, new ObjectMapper()).addCompany(null, request);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody().path("success").asBoolean()).isFalse();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        new AuthSessionFilter().doFilter(request, response, chain);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        assertThat(chain.getRequest()).isNull();
         assertThat(request.getSession(false)).isNull();
         verifyNoInteractions(repository);
     }
     @Test
-    void rejectsSessionWithoutLoggedInUser() {
+    void rejectsSessionWithoutLoggedInUser() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setSession(new MockHttpSession());
-        var response = new CompanyController(service, new ObjectMapper()).addCompany(null, request);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody().path("success").asBoolean()).isFalse();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        new AuthSessionFilter().doFilter(request, response, chain);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        assertThat(chain.getRequest()).isNull();
         verifyNoInteractions(repository);
     }
     @Test

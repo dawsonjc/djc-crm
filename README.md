@@ -155,7 +155,7 @@ Scala.js and Kotlin/JS produce JavaScript for browsers. Node/npm tooling, CSS fr
 | Backend | Spring Boot 3.5.5, Spring Web MVC, Spring Data Cassandra |
 | Main-app views | JSP/JSTL, embedded Tomcat |
 | Main-app browser code | Scala 3.7.3, Scala.js 1.22.0, scalajs-dom, Udash jQuery wrappers |
-| Administration app | Kotlin 2.4.0, Kobweb 0.25.0, Compose HTML |
+| Administration app | Kotlin 2.4.10, Kobweb 0.25.1, Compose HTML |
 | Shared Kotlin serialization | kotlinx.serialization JSON 1.9.0 |
 | Database | Cassandra 4.1.7 |
 | Password hashing | jBCrypt 0.4 |
@@ -270,6 +270,46 @@ bash run-auth.sh      # Auth only; Ctrl+C stops its Kobweb server
 ```
 
 These scripts require a trusted, Bash-compatible `.env` and handle CRLF line endings. They resolve paths relative to the repository; invoke the script by its path if your shell is elsewhere. They do not start Cassandra.
+
+`run-auth.sh` follows Kobweb's built-in Logback file; `run-dev.sh` displays that
+output alongside unchanged Spring Boot console logging. Both use the ordinary
+`kobwebStart` task. Stop the old launcher/server once before switching.
+
+Auth logging is configured under `server.logging` in `auth_service/.kobweb/conf.yaml`.
+Kobweb 0.25.1 supplies the console and rolling-file appenders directly; no custom Logback configuration is needed. This upgrade also eliminates the fallback-page `CompressedReadChannelResponse` to `Unit` cast failure reproduced with 0.25.0.
+The active file is `auth_service/build/logs/auth.log`. Logs are cleared on a fresh
+server start, and daily rotation is enabled while it runs. The launchers follow
+file replacement/rotation; `reload-auth.sh` keeps using the same running server.
+The level is `INFO`; change it to `DEBUG` and restart to see debug messages.
+Kobweb 0.25.1 also forwards API `println` / `System.err` output to INFO/WARN logs.
+Prefer `context.logger` for explicit levels and exception reporting. `jsMain` output
+still appears in the browser console.
+
+Stores and other JVM classes receive only the logger through constructor injection:
+
+```kotlin
+import com.varabyte.kobweb.api.log.Logger
+
+class ExampleStore(private val logger: Logger) {
+    fun doWork() {
+        logger.info("ExampleStore: starting work")
+        // Inside an error handler:
+        // logger.error("ExampleStore: failed\n${exception.stackTraceToString()}")
+    }
+}
+
+// Inside an API handler:
+val store = ExampleStore(context.logger)
+```
+
+`CompanyStore` and `UserStore` follow this pattern. They do not retain `ApiContext`,
+cookies, or the request. For services created outside a request, construct them in
+an `@InitApi` function using `InitApiContext.logger`, and pass that logger to their
+dependencies. Tests can inject an implementation of Kobweb's `Logger` to record
+messages. No additional logging dependency or global logger is needed.
+
+To save the combined terminal output as well, use
+`bash run-dev.sh 2>&1 | tee dev-console.log` (keep local logs out of Git).
 
 Alternatively, export the environment variables into each terminal and run Gradle directly:
 

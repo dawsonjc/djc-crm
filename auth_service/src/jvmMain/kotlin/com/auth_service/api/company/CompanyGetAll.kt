@@ -20,7 +20,16 @@ suspend fun companyGet(context: ApiContext) {
         context.res.body = jsonBodyOf(response)
         return
     }
-    val companies = CompanyStore().getAll()
+
+    val backendSessionId: String = context.req.cookies["JSESSIONID"]?.takeIf { it.isNotBlank() } ?: run {
+        response.message = "Please sign in again."
+
+        context.res.status = 401
+        context.res.body = jsonBodyOf(response)
+        return
+    }
+
+    val companies = CompanyStore(logger = context.logger).getAll(backendSessionId)
 
     response.success = true
     response.data = companies;

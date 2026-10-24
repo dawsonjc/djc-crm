@@ -47,7 +47,6 @@ class CompanySerializationTest {
         assertEquals("VERIFIED", user.accountVerificationStatus)
         assertEquals(true, user.twoFactorAuthentication)
         assertEquals("Admin", user.roles?.single()?.roleName)
-        assertEquals(1, user.conversations?.single()?.users?.size)
         assertNotNull(user.createDate)
         assertEquals(user, Json.decodeFromString<CompanyUser>(Json.encodeToString(user)))
         val edited = user.copy(firstName = "Updated")

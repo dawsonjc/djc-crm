@@ -16,8 +16,14 @@ import kotlinx.serialization.json.put
 
 @Api(routeOverride = "/company/add")
 suspend fun companyAdd(context: ApiContext) {
-    if(context.req.method != HttpMethod.POST) return
     val respJson: ApiResponse<Company> = ApiResponse<Company>();
+
+    if(context.req.method != HttpMethod.POST) {
+        respJson.message = "Method not allowed."
+        context.res.status = 405
+        context.res.body = jsonBodyOf(respJson)
+        return
+    }
 
     val backendSessionId = context.req.cookies["JSESSIONID"]?.takeIf { it.isNotBlank() } ?: run {
         respJson.message = "Please sign in again."
@@ -31,7 +37,7 @@ suspend fun companyAdd(context: ApiContext) {
         return
     }
     val saved: Company = try {
-        CompanyStore().add(company, backendSessionId)
+        CompanyStore(logger = context.logger).add(company, backendSessionId)
     } catch (_: BackendSessionExpiredException) {
         respJson.message = "Please sign in again."
 

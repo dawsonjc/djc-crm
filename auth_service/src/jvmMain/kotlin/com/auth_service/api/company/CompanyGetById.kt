@@ -12,8 +12,15 @@ import kotlin.uuid.Uuid
 
 @Api(routeOverride = "/company/get/{id}")
 suspend fun getCompanyById(context: ApiContext): Unit {
-    if(context.req.method != HttpMethod.GET) return;
     val respJson: ApiResponse<Company> = ApiResponse<Company>();
+    if(context.req.method != HttpMethod.GET) {
+        respJson.message = "Invalid request method."
+
+        context.res.status = 405
+        context.res.body = jsonBodyOf(respJson)
+        return
+    };
+
 
     val backendSessionId: String = context.req.cookies["JSESSIONID"]?.takeIf { it.isNotBlank() } ?: run {
         respJson.message = "Please sign in again."
@@ -35,7 +42,7 @@ suspend fun getCompanyById(context: ApiContext): Unit {
         return
     }
 
-    val company: Company = CompanyStore().getById(id, backendSessionId)
+    val company: Company = CompanyStore(logger = context.logger).getById(id, backendSessionId)
 
     respJson.success = true
     respJson.data = company;

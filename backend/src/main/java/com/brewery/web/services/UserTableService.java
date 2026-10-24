@@ -1,6 +1,7 @@
 package com.brewery.web.services;
 
 import com.brewery.web.dto.formdata.RegisterFormData;
+import com.brewery.web.dto.formdata.auth.CompanyUserFormData;
 import com.brewery.web.model.record.RecordStatus;
 import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
@@ -92,10 +93,8 @@ public class UserTableService {
         return this.repo.getUnverifiedUsers();
     }
 
-    public User register(RegisterFormData registerFormData) {
+    public User registerUser(CompanyUserFormData companyUserFormData) {
         Instant now = Instant.now();
-
-        String hashed = BCrypt.hashpw(registerFormData.password(), BCrypt.gensalt(10));
 
         UUID userId = UUID.randomUUID();
 
@@ -113,20 +112,44 @@ public class UserTableService {
                 .withUserId(userId)
                 .withCreateDate(now)
                 .withUpdateDate(now)
+                .withStatus(RecordStatus.fromString(companyUserFormData.status()))
+                .withUsername(companyUserFormData.username())
+                .withEmail(companyUserFormData.email())
+                .withFirstName(companyUserFormData.firstName())
+                .withLastName(companyUserFormData.lastName())
+                .withFullName(companyUserFormData.firstName() + " " + companyUserFormData.lastName())
+                .withLanguagePreference(companyUserFormData.languagePreference())
+                .withTimezone(companyUserFormData.timezone())
+                .withAccountVerificationStatus(User.VerificationStatus.PENDING)
+                .withRoles(List.of(userRole))
+                .build();
+
+        User savedUser = this.repo.save(user);
+        this.userRolesService.save(userRole);
+
+        return savedUser;
+    }
+
+    public User authenticateRegisteredUser(RegisterFormData registerFormData) {
+        UUID userId = this.getUserIdByEmail(registerFormData.email());
+        User user = this.getUserById(userId);
+
+        Instant now = Instant.now();
+
+        String hashed = BCrypt.hashpw(registerFormData.password(), BCrypt.gensalt(10));
+
+        user = user.toBuilder()
+                .withUpdateDate(now)
                 .withStatus(RecordStatus.ACTIVE)
                 .withUsername(registerFormData.username())
-                .withEmail(registerFormData.email())
                 .withPassword(hashed)
                 .withFirstName(registerFormData.firstName())
                 .withLastName(registerFormData.lastName())
                 .withFullName(registerFormData.firstName() + " " + registerFormData.lastName())
-                .withLanguagePreference("en")
-                .withTimezone("en/us")
                 .withAccountVerificationStatus(User.VerificationStatus.VERIFIED)
-                .withRoles(List.of(userRole))
                 .build();
+
         User savedUser = this.repo.save(user);
-        this.userRolesService.save(userRole);
 
         return savedUser;
     }

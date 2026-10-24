@@ -3,14 +3,16 @@ import kotlinx.html.link
 import kotlinx.html.script
 
 plugins {
-    kotlin("multiplatform") version "2.4.0"
-    kotlin("plugin.compose") version "2.4.0"
-    kotlin("plugin.serialization") version "2.4.0"
-    id("com.varabyte.kobweb.application") version "0.25.0"
+    val kobwebVersion: String = "0.25.1"
+    kotlin("multiplatform") version "2.4.10"
+    kotlin("plugin.compose") version "2.4.10"
+    kotlin("plugin.serialization") version "2.4.10"
+    id("com.varabyte.kobweb.application") version "$kobwebVersion"
 }
 
 group = "com.auth_service"
 version = "1.0-SNAPSHOT"
+val kobwebVersion: String = "0.25.1"
 
 repositories {
     google()
@@ -27,16 +29,16 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-            implementation("com.varabyte.kobwebx:kobwebx-serialization-kotlinx:0.25.0")
+            implementation("com.varabyte.kobwebx:kobwebx-serialization-kotlinx:$kobwebVersion")
         }
         jvmMain.dependencies {
-            implementation("com.varabyte.kobweb:kobweb-api:0.25.0")
+            implementation("com.varabyte.kobweb:kobweb-api:$kobwebVersion")
             implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
         }
         jsMain.dependencies {
-            implementation("androidx.compose.runtime:runtime:1.11.2")
+            implementation("androidx.compose.runtime:runtime:1.12.0")
             implementation("org.jetbrains.compose.html:html-core:1.11.1")
-            implementation("com.varabyte.kobweb:kobweb-core:0.25.0")
+            implementation("com.varabyte.kobweb:kobweb-core:$kobwebVersion")
         }
         jvmTest.dependencies {
             implementation("org.junit.jupiter:junit-jupiter:5.12.2")

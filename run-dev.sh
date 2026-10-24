@@ -5,8 +5,10 @@ source "$(dirname -- "${BASH_SOURCE[0]}")/scripts/dev-common.sh"
 manage_auth_lifetime
 
 printf 'Starting auth_service...\n'
-bash ./gradlew :auth_service:kobwebStart --console=plain
+bash ./gradlew :auth_service:kobwebStart -PkobwebReuseServer=false --console=plain
+AUTH_STARTED=1
+follow_auth_log
 
 # Extra arguments belong to bootRun (for example --args=--server.port=8081).
 printf 'Starting app. Rebuild from another terminal: bash reload-app.sh / bash reload-auth.sh\n'
-bash ./gradlew :frontend:bootRun "$@"
+bash ./gradlew :frontend:bootRun --console=plain "$@"
