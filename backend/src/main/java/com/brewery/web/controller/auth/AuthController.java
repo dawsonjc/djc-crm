@@ -39,7 +39,7 @@ public class AuthController {
         respJson.put("message", "");
         ObjectNode data = respJson.putObject("data");
         if(!formUser.verify()) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
         Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
         boolean isEmail = emailPattern.matcher(formUser.username()).matches();

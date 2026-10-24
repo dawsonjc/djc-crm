@@ -6,8 +6,10 @@ import com.auth_service.auth.loginSucceeded
 import com.auth_service.http.RequestMethod
 import com.auth_service.http.jsonBodyOf
 import com.auth_service.model.ApiResponse
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
+import com.auth_service.serialization.AppJson
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
 import com.varabyte.kobweb.api.Api
 import com.varabyte.kobweb.api.ApiContext
 import com.varabyte.kobweb.api.http.HttpMethod
@@ -18,12 +20,19 @@ import java.net.http.HttpResponse
 
 private val loginClient = HttpRequests()
 
+@Serializable
+private data class LoginRequest(
+    val username: String? = null,
+    val password: String? = null
+)
+
+
 @Api(routeOverride = "login")
-suspend fun login(ctx: ApiContext) {
-    ctx.res.headers["Cache-Control"] = "no-store"
-    if (ctx.req.method != HttpMethod.POST) {
-        ctx.res.headers["Allow"] = "POST"
-        ctx.res.status = 405
+suspend fun login(context: ApiContext) {
+    context.res.headers["Cache-Control"] = "no-store"
+    if (context.req.method != HttpMethod.POST) {
+        context.res.headers["Allow"] = "POST"
+        context.res.status = 405
         return
     }
     val respJson: ApiResponse<JsonElement> = ApiResponse<JsonElement>()
@@ -31,14 +40,23 @@ suspend fun login(ctx: ApiContext) {
     val secretKey: String? = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
     if (secretKey == null) {
         respJson.message = "Auth Service is not configured."
-        ctx.res.body = jsonBodyOf(respJson)
-        ctx.res.status = 503
+        context.res.body = jsonBodyOf(respJson)
+        context.res.status = 503
         return
     }
 
-    val requestBody = ctx.req.body
-    if (requestBody == null) {
-        ctx.res.status = 400
+    val requestBody = context.req.body
+    if(requestBody == null) {
+        context.res.status = 400
+        return
+    }
+
+    val loginRequest: LoginRequest = try {
+        AppJson.decodeFromString<LoginRequest>(requestBody.bytes().decodeToString())
+    } catch (_: SerializationException) {
+        respJson.message = "Invalid login request."
+        context.res.status = 400
+        context.res.body = jsonBodyOf(respJson)
         return
     }
 
@@ -48,8 +66,8 @@ suspend fun login(ctx: ApiContext) {
         val response: HttpResponse<ByteArray> = loginClient.requestBytes(
             url = "${backendUrl}/auth/login",
             method = RequestMethod.POST,
-            body = requestBody.bytes(),
-            contentType = requestBody.contentType,
+            body = AppJson.encodeToString(loginRequest).encodeToByteArray(),
+            contentType = "application/json; charset=UTF-8",
             headers = mapOf(
                 "Accept" to "application/json",
                 "X-Auth-Service-Secret-Key" to secretKey,
@@ -57,25 +75,25 @@ suspend fun login(ctx: ApiContext) {
         )
 
         if (loginSucceeded(response.statusCode(), response.body())) {
-            val token = AuthSessions.current.create(ctx.req.cookies[AuthSessions.COOKIE_NAME])
-            ctx.res.headers.append("Set-Cookie", AuthSessions.cookie(
-                token, ctx.req.connection.origin.scheme == "https",
+            val token = AuthSessions.current.create(context.req.cookies[AuthSessions.COOKIE_NAME])
+            context.res.headers.append("Set-Cookie", AuthSessions.cookie(
+                token, context.req.connection.origin.scheme == "https",
             ))
             respJson.success = true
-            ctx.res.body = jsonBodyOf(respJson)
-            ctx.res.status = 200
+            context.res.body = jsonBodyOf(respJson)
+            context.res.status = 200
         } else {
             respJson.message = "Something went wrong!"
-            ctx.res.body = jsonBodyOf(respJson)
-            ctx.res.status = response.statusCode()
+            context.res.body = jsonBodyOf(respJson)
+            context.res.status = response.statusCode()
         }
         response.headers().allValues("Set-Cookie").forEach {
-            ctx.res.headers.append("Set-Cookie", it)
+            context.res.headers.append("Set-Cookie", it)
         }
     } catch (e: Exception) {
         respJson.message = "Something went wrong!"
 
-        ctx.res.body = jsonBodyOf(respJson)
-        ctx.res.status = 502
+        context.res.body = jsonBodyOf(respJson)
+        context.res.status = 502
     }
 }
