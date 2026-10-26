@@ -32,6 +32,8 @@ kotlin {
             implementation("com.varabyte.kobwebx:kobwebx-serialization-kotlinx:$kobwebVersion")
         }
         jvmMain.dependencies {
+            implementation("com.bucket4j:bucket4j_jdk17-core:8.21.0")
+            implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
             implementation("com.varabyte.kobweb:kobweb-api:$kobwebVersion")
             implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
         }

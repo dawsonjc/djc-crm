@@ -1,12 +1,19 @@
 package com.brewery.web.services;
 
+import com.brewery.web.dto.UserDTO;
 import com.brewery.web.dto.formdata.RegisterFormData;
 import com.brewery.web.dto.formdata.auth.CompanyUserFormData;
 import com.brewery.web.model.record.RecordStatus;
 import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
 import com.brewery.web.model.UserRole;
+import com.brewery.web.model.user.UserIdsByEmail;
+import com.brewery.web.model.user.UserIdsByUsername;
+import com.brewery.web.model.user.UsersByVerificationStatus;
 import com.brewery.web.repositories.UserTableRepository;
+import com.brewery.web.repositories.user.UserIdsByEmailRepository;
+import com.brewery.web.repositories.user.UserIdsByUsernameRepository;
+import com.brewery.web.repositories.user.UsersByVerificationStatusRepository;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +21,22 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service(value = "UserTableService")
 public class UserTableService {
 
     @Autowired
     private UserTableRepository repo;
+
+    @Autowired
+    private UserIdsByEmailRepository userIdsByEmailRepository;
+
+    @Autowired
+    private UserIdsByUsernameRepository userIdsByUsernameRepository;
+
+    @Autowired
+    private UsersByVerificationStatusRepository usersByVerificationStatusRepository;
 
     @Autowired
     private UserRolesService userRolesService;
@@ -55,11 +72,25 @@ public class UserTableService {
     }
 
     public UUID getUserIdByEmail(String email) {
-        return this.repo.findUserIdByEmail(email);
+        List<UserIdsByEmail> userIds = this.userIdsByEmailRepository.findByEmailAndStatus(email, RecordStatus.ACTIVE);
+
+        UUID userId = null;
+        if(userIds != null && !userIds.isEmpty()) {
+            userId = userIds.getFirst().getUserId();
+        }
+
+        return userId;
     }
 
     public UUID getUserIdByUsername(String username) {
-        return this.repo.findUserIdByUsername(username);
+        List<UserIdsByUsername> userIds = this.userIdsByUsernameRepository.findByUsernameAndStatus(username, RecordStatus.ACTIVE);
+
+        UUID userId = null;
+        if(userIds != null && !userIds.isEmpty()) {
+            userId = userIds.getFirst().getUserId();
+        }
+
+        return userId;
     }
 
     public User getUserByIdAndPassword(UUID id, String password) {
@@ -89,8 +120,14 @@ public class UserTableService {
         return this.userRolesService.getUsersRolesByUserId(user.getUserId());
     }
 
-    public List<User> getUnverifiedUsers() {
-        return this.repo.getUnverifiedUsers();
+    public List<UserDTO> getUnverifiedUsers() {
+        List<UsersByVerificationStatus> users = this.usersByVerificationStatusRepository.findByAccountVerificationStatusAndStatus(User.VerificationStatus.PENDING, RecordStatus.ACTIVE);
+
+        List<UserDTO> unverified = users.stream()
+                .map(UserDTO::from)
+                .toList();
+
+        return unverified;
     }
 
     public User registerUser(CompanyUserFormData companyUserFormData) {
@@ -124,7 +161,7 @@ public class UserTableService {
                 .withRoles(List.of(userRole))
                 .build();
 
-        User savedUser = this.repo.save(user);
+        User savedUser = this.save(user);
         this.userRolesService.save(userRole);
 
         return savedUser;
@@ -149,12 +186,45 @@ public class UserTableService {
                 .withAccountVerificationStatus(User.VerificationStatus.VERIFIED)
                 .build();
 
-        User savedUser = this.repo.save(user);
+        User savedUser = this.save(user);
 
         return savedUser;
     }
 
-    public void save(User user) {
-        this.repo.save(user);
+    public User save(User user) {
+        User savedUser = this.repo.save(user);
+        this.userIdsByEmailRepository.save(UserIdsByEmail.builder()
+                .withEmail(user.getEmail())
+                .withStatus(user.getStatus())
+                .withUserId(user.getUserId())
+                .build()
+        );
+        this.userIdsByUsernameRepository.save(UserIdsByUsername.builder()
+                .withUsername(user.getUsername())
+                .withStatus(user.getStatus())
+                .withUserId(user.getUserId())
+                .build()
+        );
+        this.usersByVerificationStatusRepository.save(UsersByVerificationStatus.builder()
+                .withUserId(user.getUserId())
+                .withCreateDate(user.getCreateDate())
+                .withUpdateDate(user.getUpdateDate())
+                .withStatus(user.getStatus())
+                .withUsername(user.getUsername())
+                .withEmail(user.getEmail())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withFullName(user.getFullName())
+                .withLanguagePreference(user.getLanguagePreference())
+                .withTimezone(user.getTimezone())
+                .withLastLoginDate(user.getLastLoginDate())
+                .withAccountVerificationStatus(user.getAccountVerificationStatus())
+                .withTwoFactorAuthentication(user.isTwoFactorAuthentication())
+                .withCompanyId(user.getCompanyId())
+                .withCompanyName(user.getCompanyName())
+                .build()
+        );
+
+        return savedUser;
     }
 }

@@ -1,14 +1,17 @@
 package com.auth_service.api
 
 import com.auth_service.auth.AuthSessions
+import com.auth_service.auth.LoginRateLimiter
 import com.varabyte.kobweb.api.http.Response
 import com.varabyte.kobweb.api.http.bodyOf
 import com.varabyte.kobweb.api.intercept.ApiInterceptor
 import com.varabyte.kobweb.api.intercept.ApiInterceptorContext
 
+private val loginRateLimiter = LoginRateLimiter()
+
 @ApiInterceptor
 suspend fun authFilter(ctx: ApiInterceptorContext): Response {
-    if (ctx.path == "/login") return ctx.dispatcher.dispatch()
+    if (ctx.path == "/login") return loginRateLimiter.check(ctx.req) ?: ctx.dispatcher.dispatch()
 
     val authenticated = AuthSessions.current.isAuthenticated(ctx.req.cookies[AuthSessions.COOKIE_NAME])
     if (!authenticated) return Response().apply {

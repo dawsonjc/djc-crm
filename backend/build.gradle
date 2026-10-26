@@ -18,6 +18,10 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.bucket4j:bucket4j_jdk17-core:8.21.0'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'com.bucket4j:bucket4j_jdk17-core:8.21.0'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'org.springframework.boot:spring-boot-starter-data-cassandra'
     implementation 'org.springframework.boot:spring-boot-starter-data-rest'
     implementation 'org.springframework.boot:spring-boot-starter-freemarker'

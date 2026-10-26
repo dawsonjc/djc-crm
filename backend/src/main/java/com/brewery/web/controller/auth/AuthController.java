@@ -3,6 +3,7 @@ package com.brewery.web.controller.auth;
 import com.brewery.web.dto.formdata.LoginFormData;
 import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
+import com.brewery.web.services.RegistrationEmailService;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.AuthSessionUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,9 +23,11 @@ import java.util.regex.Pattern;
 @RequestMapping(path = { "/auth" })
 public class AuthController {
     private final UserTableService userTableService;
+    private final RegistrationEmailService emailService;
 
-    public AuthController(UserTableService userTableService) {
+    public AuthController(UserTableService userTableService, RegistrationEmailService emailService) {
         this.userTableService = userTableService;
+        this.emailService = emailService;
     }
 
 
@@ -54,8 +57,13 @@ public class AuthController {
         UUID userId = this.userTableService.getUserIdByEmail(formUser.username());
 
         User user = this.userTableService.getUserByIdAndPassword(userId, formUser.password());
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
+        }
 
-        if(user.getRoles().stream().noneMatch(role -> role.getRoleName().equals(Role.Name.ADMIN.toString()))) {
+        if(user.getAccountVerificationStatus() != User.VerificationStatus.VERIFIED &&
+           user.getRoles().stream().noneMatch(role -> role.getRoleName().equals(Role.Name.ADMIN.toString()))
+        ) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 

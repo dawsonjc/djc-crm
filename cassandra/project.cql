@@ -23,6 +23,42 @@ CREATE TABLE IF NOT EXISTS mykeyspacename.user_table (
     PRIMARY KEY ( userid )
 );
 
+-- Query projections for UserTableRepository/UserTableService. Maintain alongside user_table writes.
+-- RecordStatus stores display values (Active/Disabled); verification enums store names (PENDING/VERIFIED/BLOCKED).
+CREATE TABLE IF NOT EXISTS mykeyspacename.user_ids_by_email (
+    email text,
+    status text,
+    userid uuid,
+    PRIMARY KEY ((email, status), userid)
+);
+
+CREATE TABLE IF NOT EXISTS mykeyspacename.user_ids_by_username (
+    username text,
+    status text,
+    userid uuid,
+    PRIMARY KEY ((username, status), userid)
+);
+
+CREATE TABLE IF NOT EXISTS mykeyspacename.users_by_verification_status (
+    userid uuid,
+    create_date timestamp,
+    update_date timestamp,
+    status text,
+    username text,
+    email text,
+    first_name text,
+    last_name text,
+    full_name text,
+    language_preference text,
+    timezone text,
+    last_login_date timestamp,
+    account_verification_status text,
+    two_factor_authentication boolean,
+    company_id uuid,
+    company_name text,
+    PRIMARY KEY ((account_verification_status, status), userid)
+);
+
 CREATE TABLE IF NOT EXISTS mykeyspacename.roles (
     roleid UUID PRIMARY KEY,
     create_date TIMESTAMP,
@@ -155,4 +191,5 @@ INSERT INTO mykeyspacename.roles(roleid, create_date, update_date, status, role_
 INSERT INTO mykeyspacename.roles(roleid, create_date, update_date, status, role_name, description) VALUES (00000000-0000-0000-0000-000000000104, totimestamp(now()), totimestamp(now()), 'Active', 'Moderator', 'Moderator');
 INSERT INTO mykeyspacename.roles(roleid, create_date, update_date, status, role_name, description) VALUES (00000000-0000-0000-0000-000000000105, totimestamp(now()), totimestamp(now()), 'Active', 'User', 'User');
 
+-- INSERT INTO mykeyspacename.user_table(userid, create_date, update_date, status, username, email, password, first_name, last_name, full_name, language_preference, timezone, last_login_date, account_verification_status, two_factor_authentication, company_id, company_name, auth_api_token) VALUES(00000000-0000-0000-0000-000000000001, totimestamp(now()), totimestamp(now()), 'Active', 'admin', 'admin@admin.com', 'INSERT PASSWORD HERE', 'Admin', 'User', 'Admin User', 'en', 'America/Phoenix', totimestamp(now()), 'VERIFIED', true, null, null, null);
 -- INSERT INTO mykeyspacename.user_role(create_date, update_date, status, userid, roleid, role_name) VALUES(totimestamp(now()), totimestamp(now()), 'Active', ..., 00000000-0000-0000-0000-000000000101, 'Super Admin');

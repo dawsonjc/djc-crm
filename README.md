@@ -596,6 +596,29 @@ Implement profile customization, account administration, subscription/billing wo
 
 An initial customer-ready release requires reliable onboarding, enforced company isolation, useful customer records/work tracking, and repeatable operation. The larger CRM roadmap should not obscure those first complete user journeys.
 
+## Login rate limiting
+
+Direct `POST /account/login` requests in the backend and `POST /api/login` requests in the auth service
+use separate per-IP token buckets (Bucket4j with a bounded Caffeine cache). Each IP starts with 10 tokens
+and refills one token every two seconds, up to 10. Every POST attempt counts, including successful and
+malformed requests. GET requests do not consume tokens.
+
+Exhausted buckets return HTTP `429`, `Retry-After` in seconds, and `Cache-Control: no-store` before
+controller/database/password work or backend forwarding. The JSON body uses the normal
+`success: false`, `message`, `data: null` response envelope. Authenticated company/user APIs are not
+covered by this login policy.
+
+The backend filter is registered only for `/account/login`. The auth-service interceptor checks `/api/login`
+at its public entry point; do not apply a backend IP bucket to forwarded `/auth/login` requests, since
+all users would share the auth service's IP. Both checks use the connection's peer address and do not
+parse `X-Forwarded-For`. If deploying behind a reverse proxy, configure trusted client-address handling
+or enforce client-IP limits at the proxy; otherwise users behind it share an allowance.
+
+Each process stores at most 10,000 buckets, expiring entries after 10 minutes of inactivity. Restarting
+or evicting entries resets their allowances. These are single-instance limits, not distributed quotas;
+multiple instances need shared state or gateway enforcement. Account-based failed-attempt cooldowns
+and registration/email throttling remain separate future work.
+
 ## Troubleshooting
 
 | Symptom | Check |

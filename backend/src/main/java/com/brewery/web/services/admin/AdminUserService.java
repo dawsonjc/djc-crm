@@ -1,5 +1,6 @@
 package com.brewery.web.services.admin;
 
+import com.brewery.web.dto.UserDTO;
 import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
 import com.brewery.web.services.RoleService;
@@ -25,7 +26,7 @@ public class AdminUserService {
         this.roleService = roleService;
     }
 
-    public List<User> getUnverifiedUsers() {
+    public List<UserDTO> getUnverifiedUsers() {
         return this.userTableService.getUnverifiedUsers();
     }
 

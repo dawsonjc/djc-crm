@@ -13,18 +13,4 @@ import java.util.UUID;
 
 @Repository
 public interface UserTableRepository extends CassandraRepository<User, UUID> {
-    @Query(value = "SELECT userid FROM user_table WHERE email = :email AND status='Active' ALLOW FILTERING", allowFiltering = true)
-    public UUID findUserIdByEmail(
-            @Param(value = "email") String email
-    );
-
-    @Query(value = "SELECT userid FROM user_table WHERE username = :username AND status='Active' ALLOW FILTERING", allowFiltering = true)
-    public UUID findUserIdByUsername(
-            @Param(value = "username") String username
-    );
-
-    @AllowFiltering
-    @Query(value = "SELECT * FROM user_table WHERE account_verification_status = 'Unverified' AND status='Active' ALLOW FILTERING", allowFiltering = true)
-    public List<User> getUnverifiedUsers();
-
 }

@@ -8,6 +8,9 @@ build/
 !**/src/test/**/build/
 reports/
 
+# Local test and assessment scripts
+/scripts/local-*.cjs
+
 ### STS ###
 .apt_generated
 .classpath
