@@ -4,9 +4,9 @@ import com.brewery.web.model.User;
 import com.brewery.web.model.UserRole;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.SessionUser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -42,7 +42,7 @@ public class Account {
         responseJson.put("message", "");
         ArrayNode roleJson = responseJson.putArray("data");
 
-        List<UserRole> roles = this.accountService.getUsersRolesByUser((User) request.getSession().getAttribute(SessionUser.SESSION_USER));
+        List<UserRole> roles = this.accountService.getUsersRolesByUser((SessionUser) request.getSession().getAttribute(SessionUser.SESSION_USER));
 
         for(UserRole role : roles) {
             roleJson.add(role.getRoleName());

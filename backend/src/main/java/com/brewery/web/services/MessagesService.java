@@ -8,7 +8,7 @@ import com.brewery.web.model.message.MessageView;
 import com.brewery.web.repositories.MessageRepository;
 import com.brewery.web.repositories.view.MessageViewRepository;
 import com.brewery.web.stringutils.StringUtils;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

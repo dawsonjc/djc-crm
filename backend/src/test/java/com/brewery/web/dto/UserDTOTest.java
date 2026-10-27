@@ -8,7 +8,7 @@ import com.brewery.web.model.user.UserIdsByEmail;
 import com.brewery.web.model.user.UserIdsByUsername;
 import com.brewery.web.model.user.UsersByVerificationStatus;
 import com.datastax.oss.driver.api.core.CqlIdentifier;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter;
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
@@ -22,7 +22,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserDTOTest {
-    private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+    private final ObjectMapper mapper = tools.jackson.databind.json.JsonMapper.builder()
+            .findAndAddModules().build();
 
     @Test
     void mapsBaseUserProfileAndRelationsWithoutExposingCredentials() throws Exception {
@@ -79,9 +80,11 @@ class UserDTOTest {
                 .withEmail("test@example.com").withCompanyName("Brewery")
                 .withTwoFactorAuthentication(false).build();
         CassandraMappingContext context = new CassandraMappingContext();
-        context.setCustomConversions(new CassandraConversionConfig().cassandraCustomConversions());
+        var conversions = new CassandraConversionConfig().cassandraCustomConversions();
+        context.setSimpleTypeHolder(conversions.getSimpleTypeHolder());
         context.afterPropertiesSet();
         MappingCassandraConverter converter = new MappingCassandraConverter(context);
+        converter.setCustomConversions(conversions);
         converter.afterPropertiesSet();
         Map<CqlIdentifier, Object> columns = new LinkedHashMap<>();
         converter.write(row, columns);

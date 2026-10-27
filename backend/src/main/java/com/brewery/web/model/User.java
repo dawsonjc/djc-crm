@@ -3,8 +3,8 @@ package com.brewery.web.model;
 import com.brewery.web.dto.ConversationDTO;
 import com.brewery.web.model.record.RecordStatus;
 import com.brewery.web.user.SessionUser;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
@@ -266,7 +266,7 @@ public class User {
     }
 
     public SessionUser toSessionUser() {
-        return new SessionUser(userId.toString(), username, roles);
+        return new SessionUser(this.userId, this.username, this.roles);
     }
 
     @Override

@@ -2,7 +2,7 @@
 # Build with the repository root as the context:
 # docker build -f frontend/Dockerfile .
 
-FROM eclipse-temurin:21-jdk-jammy AS build
+FROM eclipse-temurin:27-jdk-resolute AS build
 
 WORKDIR /workspace
 
@@ -17,7 +17,7 @@ RUN chmod +x gradlew \
     && ./gradlew :frontend:bootWar --no-daemon \
     && cp frontend/build/libs/frontend-1.0-SNAPSHOT.war /workspace/app.war
 
-FROM eclipse-temurin:21-jre-jammy AS runtime
+FROM eclipse-temurin:27-jre-resolute AS runtime
 
 WORKDIR /app
 

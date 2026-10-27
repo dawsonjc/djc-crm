@@ -11,3 +11,5 @@ pluginManagement {
 rootProject.name = 'djc-crm'
 
 include ':scala_js', ':frontend', ':backend', ':auth_service'
+
+project(':scala_js').buildFileName = 'build.gradle.kts'

@@ -7,8 +7,8 @@ import com.brewery.web.model.user.UserIdsByEmail;
 import com.brewery.web.model.user.UserIdsByUsername;
 import com.brewery.web.model.user.UsersByVerificationStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 
 import java.time.Instant;
 import java.util.List;

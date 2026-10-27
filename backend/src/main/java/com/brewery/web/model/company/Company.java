@@ -2,8 +2,8 @@ package com.brewery.web.model.company;
 
 import com.brewery.web.dto.formdata.auth.CompanyFormData;
 import com.brewery.web.model.record.RecordStatus;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.cassandra.core.mapping.Column;

@@ -2,8 +2,8 @@ package com.brewery.web.controller.auth;
 
 import com.brewery.web.dto.formdata.auth.CompanyUserFormData;
 import com.brewery.web.services.UserTableService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

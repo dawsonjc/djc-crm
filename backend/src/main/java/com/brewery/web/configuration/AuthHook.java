@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AuthHook implements Filter {
@@ -43,7 +44,13 @@ public class AuthHook implements Filter {
         }
 
         if (isPathWithin(servletPath, "/admin")
-                && (loggedIn.roles() == null || loggedIn.roles().stream().noneMatch(role -> role.getRoleName().equals(Role.Name.ADMIN.toString())))) {
+                && (loggedIn.roles() == null
+                || loggedIn.roles().stream().noneMatch(role -> {
+                    String roleName = role.getRoleName();
+                    List<String> roleNames = List.of(Role.Name.SUPER_ADMIN.toString(), Role.Name.ADMIN.toString());
+                    return roleNames.contains(roleName);
+                }
+        ))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
             return;
         }

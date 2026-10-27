@@ -14,31 +14,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "desert-storm": "#f8f9f7",
-                        "boulder": "#767676",
-                        "gray-nickel": "#bcbcbb",
-                        "jakarta": "#362c5f",
-                        "darker-jakarta": "#261f42",
-                        "lighter-scarlet-gum": "#a355d2",
-                        "light-scarlet-gum": "#71299c",
-                        "scarlet-gum": "#44195e",
-                        "blaze-orange": "#fc6601",
-                        "sandy-brown": "#ef955d",
-                        "hawaiian-tan": "#924518"
-                    }
-                }
-            }
-        };
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha384-fgGyf7Mo7DURSOMnOy7ed+dkq5Job205Gnzu6QIg0BOHKaqt4D76Dt8VlDCzcMHV" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.17/dist/purify.min.js" integrity="sha384-P0JNneQf81HOl9VwNXK76cQ9VMD6Nfsnepxb0cCOg8+UzEdzgPHAPV4wVQrvYQSx" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3" integrity="sha384-aJ9rL4k6lF+91guGvUFVSkpIcge7Zd9EiI4TQDLoK9kFaFJgKHgjEXVvG/qA5COj" crossorigin="anonymous"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-desert-storm: #f8f9f7;
+            --color-boulder: #767676;
+            --color-gray-nickel: #bcbcbb;
+            --color-jakarta: #362c5f;
+            --color-darker-jakarta: #261f42;
+            --color-lighter-scarlet-gum: #a355d2;
+            --color-light-scarlet-gum: #71299c;
+            --color-scarlet-gum: #44195e;
+            --color-blaze-orange: #fc6601;
+            --color-sandy-brown: #ef955d;
+            --color-hawaiian-tan: #924518;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css" integrity="sha384-qrALq7+6jBOZIQsNnT6xGkMDru64qD6uTlDra39xrt2SoXl4pO3FX6Roz/RpR/BS" crossorigin="anonymous">
     <script type="importmap">{"imports":{"jquery": "<%= request.getContextPath() %>/static/vendor/jquery-module.js"}}</script>
     <script type="module" src="<%= request.getContextPath() %>/static/js/<%= scalaJsModule %>.js"></script>
 </head>

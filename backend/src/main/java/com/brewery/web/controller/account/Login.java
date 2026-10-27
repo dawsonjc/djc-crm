@@ -6,9 +6,9 @@ import com.brewery.web.model.User;
 import com.brewery.web.model.UserRole;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.SessionUser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +50,7 @@ public class Login {
 
         if(!formUser.verify()) {
             respJson.set("data", mapper.convertValue(formUser.getErrors(), ObjectNode.class));
-            return ResponseEntity.status(400).body(respJson);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
         Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
@@ -60,13 +60,13 @@ public class Login {
         UUID userId;
         if(isEmail) {
             if(!this.userService.userExistsByEmail(formUser.username())) {
-                return ResponseEntity.status(401).body(respJson);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respJson);
             }
 
             userId = this.userService.getUserIdByEmail(formUser.username());
         } else {
             if(!this.userService.userExistsByUsername(formUser.username())) {
-                return ResponseEntity.status(401).body(respJson);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respJson);
             }
 
             userId = this.userService.getUserIdByUsername(formUser.username());
@@ -75,20 +75,16 @@ public class Login {
         User user = this.userService.getUserByIdAndPassword(userId, formUser.password());
 
         if(user == null) {
-            return ResponseEntity.status(401).body(respJson);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respJson);
         }
-        user = user.toBuilder()
-                .withLastLoginDate(Instant.now())
-                .withAuthApiToken(UUID.randomUUID())
-                .build();
-        this.userService.save(user); // last login date
+        user = this.userService.recordLogin(user, Instant.now(), UUID.randomUUID());
 
         respJson.put("success", true);
 
         data.put("userId", userId.toString());
         data.put("username", user.getUsername());
 
-        request.getSession().setAttribute(SessionUser.SESSION_USER, user.toSessionUser());
+        request.getSession(true).setAttribute(SessionUser.SESSION_USER, user.toSessionUser());
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);
     }

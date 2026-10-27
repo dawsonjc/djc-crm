@@ -5,8 +5,8 @@ import com.brewery.web.model.message.Message;
 import com.brewery.web.model.User;
 import com.brewery.web.services.MessagesService;
 import com.brewery.web.services.UserTableService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.websocket.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -90,7 +90,7 @@ public class MessageSocket {
         try {
             ObjectNode json = (ObjectNode) mapper.readTree(messageJson);
             savedMessage = this.messagesService.saveMessage(json);
-        } catch (IOException exception) {
+        } catch (tools.jackson.core.JacksonException exception) {
             exception.printStackTrace();
             return;
         }

@@ -3,9 +3,10 @@ package com.brewery.web.user;
 import com.brewery.web.model.UserRole;
 
 import java.util.List;
+import java.util.UUID;
 
 public record SessionUser(
-        String userId,
+        UUID userId,
         String username,
         List<UserRole> roles
 ) {

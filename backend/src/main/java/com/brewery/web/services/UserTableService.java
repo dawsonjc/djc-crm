@@ -14,6 +14,7 @@ import com.brewery.web.repositories.UserTableRepository;
 import com.brewery.web.repositories.user.UserIdsByEmailRepository;
 import com.brewery.web.repositories.user.UserIdsByUsernameRepository;
 import com.brewery.web.repositories.user.UsersByVerificationStatusRepository;
+import com.brewery.web.user.SessionUser;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service(value = "UserTableService")
 public class UserTableService {
@@ -114,10 +115,12 @@ public class UserTableService {
                 .build();
     }
 
-
-
     public List<UserRole> getUsersRolesByUser(User user) {
         return this.userRolesService.getUsersRolesByUserId(user.getUserId());
+    }
+
+    public List<UserRole> getUsersRolesByUser(SessionUser user) {
+        return this.userRolesService.getUsersRolesByUserId(user.userId());
     }
 
     public List<UserDTO> getUnverifiedUsers() {
@@ -161,7 +164,7 @@ public class UserTableService {
                 .withRoles(List.of(userRole))
                 .build();
 
-        User savedUser = this.save(user);
+        User savedUser = this.createUser(user);
         this.userRolesService.save(userRole);
 
         return savedUser;
@@ -170,6 +173,7 @@ public class UserTableService {
     public User authenticateRegisteredUser(RegisterFormData registerFormData) {
         UUID userId = this.getUserIdByEmail(registerFormData.email());
         User user = this.getUserById(userId);
+        User previous = user;
 
         Instant now = Instant.now();
 
@@ -186,26 +190,177 @@ public class UserTableService {
                 .withAccountVerificationStatus(User.VerificationStatus.VERIFIED)
                 .build();
 
-        User savedUser = this.save(user);
+        this.repo.completeRegistration(user.getUserId(), now, user.getStatus(), user.getUsername(), hashed,
+                user.getFirstName(), user.getLastName(), user.getFullName(), user.getAccountVerificationStatus());
+        if (previous.getStatus() != user.getStatus()) {
+            replaceEmailLookup(previous, user);
+        }
+        if (previous.getStatus() != user.getStatus() || !Objects.equals(previous.getUsername(), user.getUsername())) {
+            replaceUsernameLookup(previous, user);
+        }
+        replaceVerificationProjection(previous, user);
+        return user;
+    }
+
+    /** Creation writes all query projections; updates use the operation-specific methods below. */
+    public User createUser(User user) {
+        User savedUser = this.repo.save(user);
+
+        this.userIdsByEmailRepository.save(emailLookup(user));
+        this.userIdsByUsernameRepository.save(usernameLookup(user));
+        this.usersByVerificationStatusRepository.save(verificationProjection(user));
 
         return savedUser;
     }
 
-    public User save(User user) {
-        User savedUser = this.repo.save(user);
-        this.userIdsByEmailRepository.save(UserIdsByEmail.builder()
+    /** Uses the already-authenticated user, so login needs no additional read or full-entity save. */
+    public User recordLogin(User user, Instant loginDate, UUID token) {
+        this.repo.recordLogin(user.getUserId(), loginDate, token);
+        this.usersByVerificationStatusRepository.recordLogin(user.getUserId(),
+                user.getAccountVerificationStatus(), user.getStatus(), loginDate);
+
+        return user.toBuilder()
+                .withLastLoginDate(loginDate)
+                .withAuthApiToken(token)
+                .build();
+    }
+
+    public User updateProfile(UUID userId, String firstName, String lastName, String fullName, String languagePreference, String timezone) {
+        User previous = this.requireUser(userId);
+        Instant now = Instant.now();
+
+        this.repo.updateProfile(userId, firstName, lastName, fullName, languagePreference, timezone, now);
+        this.usersByVerificationStatusRepository.updateProfile(userId, previous.getAccountVerificationStatus(),
+                previous.getStatus(), firstName, lastName, fullName, languagePreference, timezone, now);
+
+        return previous.toBuilder()
+                .withFirstName(firstName)
+                .withLastName(lastName)
+                .withFullName(fullName)
+                .withLanguagePreference(languagePreference)
+                .withTimezone(timezone)
+                .withUpdateDate(now)
+                .build();
+    }
+
+    public User changeEmail(UUID userId, String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        User previous = this.requireUser(userId);
+        if (Objects.equals(previous.getEmail(), email)) {
+            return previous;
+        }
+        Instant now = Instant.now();
+
+        User updated = previous.toBuilder()
+                .withEmail(email)
+                .withUpdateDate(now)
+                .build();
+
+        this.repo.changeEmail(userId, email, now);
+        this.replaceEmailLookup(previous, updated);
+        this.usersByVerificationStatusRepository.changeEmail(userId, previous.getAccountVerificationStatus(),
+                previous.getStatus(), email, now);
+
+        return updated;
+    }
+
+    public User changeUsername(UUID userId, String username) {
+        User previous = this.requireUser(userId);
+        if(Objects.equals(previous.getUsername(), username)) {
+            return previous;
+        }
+        Instant now = Instant.now();
+
+        User updated = previous.toBuilder()
+                .withUsername(username)
+                .withUpdateDate(now)
+                .build();
+
+        this.repo.changeUsername(userId, username, now);
+        this.replaceUsernameLookup(previous, updated);
+        this.usersByVerificationStatusRepository.changeUsername(userId, previous.getAccountVerificationStatus(),
+                previous.getStatus(), username, now);
+
+        return updated;
+    }
+
+    public User changeVerificationStatus(UUID userId, User.VerificationStatus verificationStatus) {
+        User previous = this.requireUser(userId);
+        if(previous.getAccountVerificationStatus() == verificationStatus) {
+            return previous;
+        }
+        Instant now = Instant.now();
+
+        User updated = previous.toBuilder()
+                .withAccountVerificationStatus(verificationStatus)
+                .withUpdateDate(now)
+                .build();
+
+        this.repo.changeVerificationStatus(userId, verificationStatus, now);
+        this.replaceVerificationProjection(previous, updated);
+
+        return updated;
+    }
+
+    public User changeStatus(UUID userId, RecordStatus status) {
+        User previous = this.requireUser(userId);
+        if(previous.getStatus() == status) {
+            return previous;
+        }
+        Instant now = Instant.now();
+
+        User updated = previous.toBuilder()
+                .withStatus(status)
+                .withUpdateDate(now)
+                .build();
+
+        this.repo.changeStatus(userId, status, now);
+
+        this.replaceEmailLookup(previous, updated);
+        this.replaceUsernameLookup(previous, updated);
+        this.replaceVerificationProjection(previous, updated);
+
+        return updated;
+    }
+
+    private User requireUser(UUID userId) {
+        return this.repo.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    private UserIdsByEmail emailLookup(User user) {
+        return UserIdsByEmail.builder()
                 .withEmail(user.getEmail())
                 .withStatus(user.getStatus())
                 .withUserId(user.getUserId())
-                .build()
-        );
-        this.userIdsByUsernameRepository.save(UserIdsByUsername.builder()
+                .build();
+    }
+
+    private UserIdsByUsername usernameLookup(User user) {
+        return UserIdsByUsername.builder()
                 .withUsername(user.getUsername())
                 .withStatus(user.getStatus())
                 .withUserId(user.getUserId())
-                .build()
-        );
-        this.usersByVerificationStatusRepository.save(UsersByVerificationStatus.builder()
+                .build();
+    }
+
+    private void replaceEmailLookup(User previous, User updated) {
+        this.userIdsByEmailRepository.save(emailLookup(updated));
+        if(previous.getEmail() != null && previous.getStatus() != null) {
+            this.userIdsByEmailRepository.delete(emailLookup(previous));
+        }
+    }
+
+    private void replaceUsernameLookup(User previous, User updated) {
+        this.userIdsByUsernameRepository.save(usernameLookup(updated));
+        if(previous.getUsername() != null && previous.getStatus() != null) {
+            this.userIdsByUsernameRepository.delete(usernameLookup(previous));
+        }
+    }
+
+    private UsersByVerificationStatus verificationProjection(User user) {
+        return UsersByVerificationStatus.builder()
                 .withUserId(user.getUserId())
                 .withCreateDate(user.getCreateDate())
                 .withUpdateDate(user.getUpdateDate())
@@ -222,9 +377,20 @@ public class UserTableService {
                 .withTwoFactorAuthentication(user.isTwoFactorAuthentication())
                 .withCompanyId(user.getCompanyId())
                 .withCompanyName(user.getCompanyName())
-                .build()
-        );
+                .build();
+    }
 
-        return savedUser;
+    private void replaceVerificationProjection(User previous, User updated) {
+        this.usersByVerificationStatusRepository.save(verificationProjection(updated));
+        if (previous.getAccountVerificationStatus() != null && previous.getStatus() != null
+                && (previous.getAccountVerificationStatus() != updated.getAccountVerificationStatus()
+                || previous.getStatus() != updated.getStatus())
+        ) {
+            this.usersByVerificationStatusRepository.delete(UsersByVerificationStatus.builder()
+                    .withUserId(previous.getUserId())
+                    .withAccountVerificationStatus(previous.getAccountVerificationStatus())
+                    .withStatus(previous.getStatus())
+                    .build());
+        }
     }
 }

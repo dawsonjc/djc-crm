@@ -6,8 +6,8 @@ import com.brewery.web.model.User;
 import com.brewery.web.services.RegistrationEmailService;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.AuthSessionUser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
+import java.time.Instant;
 import java.util.regex.Pattern;
 
 @RestController
@@ -62,11 +63,12 @@ public class AuthController {
         }
 
         if(user.getAccountVerificationStatus() != User.VerificationStatus.VERIFIED &&
-           user.getRoles().stream().noneMatch(role -> role.getRoleName().equals(Role.Name.ADMIN.toString()))
+           user.getRoles().stream().noneMatch(role -> role.getRoleName().equals(Role.Name.SUPER_ADMIN.toString()))
         ) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
+        user = this.userTableService.recordLogin(user, Instant.now(), UUID.randomUUID());
         request.getSession(true ).setAttribute(AuthSessionUser.AUTH_SESSION_USER, user);
 
         respJson.put("success", true);

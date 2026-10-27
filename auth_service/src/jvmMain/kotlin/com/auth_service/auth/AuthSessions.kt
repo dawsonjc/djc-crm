@@ -1,6 +1,6 @@
 package com.auth_service.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import java.security.SecureRandom
 import java.time.Clock
 import java.time.Duration

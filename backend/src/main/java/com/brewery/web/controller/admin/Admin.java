@@ -1,9 +1,11 @@
 package com.brewery.web.controller.admin;
 
+import com.brewery.web.dto.UserDTO;
 import com.brewery.web.model.User;
 import com.brewery.web.services.admin.AdminUserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
+import jdk.jshell.spi.ExecutionControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,20 +37,10 @@ public class Admin {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode responseJson = mapper.createObjectNode();
         responseJson.put("success", false);
-        responseJson.put("message", "");
-        User user = this.adminUserService.getUserById(userId);
+        responseJson.put("message", (new UnsupportedOperationException("Not implemented yet.")).getMessage());
 
-        user = user.toBuilder()
-                .withAccountVerificationStatus(User.VerificationStatus.VERIFIED)
-                .build();
 
-        this.adminUserService.saveUser(user);
-
-        responseJson.put("success", true);
-
-        responseJson.putPOJO("data", user);
-
-        return ResponseEntity.status(HttpStatus.OK).body(responseJson);
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(responseJson);
     }
 
 }

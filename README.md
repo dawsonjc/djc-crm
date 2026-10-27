@@ -150,20 +150,24 @@ Scala.js and Kotlin/JS produce JavaScript for browsers. Node/npm tooling, CSS fr
 
 | Area | Configured technology |
 |---|---|
-| Java runtime/toolchain | Java 21 |
-| Gradle wrapper | 9.7.0 |
-| Backend | Spring Boot 3.5.5, Spring Web MVC, Spring Data Cassandra |
-| Main-app views | JSP/JSTL, embedded Tomcat |
-| Main-app browser code | Scala 3.7.3, Scala.js 1.22.0, scalajs-dom, Udash jQuery wrappers |
-| Administration app | Kotlin 2.4.10, Kobweb 0.25.1, Compose HTML |
-| Shared Kotlin serialization | kotlinx.serialization JSON 1.9.0 |
-| Database | Cassandra 4.1.7 |
+| Java runtime/toolchain | Java 27; auth-service bytecode targets JVM 26, Kotlin's current maximum |
+| Gradle wrapper | 9.8.2, with distribution checksum verification |
+| Backend | Spring Boot 4.1.2, Spring Web MVC, Spring Data Cassandra; Jackson 3.2.4 |
+| Main-app views | JSP/JSTL 3.0.2, Spring Boot-managed Tomcat 11 / Servlet 6.1 |
+| Main-app browser code | Scala 3.10.0, Scala.js 1.22.0, scalajs-dom 2.8.1, Udash jQuery 3.4.0; Scala.js Gradle plugin 2.3.0 |
+| Administration app | Kotlin 2.4.21, Kobweb 0.25.1, Compose runtime 1.12.1 / HTML 1.12.2 |
+| Shared Kotlin serialization | kotlinx.serialization JSON 1.12.0 |
+| Database image | Cassandra 5.0.9; existing databases require a planned upgrade |
+| Browser build runtime | Gradle-managed Node.js 26.12.1; Kotlin's supported Yarn Classic 1.22.22 |
+| Rate limiting / cache | Bucket4j 8.21.0, Caffeine 3.3.1 |
 | Password hashing | jBCrypt 0.4 |
 | Live transport | Jakarta WebSocket; Spring MVC SSE for notification backend |
-| Styling | Tailwind/Font Awesome in the JSP UI; Bootstrap 5.3.8 in Kobweb |
+| Styling and browser libraries | Tailwind browser 4.3.3, Font Awesome 7.3.1, DOMPurify 3.4.17, jQuery 4.0.0; Bootstrap 5.3.8 / DataTables 3.1.4 in Kobweb |
 | Packaging | Executable Spring Boot WAR; exported Kobweb site/server; Docker images |
 
 ### Database direction
+
+See [the technology upgrade notes](docs/TECHNOLOGY_UPGRADE_2026-10.md) before rebuilding Compose against an existing Cassandra volume. Updating the image does not migrate or validate retained data. The existing development database is not automatically upgraded by source/build changes.
 
 **Cassandra is still the implemented database.** The repositories, entities, schema scripts, and Compose service depend on it.
 
@@ -181,7 +185,7 @@ For an all-container run:
 - Sufficient memory for Cassandra and the two application builds.
 - Network access for the first download of images and build dependencies.
 
-For host-run development, also install JDK 21 and use the supplied Gradle wrapper. Bash, Git Bash, or WSL is needed for the launch/reload scripts. PowerShell examples below use `.\gradlew.bat`; use `./gradlew`, or `bash ./gradlew`, on a Bash-based host.
+For host-run development, install JDK 27, set `JAVA_HOME` and the IDE's Gradle JVM to it, and use the supplied Gradle wrapper. Bash, Git Bash, or WSL is needed for the launch/reload scripts. PowerShell examples below use `.\gradlew.bat`; use `./gradlew`, or `bash ./gradlew`, on a Bash-based host. Node.js is downloaded by Gradle for the browser build; a system-wide Node upgrade is not required.
 
 ### Environment setup
 

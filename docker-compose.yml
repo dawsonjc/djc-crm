@@ -4,6 +4,8 @@ services:
     build:
       context: ./cassandra
       dockerfile: Dockerfile
+      args:
+        CASSANDRA_VERSION: ${CASSANDRA_VERSION:-5.0.9}
     restart: unless-stopped
     ports:
       - "9042:9042"
@@ -53,6 +55,8 @@ services:
       SPRING_CASSANDRA_LOCAL_DATACENTER: datacenter1
       SPRING_CASSANDRA_SCHEMA_ACTION: NONE
       AUTH_SERVICE_SECRET_KEY: ${AUTH_SERVICE_SECRET_KEY:-}
+      CRM_BACKEND_URL: ${CRM_BACKEND_URL:-http://localhost:8080}
+      CRM_REGISTRATION_ENCODE_EMAIL_SECRET: ${CRM_REGISTRATION_ENCODE_EMAIL_SECRET:-}
 
   auth_service:
     image: website-chat-auth:local

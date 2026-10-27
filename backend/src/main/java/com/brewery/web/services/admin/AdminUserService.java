@@ -30,12 +30,12 @@ public class AdminUserService {
         return this.userTableService.getUnverifiedUsers();
     }
 
-    public User getUserById(UUID userId) {
-        return this.userTableService.getUserById(userId);
+    public UserDTO getUserById(UUID userId) {
+        return UserDTO.from(this.userTableService.getUserById(userId));
     }
 
-    public void saveUser(User user) {
-        this.userTableService.save(user);
+    public UserDTO changeVerificationStatus(UUID userId, User.VerificationStatus status) {
+        return UserDTO.from(this.userTableService.changeVerificationStatus(userId, status));
     }
 
     public List<Role> getActiveRoles() {

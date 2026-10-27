@@ -1,12 +1,15 @@
 import com.varabyte.kobweb.gradle.application.util.configAsKobwebApplication
 import kotlinx.html.link
 import kotlinx.html.script
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 
 plugins {
     val kobwebVersion: String = "0.25.1"
-    kotlin("multiplatform") version "2.4.10"
-    kotlin("plugin.compose") version "2.4.10"
-    kotlin("plugin.serialization") version "2.4.10"
+    kotlin("multiplatform") version "2.4.21"
+    kotlin("plugin.compose") version "2.4.21"
+    kotlin("plugin.serialization") version "2.4.21"
     id("com.varabyte.kobweb.application") version "$kobwebVersion"
 }
 
@@ -19,8 +22,22 @@ repositories {
     mavenCentral()
 }
 
+rootProject.allprojects {
+    plugins.withType<NodeJsPlugin> {
+        extensions.configure<NodeJsEnvSpec> {
+            version = "26.12.1"
+        }
+    }
+}
+
 kotlin {
+    jvmToolchain(27)
     configAsKobwebApplication(includeServer = true)
+
+    // Kotlin 2.4 supports JVM 26 bytecode; its compiler and server run on JDK 27.
+    jvm {
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_26)
+    }
 
     js {
         browser()
@@ -28,29 +45,33 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
             implementation("com.varabyte.kobwebx:kobwebx-serialization-kotlinx:$kobwebVersion")
         }
         jvmMain.dependencies {
             implementation("com.bucket4j:bucket4j_jdk17-core:8.21.0")
-            implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+            implementation("com.github.ben-manes.caffeine:caffeine:3.3.1")
             implementation("com.varabyte.kobweb:kobweb-api:$kobwebVersion")
-            implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
+            implementation("tools.jackson.core:jackson-databind:3.2.4")
         }
         jsMain.dependencies {
-            implementation("androidx.compose.runtime:runtime:1.12.0")
-            implementation("org.jetbrains.compose.html:html-core:1.11.1")
+            implementation("androidx.compose.runtime:runtime:1.12.1")
+            implementation("org.jetbrains.compose.html:html-core:1.12.2")
             implementation("com.varabyte.kobweb:kobweb-core:$kobwebVersion")
         }
         jvmTest.dependencies {
-            implementation("org.junit.jupiter:junit-jupiter:5.12.2")
-            runtimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
+            implementation("org.junit.jupiter:junit-jupiter:6.1.3")
+            runtimeOnly("org.junit.platform:junit-platform-launcher:6.1.3")
         }
     }
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(26)
 }
 
 kobweb {
@@ -61,11 +82,25 @@ kobweb {
                 // DataTables test page: load core before its Bootstrap integration.
                 link {
                     rel = "stylesheet"
-                    href = "https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css"
+                    href = "https://cdn.jsdelivr.net/npm/datatables.net-bs5@3.1.4/css/dataTables.bootstrap5.min.css"
+                    attributes["integrity"] = "sha384-OZKa6QSlaaq/LGR1sBFkYhC0c/nacIFh1chsblhDUxggC9Zb0XLEEMs95i1Kydnt"
+                    attributes["crossorigin"] = "anonymous"
                 }
-                script { src = "https://code.jquery.com/jquery-3.7.1.min.js" }
-                script { src = "https://cdn.datatables.net/2.3.4/js/dataTables.min.js" }
-                script { src = "https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js" }
+                script {
+                    src = "https://code.jquery.com/jquery-4.0.0.min.js"
+                    attributes["integrity"] = "sha384-fgGyf7Mo7DURSOMnOy7ed+dkq5Job205Gnzu6QIg0BOHKaqt4D76Dt8VlDCzcMHV"
+                    attributes["crossorigin"] = "anonymous"
+                }
+                script {
+                    src = "https://cdn.jsdelivr.net/npm/datatables.net@3.1.4/js/dataTables.min.js"
+                    attributes["integrity"] = "sha384-Lg8qwUDhp1uuDJinT3SMR9sxQyVjC/2NPPFkbPahEVgqBRrWGI6zfmrgPYTaVgrS"
+                    attributes["crossorigin"] = "anonymous"
+                }
+                script {
+                    src = "https://cdn.jsdelivr.net/npm/datatables.net-bs5@3.1.4/js/dataTables.bootstrap5.min.js"
+                    attributes["integrity"] = "sha384-4d8X9sr6Gnv9AgIQn6bv3lmQxj5fD+9bVAun0/XMmdy7oPRvT0adfiUUiiYpi4Ck"
+                    attributes["crossorigin"] = "anonymous"
+                }
                 link {
                     rel = "stylesheet"
                     href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
