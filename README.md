@@ -2,7 +2,9 @@
 
 DJC CRM is a JVM-based CRM product being built for businesses that pay to use it. The platform operator manages those businesses and their employees through `auth_service`; employees will use the main CRM to manage their own customers, work, and communications.
 
-The project started as a real-time chat application. It now has a separate administration/authentication webapp, tenant-company storage, company list/create APIs, and schema foundations for customer relationship management. It is still in development: employee onboarding and tenant isolation are not implemented, several legacy account/chat paths need repair, and most customer-facing CRM workflows remain planned.
+The project started as a real-time chat application. It now has a separate administration/authentication webapp, company creation and detail screens, paged employee directories, pending-user provisioning, signed registration emails, and schema foundations for customer relationship management. It is still in development: platform permissions and tenant isolation need enforcement, several legacy account/chat paths need repair, and most customer-facing CRM workflows remain planned.
+
+Implementation descriptions were checked against the source on November 17, 2026. This documentation update did not rerun builds, tests, email delivery, or deployment checks. Historical verification is recorded in [the technology upgrade notes](docs/TECHNOLOGY_UPGRADE_2026-10.md) and [reports](reports/README.md); those reports describe their respective snapshots.
 
 ## Contents
 
@@ -49,17 +51,19 @@ For example:
 
 The intended mapping is `workspace_id = company_id` in future company-scoped CRM workflows. Existing CRM partition keys retain the name `workspace_id`; there is no additional workspace hierarchy. This naming convention alone does not enforce tenant isolation.
 
-### Intended employee onboarding
+### Employee onboarding
 
-The target onboarding flow is:
+The product's onboarding direction is:
 
 1. The platform operator creates a subscribing company in `auth_service`.
 2. The operator provisions employee users and company memberships. Employees remain unverified until they complete registration.
-3. An invitation is eventually sent to each employee's email address.
+3. A registration invitation is sent to each eligible employee's email address.
 4. The employee follows the invitation to `register.jsp`, claims the provisioned identity, establishes credentials, and supplies registration/profile details.
 5. Successful verification enables the intended company access. A fuller UserProfile flow comes later.
 
-**This is the intended flow, not the current registration implementation.** Company and membership data structures exist, but employee provisioning, invitation storage/delivery, invitation acceptance, company-aware registration, and tenant access enforcement remain to be built. The existing registration flow was not changed by the tenant-model work.
+The implemented provisioning path creates a `PENDING` user with a company ID/name and a default global `User` role. Eligible active users receive a signed, 24-hour registration link. Both registration GET and POST validate the link and require the matching active, pending identity without an existing password. Successful registration conditionally updates that same user, hashes the password, marks the identity `VERIFIED`, and refreshes its query projections. Reusing the link after successful registration fails the pending-user checks.
+
+Company assignment currently lives on the user and its directory projections. The separate company-membership table and company-scoped role model remain disconnected from this provisioning path. Invitations use signed tokens and account eligibility rather than a persisted invitation lifecycle. Resend/revocation administration, platform-operator permissions, and tenant access enforcement remain outstanding.
 
 Account verification is separate from `RecordStatus`. Company and membership records use the existing `Active` and `Disabled` values; those values do not mean “invited” or “email verified.” Company roles must also remain distinct from global platform roles.
 
@@ -83,17 +87,19 @@ Billing contact fields are stored today. Subscription management, payment collec
 | Area | State | Current implementation |
 |---|---|---|
 | Tenant companies | Partial | Separate table, Java/Kotlin models, DTOs, validation, list/create APIs, and company form/list |
-| Company memberships | Data model only | Company/user keys, role, `RecordStatus`, and timestamps; not connected to provisioning or login |
-| Platform login | Partial | Kobweb login forwards to backend credential/Admin-role checks and creates an in-memory auth-service session |
-| Main-app accounts | Partial | Login, logout, registration, and role/verification code exist; registration logic and remaining session consumers need repair |
-| Company management UI | Partial | Creation submits to the API; success/error feedback, automatic list refresh, and edit behavior are unfinished |
+| Company employees | Partial | Provisioning stores company ID/name on users; company directories and verification projections support paged reads and deletion |
+| Company memberships | Data model only | Separate membership table and company-scoped roles remain disconnected from user provisioning |
+| Platform login | Partial | Kobweb forwards credentials to backend, stores a local session, and forwards the backend session cookie; verified users can log in without an operator-role requirement |
+| Main-app accounts | Partial | Login/logout and signed-link registration exist; legacy session consumers and password recovery remain unfinished |
+| Registration email | Implemented path | SMTP sends 24-hour signed links for eligible provisioned users; delivery failures return a warning while retaining the pending user |
+| Company management UI | Partial | Searchable company list, manual refresh, create/detail screens, paged users, user creation/deletion; edit-save paths remain incomplete |
 | Legacy administration | Partial | Admin JSP and verification API exist; the page controller returns the view name as text |
 | Chat | Partial | Global Chat seed, conversation/history code, WebSocket delivery, and soft deletion; session and authorization issues remain |
 | Notifications | Backend partial | Persistence, list/count/read/archive APIs, and SSE; no application producers or browser integration |
 | Customer organizations | Schema and projection models | Customer tables remain separate from tenant companies; no complete customer-management workflow |
 | Contacts, leads, pipelines, deals | Schema only | Canonical records and query projections, without complete services/APIs/screens |
 | Tasks, notes, activities, teams | Schema only | Storage/access-pattern definitions, without complete application workflows |
-| Tests and delivery | Limited | Company mapping/API tests, auth JVM tests, Gradle builds, Compose, and development scripts; no tracked CI workflow |
+| Tests and delivery | Limited | Backend DTO, query, projection, registration, and deletion test sources; Gradle builds, Compose, and development scripts; no auth test sources or tracked CI workflow |
 
 See [known limitations](#known-limitations) before treating these features as ready for customer use.
 
@@ -107,7 +113,7 @@ flowchart LR
     Employee <-->|WebSocket /communication| App
     Scala[Scala.js bundles] --> Employee
     Operator[Platform-operator browser] -->|HTTP :8443| Auth[Kobweb auth_service]
-    Auth -->|Login and company APIs with service credential| App
+    Auth -->|Login and company/user APIs with service credential and backend session| App
     App -->|CQL :9042| DB[(Cassandra)]
     Init[cassandra-init] -->|project.cql then crm-schema.cql| DB
 ```
@@ -122,7 +128,7 @@ djc-crm/
 ├── backend/          Spring Boot entry point, APIs, services, Cassandra models, tests
 ├── frontend/         JSP pages, MVC/database configuration, executable WAR packaging
 ├── scala_js/         Scala.js browser source and linking configuration
-├── auth_service/     Kotlin shared models, browser pages, JVM API handlers, tests
+├── auth_service/     Kotlin shared models, browser pages, JVM API handlers
 ├── cassandra/        Database image, bootstrap schemas, data-model documentation
 ├── scripts/          Shared Bash launcher setup
 ├── run-*.sh          Main-app, auth-service, and combined development launchers
@@ -226,7 +232,7 @@ Configure these environment variables on the CRM app that serves `/account/regis
 - Set `SPRING_MAIL_HOST`, `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, and `SPRING_MAIL_PASSWORD` for your SMTP provider. Set `CRM_REGISTRATION_FROM` to an address the provider allows as a sender.
 - SMTP defaults to authentication and required STARTTLS. For an implicit TLS provider, set `CRM_SMTP_STARTTLS=false`, `CRM_SMTP_SSL=true`, and the provider's SMTP port.
 
-Creating an active user through the auth service sends a 24-hour link to the user's email address. If SMTP rejects the message, the auth service shows a delivery warning and the new account stays pending.
+Creating an eligible active user through the auth service sends a 24-hour link to the user's email address. If delivery or signing configuration fails, the backend returns the saved user with a delivery warning and the account stays pending. The current auth `UserStore.add` returns only the user data, so that warning is not yet propagated to the browser.
 
 ### Docker Compose
 
@@ -256,16 +262,40 @@ docker compose down
 
 `down` retains the named Cassandra volume. **`docker compose down --volumes` deletes that database data**; use it only for an intentional disposable-development reset.
 
+### Resetting the local database
+
+For a fresh development database, stop applications running through IntelliJ or the launchers, then run these commands from the repository root. **This permanently deletes all database records in this Compose project's volumes, including administrator accounts.**
+
+```powershell
+docker compose down --volumes
+```
+
+For host-run applications, recreate Cassandra and apply the bootstrap schemas:
+
+```powershell
+docker compose up -d cassandra cassandra-init
+docker compose logs -f cassandra-init
+```
+
+Wait for the initializer to exit with code `0`, then restart the host-run applications. For an all-container setup, start the full stack instead:
+
+```powershell
+docker compose up -d --build
+docker compose ps -a
+```
+
+The initializer restores the tables, role labels, and Global Chat. Administrator/user inserts in `project.cql` are commented examples; provision a development administrator and its required lookup/role records again before signing in. Plain `docker compose down` retains database data and therefore does not reset it.
+
 ### First sign-in
 
 The two login paths have different purposes:
 
 - Main app: `/account/login` accepts username or email and password.
-- Auth service: `/login` accepts an existing user's email/password and calls backend `/auth/login`, which currently requires the exact global `Admin` role.
+- Auth service: `/login` accepts an existing user's email/password and calls backend `/auth/login`. The current check accepts verified users and allows the global `Super Admin` role to bypass the verification check.
 
-The schema seeds roles and Global Chat, **not an administrator user**. There is no working first-run administrator setup or invitation onboarding yet. A fresh schema alone does not provide a login account. Existing development accounts and role assignments must be provisioned separately until that workflow is built; the current registration endpoint is not a reliable bootstrap path.
+The schema seeds roles and Global Chat. Administrator/user inserts are commented examples, so a fresh schema alone provides no login account. Provision the initial development administrator and associated lookup/role rows separately. Employee invitation registration requires an already provisioned pending identity and a valid signed link.
 
-Seeded roles include `Super Admin`, `Company Admin`, `Admin`, `Moderator`, and `User`. Their names do not imply an implemented hierarchy: current auth-service login checks specifically for `Admin`.
+Seeded roles include `Super Admin`, `Company Admin`, `Admin`, `Moderator`, and `User`. The auth-service login does not enforce an operator-only role requirement. Backend administration routes require a service credential and backend login session, but still need explicit operation-level permissions.
 
 ### Host-run development
 
@@ -375,6 +405,14 @@ Main-app Cassandra and MVC settings live in [frontend application.yml](frontend/
 | `CRM_BACKEND_HOSTNAME` | `localhost` | Fallback backend host |
 | `CRM_BACKEND_PORT` | `8080` | Fallback backend port |
 | `CRM_BACKEND_URL` | Built from the preceding three values | Nonblank explicit value takes precedence |
+| `CRM_REGISTRATION_PUBLIC_URL` | `CRM_BACKEND_URL`, then `http://localhost:8080` | Browser-accessible base URL for registration links |
+| `CRM_REGISTRATION_ENCODE_EMAIL_SECRET` | Empty | Registration HMAC signing secret, at least 32 UTF-8 bytes |
+| `CRM_REGISTRATION_FROM` | `SPRING_MAIL_USERNAME` | Registration email sender |
+| `SPRING_MAIL_HOST`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD` | Unset | SMTP provider connection and credentials |
+| `SPRING_MAIL_PORT` | Compose/example: `587` | SMTP provider port |
+| `CRM_SMTP_AUTH` | `true` | SMTP authentication |
+| `CRM_SMTP_STARTTLS` | `true` | Enable and require STARTTLS |
+| `CRM_SMTP_SSL` | `false` | Implicit SMTP TLS |
 
 Compose supplies `SPRING_CASSANDRA_*` properties directly, overriding the local database address.
 
@@ -416,21 +454,20 @@ Current coverage:
 
 | Test area | Coverage |
 |---|---|
-| Backend company mapping | Tenant key, frozen billing address, membership keys, and existing `RecordStatus` conversion |
-| Backend company API | Minimal creation, saved response/IDs/timestamps, and status validation |
-| Auth company serialization | Java-compatible company JSON and separate membership data |
-| Auth sessions | Token expiry/rotation, response acceptance, and cookie attributes |
-| Auth HTTP client | Methods, headers, authentication, response bodies, cookies, redirects, and timeouts |
+| User DTO | Serialization/mapping checks in `UserDTOTest` |
+| User queries and writes | Partial-update query definitions and operation-specific writes in `UserUpdateQueryTest` and `UserWriteOperationsTest` |
+| Verification/company projections | Projection maintenance in `UserVerificationProjectionTest` and `CompanyUserProjectionTest` |
+| Invitation registration | Signed-link validation, registration eligibility, consumed-invite handling, and SMTP failure response in `RegistrationFlowTest` |
+| Company user deletion | Controller validation and deletion behavior in `CompanyUserDeletionTest` |
+| Auth service | No current test sources; `authCheck` can succeed with no tests executed |
 
-Company-only auth checks can be run with:
+Run a focused backend registration check with:
 
 ```powershell
-.\gradlew.bat :auth_service:jvmTest --tests com.auth_service.model.CompanySerializationTest
+.\gradlew.bat :backend:test --tests com.brewery.web.services.RegistrationFlowTest
 ```
 
-**Known test failure:** `AuthSessionsTest` currently expects an empty HTTP `200` response to count as successful login. The implementation requires a JSON `success: true` result, so that assertion fails. The full auth JVM suite is therefore not green. At this README verification, the backend checks passed, auth ran 12 tests with one failure, and Kotlin/JS compilation succeeded.
-
-These tests do not establish end-to-end tenant isolation, live Cassandra persistence, browser behavior, or Docker deployment health. The backend company API test uses a mocked service, and the mapping test uses a Cassandra converter without a running database. There is no tracked CI workflow or comprehensive HTTP/WebSocket/browser integration suite.
+These entries describe current test sources. Test execution was not repeated for this README update, and older test counts/results apply only to their recorded revisions. Backend tests use fixtures and mocks; end-to-end tenant isolation, live Cassandra conditional writes, SMTP delivery, browser behavior, and Docker deployment require additional integration verification. There is no tracked CI workflow or comprehensive HTTP/WebSocket/browser integration suite.
 
 ## Data model and schema changes
 
@@ -440,12 +477,18 @@ These tests do not establish end-to-end tenant isolation, live Cassandra persist
 |---|---|
 | `companies_by_id` | Tenant business identity, legal name, billing/contact details, optional primary-admin reference, status, and audit fields |
 | `company_users_by_company` | Membership keyed by company/user, with company-scoped role, status, and timestamps |
+| `users_by_company` | User-directory snapshots partitioned by company, ordered by record status and user ID |
+| `users_by_company_verification_status` | User-directory snapshots partitioned by company, verification status, and record status |
 
 The Java `Company` and Kotlin `Company` represent subscribing businesses. Customer-sales fields such as industry, employee count, annual revenue, parent organization, and shipping address do not belong to these tenant records.
 
-Company creation assigns its ID and timestamps in the backend. Actor audit IDs remain optional until operator identity is propagated to writes. The service credential is not an operator identity.
+Company creation assigns its ID and timestamps in the backend and records the backend auth-session user's ID in the creation/update audit fields. Operation-level authorization still needs enforcement.
 
-`CompanyUser` represents membership; credentials, email verification, and profile remain on the user. Kotlin's `companyUsers` property is transient and is not embedded in the company row. Membership provisioning and permission enforcement are future work. Setting `primary_admin_user_id` does not create membership or grant access.
+The Java `CompanyUser` represents the separate membership record. The auth-service `CompanyUser` model also carries employee profile and company-assignment fields used by its forms. Current provisioning writes `company_id` / `company_name` onto `user_table` and maintains company-directory projections; it does not create the separate membership record or company-scoped role. Credentials and verification remain on the canonical user. Setting `primary_admin_user_id` does not grant access.
+
+The backend company-user endpoint accepts `page` (default `0`) and `size` (default `10`, maximum `500`) and returns a slice with `content`, `number`, `size`, and `last`. To reach a numbered page, the service walks preceding Cassandra slices, so deep pages require additional reads. Existing users need company assignment and projection backfill to appear. See [user query/projection notes](docs/USER_QUERY_PROJECTIONS.md) for storage and repair details; the HTTP endpoints were added after those notes.
+
+User deletion checks the canonical user's company ID, removes company/identity/verification projections and role rows, and deletes the canonical row last. This is a hard delete across separate Cassandra operations. Related chat/history cleanup and session revocation require further lifecycle work.
 
 Both company and membership status use [RecordStatus](backend/src/main/java/com/brewery/web/model/record/RecordStatus.java): Java `ACTIVE` / `DISABLED` map to persisted `Active` / `Disabled`. There is no separate company-status enum.
 
@@ -518,8 +561,13 @@ These are implemented routes, not a guarantee that each complete workflow curren
 | `POST` | `/api/login` | Forward credentials to the backend and establish auth session |
 | `GET` | `/api/session` | Check auth-service session |
 | `GET` | `/company` | Tenant company list/create UI |
+| `GET` | `/company/id/{id}` | Company details and paged employee directory |
 | `GET` | `/api/company/get/all` | Forward company listing to backend |
+| `GET` | `/api/company/get/{id}` | Forward company details |
 | `POST` | `/api/company/add` | Forward tenant creation and return saved company |
+| `GET` | `/api/companies/{id}/users?page=0&size=10` | Forward paged employee listing |
+| `POST` | `/api/user/add` | Provision a pending employee and request registration email |
+| `DELETE` | `/api/companies/{id}/users/{userId}` | Delete a company user through the backend |
 
 The Kobweb API interceptor requires an auth-service session for API routes other than login. The browser route guard also checks `/api/session` before rendering private pages.
 
@@ -527,11 +575,16 @@ The Kobweb API interceptor requires an auth-service session for API routes other
 
 | Method used | Path | Purpose |
 |---|---|---|
-| `POST` | `/auth/login` | Email/password and global Admin-role check |
+| `POST` | `/auth/login` | Email/password and verification check, with a Super Admin verification bypass |
 | `GET` | `/auth/company/all` | List tenant companies |
+| `GET` | `/auth/company/{id}` | Company details |
 | `POST` | `/auth/company/add` | Create tenant company and return `success` / `data` |
+| `GET` | `/auth/company/{id}/users?page=0&size=10` | Company employee slice |
+| `POST` | `/auth/user/add` | Create pending user and send registration link if eligible |
+| `DELETE` | `/auth/company/{id}/users/{userId}` | Delete a user after checking their company assignment |
+| `DELETE` | `/auth/user/{userId}?companyId=...` | Alternative user deletion route |
 
-These routes require `X-Auth-Service-Secret-Key`. Missing server configuration returns `503`; an invalid credential returns `401`. The secret authenticates the calling service, not a user or company. Backend company routes currently do not enforce per-operator or tenant permissions. The login handler uses `@RequestMapping` without restricting its HTTP method, although the auth service calls it with POST.
+These routes require `X-Auth-Service-Secret-Key`. Missing server configuration returns `503`; an invalid credential returns `401`. Except for login, they also require the backend `JSESSIONID` established by `/auth/login`. The auth service forwards that cookie for company/user operations. Explicit platform-operator and tenant permissions still need enforcement; validating a target user's company assignment during deletion does not authorize the caller to administer that company.
 
 ### Main application — port 8080
 
@@ -540,14 +593,14 @@ These routes require `X-Auth-Service-Secret-Key`. Missing server configuration r
 | `GET` | `/`, `/global-chat` | Landing page / Global Chat redirect |
 | `GET` | `/conversations?conversationId=...` | Conversation view/history |
 | `GET/POST` | `/account/login` | Login page / JSON login |
-| `GET/POST` | `/account/register` | Existing registration page / form submission |
+| `GET/POST` | `/account/register` | Signed invitation page / form submission; both require `verification` token |
 | `POST` | `/account/logout`, `/account/roles` | Logout / current roles |
 | `GET/POST` | `/account/forgot-password` | Page / unimplemented reset submission |
-| `GET` | `/message` | Older messages by conversation/date |
-| `DELETE` | `/message/delete` | Soft-delete message |
+| `GET` | `/message` | Older-message handler; currently blocked by `AuthHook` |
+| `DELETE` | `/message/delete` | Soft-delete handler; currently blocked by `AuthHook` |
 | `POST` | `/add-friend` | Incomplete direct-conversation creation |
 | `GET` | `/admin/login` | Intended admin page; rendering is currently broken |
-| `POST` | `/admin/user/verify` | Existing account-verification endpoint |
+| `POST` | `/admin/user/verify` | Placeholder returning `501 Not Implemented` |
 | `GET` | `/api/events`, `/api/events/count` | Notifications / unread count |
 | `GET` | `/api/events/stream` | SSE connection |
 | `PATCH` | `/api/events/{eventId}/read`, `/api/events/read-all` | Read operations |
@@ -558,16 +611,17 @@ These routes require `X-Auth-Service-Secret-Key`. Missing server configuration r
 
 ### Identity, registration, and access
 
-- **Incomplete session migration:** login stores `SessionUser` and `AuthHook` now accepts it, but conversation, deletion, roles, and notification handlers still cast it to `User`. Some JSPs also use the old type.
-- **Registration does not claim invited users:** the current controller requires the submitted email and username to already exist, then calls a service that creates a new user. This is neither a functioning self-registration policy nor the planned invitation flow.
-- **Verification policy differs from the goal:** the current registration service marks new users `VERIFIED`, while the message verification check in `AuthHook` is commented out.
-- **Separate auth sessions:** main-app servlet sessions use `current_user` and a 30-minute timeout. Auth-service tokens have a fixed 30-minute lifetime, are held in memory, and disappear on restart. Their stored value is expiry, not a user/company identity. Backend auth login separately stores `auth_user`.
-- **Login error handling:** backend `/auth/login` does not return its constructed validation error and can dereference a null user after incorrect credentials.
+- **Incomplete session migration:** login stores `SessionUser` and `AuthHook` accepts it, but conversation, deletion, and notification handlers still cast it to `User`. Chat/admin JSPs also retain the old type. The account-role handler already uses `SessionUser`.
+- **Invitation administration is partial:** signed links and conditional completion are implemented, but persisted invitation tracking, resend/revocation workflows, and integration verification remain outstanding.
+- **Operator permissions are incomplete:** verified ordinary users can authenticate to the administration app, and protected backend administration routes check session presence without enforcing operator roles.
+- **Message routes are disabled:** `AuthHook` returns `403` for `/message` and its child paths. WebSocket delivery follows a separate path and still needs identity/membership enforcement.
+- **Separate auth sessions:** main-app servlet sessions use `current_user` and a 30-minute timeout. Auth-service tokens have a fixed 30-minute lifetime, are held in memory, and disappear on restart. Their stored value is expiry, not a user/company identity. Backend auth login separately stores the user under `auth_session_user`.
 - **No enforced company boundary:** company/membership fields and schema keys exist, but login, customer APIs, and legacy chat do not yet enforce company membership. Global Chat remains a shared legacy concept and needs a deliberate policy before serving multiple companies.
 
 ### Application completion
 
-- Company listing currently uses `findAll` without pagination. The UI suppresses some errors, does not refresh automatically after creation, and has an edit button that only logs to the console.
+- Company listing currently uses `findAll` without server-side pagination. Its DataTables UI provides search/sort and manual refresh; company creation does not automatically refresh the list. Company edit submits to `/api/company/save`, and employee edit submits to `/api/user/save`, but those save handlers are absent. `/api/user/get/{id}` is an empty stub.
+- The auth user-creation forwarding layer discards the backend's email-delivery warning, so browser success feedback does not confirm that an invitation was sent.
 - The legacy admin handler is a `@RestController` returning `admin/admin-index` as text. It is mapped to `/admin/login`, not a working `/admin` page.
 - `/add-friend` constructs a conversation but its persistence call is commented out.
 - `/account` is unfinished; password-reset POST returns `501 Not Implemented`.
@@ -591,11 +645,11 @@ These are outstanding implementation requirements, not capabilities implied by t
 
 ### 1. Stabilize the existing foundation
 
-Complete the session migration, fix login/registration error handling, repair legacy admin rendering, and make the relevant test suites green. Establish the boundary between platform-operator identity and company employees. Resolve the database direction before substantially expanding persistence code.
+Enforce platform-operator permissions, complete the session migration, repair legacy admin rendering, and run the relevant test suites. Resolve the database direction before substantially expanding persistence code. Keep email/username uniqueness, projection recovery, and session revocation explicit in the persistence/access design.
 
 ### 2. Complete company onboarding
 
-Build operator-managed employee provisioning and company memberships. Add invitation data and delivery, then adapt `register.jsp` to claim a provisioned identity and verify the invitation. Keep company access, record status, and email verification separate. Implement company-scoped permissions before exposing tenant data.
+Complete the company/user edit APIs and connect the intended membership/role model to provisioned employees. Extend the existing signed-email registration path with invitation administration and integration checks. Keep company access, record status, and email verification separate. Implement company-scoped permissions before exposing tenant data.
 
 ### 3. Deliver a complete customer workflow
 
@@ -640,7 +694,11 @@ and registration/email throttling remain separate future work.
 |---|---|
 | Auth login returns `503` | Both webapps need the same non-empty `AUTH_SERVICE_SECRET_KEY`; restart after changing it |
 | Auth cannot reach backend | Use a valid `CRM_BACKEND_URL`; host default is `http://localhost:8080`, Compose uses `http://app:8080` |
-| Fresh install has no administrator login | Seed scripts create role labels, not users; operator provisioning is still unfinished |
+| Fresh install/reset has no administrator login | Seed scripts create roles and Global Chat; administrator/user inserts are commented examples requiring deliberate provisioning |
+| Registration redirects to login | Open the emailed link with its `verification` token; check expiry and that the user is active, pending, and has no password |
+| User created but invitation email failed | Check SMTP host/sender, TLS settings, public URL, and signing secret; the pending user remains saved |
+| Existing employee missing from company details | Check canonical company assignment and backfill company directory projections |
+| Company/user edits fail | Edit UI references save routes whose API implementations remain unfinished |
 | Port `8080` or `8443` is occupied | Stop the corresponding Compose app or local launcher before starting another |
 | Host app cannot reach Cassandra | Use `localhost:9042`, not the Compose-only hostname `cassandra`; inspect database health/init logs |
 | `cassandra-init` exited | Exit `0` is expected; inspect its logs for any nonzero exit |
@@ -649,7 +707,7 @@ and registration/email throttling remain separate future work.
 | Enum conversion fails for `Active` | Ensure the registered `RecordStatus` Cassandra converters are included in the running build |
 | Existing table did not change | `IF NOT EXISTS` is not a schema migration; use an explicit change for retained data |
 | Browser uses stale code | Run the appropriate reload script; Scala.js can also be relinked with `:scala_js:link` |
-| Auth JVM tests fail on empty successful response | See the known `AuthSessionsTest` assertion mismatch in [Builds and tests](#builds-and-tests) |
+| Auth checks execute no tests | Current auth source tree has no test sources; a successful check can establish compilation only |
 
 If changing Cassandra's host-side port mapping, update `CASSANDRA_PORT` for host-run apps. Compose applications continue using the internal database port.
 
