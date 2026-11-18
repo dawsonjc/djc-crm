@@ -62,14 +62,16 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
-        if(user.getAccountVerificationStatus() != User.VerificationStatus.VERIFIED &&
-           user.getRoles().stream().noneMatch(role -> role.getRoleName().equals(Role.Name.SUPER_ADMIN.toString()))
-        ) {
+        if(user.getAccountVerificationStatus() != User.VerificationStatus.VERIFIED) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
+        if(user.getRoles().stream().noneMatch(role -> role.getRoleNameEnum() == Role.Name.SUPER_ADMIN)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(respJson);
+        }
+
         user = this.userTableService.recordLogin(user, Instant.now(), UUID.randomUUID());
-        request.getSession(true ).setAttribute(AuthSessionUser.AUTH_SESSION_USER, user);
+        request.getSession(true).setAttribute(AuthSessionUser.AUTH_SESSION_USER, user);
 
         respJson.put("success", true);
 
