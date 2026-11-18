@@ -45,7 +45,7 @@
                 <td class="px-3 py-2"><%= unverifiedUser.getLanguagePreference() %></td>
                 <td class="px-3 py-2"><%= unverifiedUser.getTimezone() %></td>
                 <td class="px-3 py-2"><%= unverifiedUser.getLastLoginDate() %></td>
-                <td class="px-3 py-2"><%= unverifiedUser.isTwoFactorAuthentication() %></td>
+                <td class="px-3 py-2"><%= unverifiedUser.hasTwoFactorAuthentication() %></td>
                 <td class="px-3 py-2 text-red-600 font-semibold">Unverified</td>
                 <td class="px-3 py-2 space-x-2">
                     <form style="display: none;">
@@ -56,7 +56,7 @@
                         <input type="hidden" name="languagePreference" value="<%= unverifiedUser.getLanguagePreference() %>" />
                         <input type="hidden" name="timezone" value="<%= unverifiedUser.getTimezone() %>" />
                         <input type="hidden" name="lastLoginDate" value="<%= unverifiedUser.getLastLoginDate() %>" />
-                        <input type="hidden" name="twoFactorAuthentication" value="<%= unverifiedUser.isTwoFactorAuthentication() %>" />
+                        <input type="hidden" name="twoFactorAuthentication" value="<%= unverifiedUser.hasTwoFactorAuthentication() %>" />
                     </form>
                     <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs verify-user">Verify</button>
                     <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs delete-user">Delete</button>

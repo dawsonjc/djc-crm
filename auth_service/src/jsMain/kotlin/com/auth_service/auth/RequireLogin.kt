@@ -21,7 +21,7 @@ fun RequireLogin(content: @Composable () -> Unit) {
 
     LaunchedEffect(path) {
         if (!publicPage) {
-            val authenticated = try {
+            val authenticated: Boolean = try {
                 val response: Response = window.fetch("/api/session").await()
                 if (!response.ok) {
                     false
@@ -34,7 +34,7 @@ fun RequireLogin(content: @Composable () -> Unit) {
             } catch (_: Exception) {
                 false
             }
-            if (authenticated) verified = true
+            if(authenticated) verified = true
             else ctx.router.navigateTo("/login", updateHistoryMode = UpdateHistoryMode.REPLACE)
         }
     }

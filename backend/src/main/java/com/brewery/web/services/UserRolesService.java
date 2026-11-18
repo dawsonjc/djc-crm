@@ -31,6 +31,10 @@ public class UserRolesService {
         return roleNames;
     }
 
+    public void deleteForUser(UUID userId) {
+        repo.deleteAll(getUsersRolesByUserId(userId));
+    }
+
     public void save(UserRole userRole) {
         this.repo.save(userRole);
     }

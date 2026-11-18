@@ -59,6 +59,45 @@ CREATE TABLE IF NOT EXISTS mykeyspacename.users_by_verification_status (
     PRIMARY KEY ((account_verification_status, status), userid)
 );
 
+-- Company directory queries. Login timestamps/credentials are intentionally kept off these list projections.
+CREATE TABLE IF NOT EXISTS mykeyspacename.users_by_company (
+    userid uuid,
+    create_date timestamp,
+    update_date timestamp,
+    status text,
+    username text,
+    email text,
+    first_name text,
+    last_name text,
+    full_name text,
+    language_preference text,
+    timezone text,
+    account_verification_status text,
+    two_factor_authentication boolean,
+    company_id uuid,
+    company_name text,
+    PRIMARY KEY ((company_id), status, userid)
+);
+
+CREATE TABLE IF NOT EXISTS mykeyspacename.users_by_company_verification_status (
+    userid uuid,
+    create_date timestamp,
+    update_date timestamp,
+    status text,
+    username text,
+    email text,
+    first_name text,
+    last_name text,
+    full_name text,
+    language_preference text,
+    timezone text,
+    account_verification_status text,
+    two_factor_authentication boolean,
+    company_id uuid,
+    company_name text,
+    PRIMARY KEY ((company_id, account_verification_status, status), userid)
+);
+
 CREATE TABLE IF NOT EXISTS mykeyspacename.roles (
     roleid UUID PRIMARY KEY,
     create_date TIMESTAMP,
@@ -195,4 +234,9 @@ INSERT INTO mykeyspacename.roles(roleid, create_date, update_date, status, role_
 -- INSERT INTO mykeyspacename.user_ids_by_email(email, status, userid) VALUES('admin@admin.com', 'Active', 00000000-0000-0000-0000-000000000001);
 -- INSERT INTO mykeyspacename.user_ids_by_username(username, status, userid) VALUES('admin', 'Active', 00000000-0000-0000-0000-000000000001);
 -- INSERT INTO mykeyspacename.users_by_verification_status(userid, create_date, update_date, status, username, email, first_name, last_name, full_name, language_preference, timezone, last_login_date, account_verification_status, two_factor_authentication, company_id, company_name) VALUES(00000000-0000-0000-0000-000000000001, totimestamp(now()), totimestamp(now()), 'Active', 'admin', 'admin@admin.com', 'Admin', 'User', 'Admin User', 'en', 'America/Phoenix', totimestamp(now()), 'VERIFIED', true, null, null);
+-- Optional company-directory rows for the admin. Skip these for a company-less global admin.
+-- Replace the example company ID/name with an existing company's values, and use those same values
+-- instead of null in the user_table and users_by_verification_status inserts above.
+-- INSERT INTO mykeyspacename.users_by_company(userid, create_date, update_date, status, username, email, first_name, last_name, full_name, language_preference, timezone, account_verification_status, two_factor_authentication, company_id, company_name) VALUES(00000000-0000-0000-0000-000000000001, totimestamp(now()), totimestamp(now()), 'Active', 'admin', 'admin@admin.com', 'Admin', 'User', 'Admin User', 'en', 'America/Phoenix', 'VERIFIED', true, 00000000-0000-0000-0000-000000000201, 'Example Company');
+-- INSERT INTO mykeyspacename.users_by_company_verification_status(userid, create_date, update_date, status, username, email, first_name, last_name, full_name, language_preference, timezone, account_verification_status, two_factor_authentication, company_id, company_name) VALUES(00000000-0000-0000-0000-000000000001, totimestamp(now()), totimestamp(now()), 'Active', 'admin', 'admin@admin.com', 'Admin', 'User', 'Admin User', 'en', 'America/Phoenix', 'VERIFIED', true, 00000000-0000-0000-0000-000000000201, 'Example Company');
 -- INSERT INTO mykeyspacename.user_role(create_date, update_date, status, userid, roleid, role_name) VALUES(totimestamp(now()), totimestamp(now()), 'Active', , 00000000-0000-0000-0000-000000000101, 'Super Admin');

@@ -6,6 +6,7 @@ import com.auth_service.http.HttpRequests
 import com.auth_service.http.RequestMethod
 import com.auth_service.model.ApiResponse
 import com.auth_service.model.Company
+import com.auth_service.model.CompanyUsersPage
 import com.varabyte.kobweb.api.log.Logger
 import kotlinx.serialization.encodeToString
 import com.auth_service.serialization.AppJson
@@ -30,7 +31,7 @@ class CompanyStore(
     private val client: HttpRequests = companyClient,
     private val logger: Logger,
 ) {
-    suspend fun add(company: Company, backendSessionId: String): Company {
+    suspend fun add(backendSessionId: String, company: Company): Company {
         val secretKey: String = serviceSecretKey.takeIf { it.isNotBlank() }
             ?: error("AUTH_SERVICE_SECRET_KEY is required to add a company")
 
@@ -128,4 +129,29 @@ class CompanyStore(
 
         return json.decodeFromJsonElement<Company>(data)
     }
+
+    suspend fun getUsersByCompanyId(
+        id: Uuid, backendSessionId: String, page: Int, size: Int,
+    ): CompanyUsersPage {
+        check(serviceSecretKey.isNotBlank()) { "AUTH_SERVICE_SECRET_KEY is required to load company users" }
+        val response = client.requestBytes(
+            url = "${backendUrl.trimEnd('/')}/auth/company/$id/users?page=$page&size=$size",
+            method = RequestMethod.GET,
+            headers = mapOf(
+                "Accept" to "application/json",
+                "X-Auth-Service-Secret-Key" to serviceSecretKey,
+                "Cookie" to "JSESSIONID=$backendSessionId",
+            ),
+        )
+        val status = response.statusCode()
+        if (status == 401) throw BackendSessionExpiredException()
+        if (status == 403 || status == 404) throw CompanyUsersAccessException(status)
+        check(status in 200..299) { "Company users request failed with HTTP $status" }
+
+        val result = json.decodeFromString<ApiResponse<CompanyUsersPage>>(response.body().decodeToString())
+        check(result.success) { "CRM backend could not load company users" }
+        return checkNotNull(result.data) { "CRM backend response is missing company users page data" }
+    }
 }
+
+class CompanyUsersAccessException(val status: Int) : RuntimeException()

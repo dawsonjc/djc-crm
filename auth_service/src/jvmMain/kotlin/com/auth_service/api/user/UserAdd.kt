@@ -30,7 +30,7 @@ suspend fun addUser(context: ApiContext): Unit {
         return
     }
     val saved: CompanyUser = try {
-        UserStore(logger = context.logger).add(user, backendSessionId)
+        UserStore(logger = context.logger).add(backendSessionId, user)
     } catch (_: BackendSessionExpiredException) {
         respJson.message = "Please sign in again."
 
@@ -38,8 +38,8 @@ suspend fun addUser(context: ApiContext): Unit {
         context.res.body = jsonBodyOf(respJson)
         return
     }
-    respJson.success = true
-    respJson.data = saved
+    respJson.success = true;
+    respJson.data = saved;
 
     context.res.status = 200
     context.res.body = jsonBodyOf(respJson)

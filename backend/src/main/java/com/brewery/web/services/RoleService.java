@@ -16,6 +16,10 @@ public class RoleService {
         return this.roleRepository.getRoleByName(name);
     }
 
+    public Role getRoleByName(Role.Name name) {
+        return this.roleRepository.getRoleByName(name.toString());
+    }
+
     public List<Role> getActiveRoles() {
         return this.roleRepository.getActiveRoles();
     }

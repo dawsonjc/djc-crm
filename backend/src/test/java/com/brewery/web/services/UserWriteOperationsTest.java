@@ -9,6 +9,9 @@ import com.brewery.web.repositories.UserTableRepository;
 import com.brewery.web.repositories.user.UserIdsByEmailRepository;
 import com.brewery.web.repositories.user.UserIdsByUsernameRepository;
 import com.brewery.web.repositories.user.UsersByVerificationStatusRepository;
+import com.brewery.web.repositories.user.UsersByCompanyRepository;
+import com.brewery.web.repositories.user.UsersByCompanyVerificationStatusRepository;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,6 +33,8 @@ class UserWriteOperationsTest {
     @Mock UserIdsByEmailRepository emailRepository;
     @Mock UserIdsByUsernameRepository usernameRepository;
     @Mock UsersByVerificationStatusRepository verificationRepository;
+    @Mock UsersByCompanyRepository companyRepository;
+    @Mock UsersByCompanyVerificationStatusRepository companyVerificationRepository;
     @Mock UserRolesService userRolesService;
     @InjectMocks UserTableService service;
 
@@ -122,22 +126,38 @@ class UserWriteOperationsTest {
 
     @Test
     void registrationCompletionDoesNotRewriteUnchangedIdentityLookups() {
-        when(emailRepository.findByEmailAndStatus(user.getEmail(), RecordStatus.ACTIVE)).thenReturn(List.of(
-                UserIdsByEmail.builder().withEmail(user.getEmail()).withUserId(user.getUserId())
-                        .withStatus(RecordStatus.ACTIVE).build()));
-        when(repo.findById(user.getUserId())).thenReturn(Optional.of(user));
+        User pending = user.toBuilder().withPassword(null).build();
         RegisterFormData form = new RegisterFormData("First", "Last", user.getUsername(), user.getEmail(), "test-password");
+        ResultSet result = mock(ResultSet.class);
+        when(result.wasApplied()).thenReturn(true);
+        when(repo.completeRegistration(eq(user.getUserId()), any(), eq(user.getEmail()),
+                eq(user.getUsername()), anyString(), eq("First"), eq("Last"), eq("First Last"))).thenReturn(result);
 
-        User updated = service.authenticateRegisteredUser(form);
+        assertThat(service.authenticateRegisteredUser(pending, form)).isTrue();
 
-        verify(repo).completeRegistration(eq(user.getUserId()), any(), eq(RecordStatus.ACTIVE),
-                eq(user.getUsername()), anyString(), eq("First"), eq("Last"), eq("First Last"),
-                eq(User.VerificationStatus.VERIFIED));
-        verify(emailRepository, never()).save(any());
-        verify(emailRepository, never()).delete(any(UserIdsByEmail.class));
-        verifyNoInteractions(usernameRepository);
+        verifyNoInteractions(emailRepository, usernameRepository);
         verify(repo, never()).save(any(User.class));
-        assertThat(updated.getAccountVerificationStatus()).isEqualTo(User.VerificationStatus.VERIFIED);
-        assertThat(updated.getPassword()).isNotEqualTo(user.getPassword());
+        verify(verificationRepository).save(argThat(projection ->
+                projection.getAccountVerificationStatus() == User.VerificationStatus.VERIFIED));
+    }
+
+    @Test
+    void concurrentRegistrationDoesNotRewriteProjections() {
+        User pending = user.toBuilder().withPassword(null).build();
+        RegisterFormData form = new RegisterFormData("First", "Last", user.getUsername(), user.getEmail(), "test-password");
+        when(repo.completeRegistration(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(mock(ResultSet.class));
+
+        assertThat(service.authenticateRegisteredUser(pending, form)).isFalse();
+        verifyNoInteractions(emailRepository, usernameRepository, verificationRepository,
+                companyRepository, companyVerificationRepository);
+    }
+
+    @Test
+    void userWithoutARegistrationPasswordCannotLogIn() {
+        when(repo.findById(user.getUserId())).thenReturn(Optional.of(user.toBuilder().withPassword(null).build()));
+
+        assertThat(service.getUserByIdAndPassword(user.getUserId(), "test-password")).isNull();
+        verifyNoInteractions(userRolesService);
     }
 }

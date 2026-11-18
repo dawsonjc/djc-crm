@@ -3,7 +3,7 @@ site:
 
 server:
   logging:
-    level: INFO
+    level: DEBUG
     enableConsoleLogging: true
     enableFileLogging: true
     logRoot: "build/logs"

@@ -37,11 +37,6 @@
                         Forgot your password?
                     </a>
                 </div>
-                <div class="text-sm">
-                    <a href="<%= request.getContextPath() %>/account/register" class="font-medium text-indigo-600 hover:text-indigo-500">
-                        Register
-                    </a>
-                </div>
             </div>
 
             <!-- Sign in button -->
@@ -51,6 +46,7 @@
                 </button>
             </div>
         </form>
+        <p class="text-sm text-gray-600">If you’re new, use the verification link sent to your email to register.</p>
     </div>
 </main>
 <%--<%@ include file="../footer.jsp"%>--%>

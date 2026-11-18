@@ -1,4 +1,4 @@
-
+<%@ page import="org.springframework.web.util.HtmlUtils" %>
 <%
     String title = "Register";
     request.setAttribute("scalaJsModule", "register");
@@ -13,8 +13,9 @@
             </h2>
         </div>
 
-        <form method="POST" id="register-form" >
-
+        <form method="POST" id="register-form" action="<%= request.getContextPath() %>/account/register">
+            <input type="hidden" name="verification" value="<%= HtmlUtils.htmlEscape((String) request.getAttribute("verification")) %>"/>
+            <p id="registration-error" role="alert" class="text-sm text-red-700"></p>
 
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
@@ -38,7 +39,7 @@
                     <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                     <input id="username" name="username" type="text"
                             class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                            placeholder="" required="required"/>
+                            value="<%= HtmlUtils.htmlEscape((String) request.getAttribute("registrationUsername")) %>" readonly/>
                 </div>
             </div>
 
@@ -48,7 +49,7 @@
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input id="email" name="email" type="text"
                             class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                            placeholder="example@email.com" required="required"/>
+                            value="<%= HtmlUtils.htmlEscape((String) request.getAttribute("registrationEmail")) %>" readonly/>
                 </div>
             </div>
 

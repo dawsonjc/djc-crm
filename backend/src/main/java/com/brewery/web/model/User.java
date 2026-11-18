@@ -241,7 +241,7 @@ public class User {
         return accountVerificationStatus;
     }
 
-    public Boolean isTwoFactorAuthentication() {
+    public Boolean hasTwoFactorAuthentication() {
         return twoFactorAuthentication;
     }
 

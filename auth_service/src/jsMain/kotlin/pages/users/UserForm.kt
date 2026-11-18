@@ -9,7 +9,11 @@ import org.jetbrains.compose.web.dom.*
 
 /** Profile fields only; submit is supplied by the caller. No network requests here. */
 @Composable
-fun UserForm(user: CompanyUser?, defaultCompany: Company, onCancel: () -> Unit, onSubmit: (CompanyUser) -> Unit) {
+fun UserForm(
+    user: CompanyUser?, defaultCompany: Company, onCancel: () -> Unit, onSubmit: (CompanyUser) -> Unit,
+    submitting: Boolean = false, submissionError: String? = null,
+    submitLabel: String = "Save local draft", helperText: String = "Local draft only. Changes are not sent to the server.",
+) {
     var draft by remember(user, defaultCompany.companyId) { mutableStateOf((user ?: CompanyUser(status = "Active", accountVerificationStatus = "Pending")).let {
         it.copy(
             companyId = it.companyId ?: defaultCompany.companyId,
@@ -22,7 +26,8 @@ fun UserForm(user: CompanyUser?, defaultCompany: Company, onCancel: () -> Unit, 
     Form(attrs = {
         onSubmit { event ->
             event.preventDefault()
-            if (draft.companyId == null) {
+            if (submitting) return@onSubmit
+            if (draft.companyId == null || draft.companyName.isNullOrBlank()) {
                 error = "Select a company for this user."
             } else if (draft.username.isNullOrBlank() || draft.email.isNullOrBlank()) {
                 error = "Username and email are required."
@@ -33,10 +38,11 @@ fun UserForm(user: CompanyUser?, defaultCompany: Company, onCancel: () -> Unit, 
     }) {
         Div(attrs = { classes("p-3") }) {
             error?.let { Div(attrs = { classes("alert", "alert-danger"); attr("role", "alert") }) { Text(it) } }
+            submissionError?.let { Div(attrs = { classes("alert", "alert-danger"); attr("role", "alert") }) { Text(it) } }
             if (user != null) P(attrs = { classes("small", "text-body-secondary", "text-break") }) {
                 Text("User ID: ${user.userId ?: "Not assigned"}")
             }
-            Div(attrs = { classes("row", "g-3") }) {
+            Fieldset(attrs = { classes("row", "g-3"); if (submitting) attr("disabled", "") }) {
                 UserCompanySelect(
                     companyId = draft.companyId,
                     companyName = draft.companyName,
@@ -62,12 +68,12 @@ fun UserForm(user: CompanyUser?, defaultCompany: Company, onCancel: () -> Unit, 
                 // Authentication settings, credentials, roles and audit fields are preserved by copy().
             }
             P(attrs = { classes("small", "text-body-secondary", "mt-3", "mb-0") }) {
-                Text("Local draft only. Changes are not sent to the server.")
+                Text(helperText)
             }
         }
         Div(attrs = { classes("p-3", "border-top", "d-flex", "justify-content-end", "gap-2") }) {
-            Button(attrs = { classes("btn", "btn-outline-secondary"); attr("type", "button"); onClick { onCancel() } }) { Text("Cancel") }
-            Button(attrs = { classes("btn", "btn-primary"); attr("type", "submit") }) { Text("Save local draft") }
+            Button(attrs = { classes("btn", "btn-outline-secondary"); attr("type", "button"); if (submitting) attr("disabled", ""); onClick { onCancel() } }) { Text("Cancel") }
+            Button(attrs = { classes("btn", "btn-primary"); attr("type", "submit"); if (submitting) attr("disabled", "") }) { Text(if (submitting) "Saving…" else submitLabel) }
         }
     }
 }

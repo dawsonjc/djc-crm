@@ -45,18 +45,26 @@ class UserUpdateQueryTest {
 
         canonical.recordLogin(userId, date, token);
         projection.recordLogin(userId, User.VerificationStatus.VERIFIED, RecordStatus.ACTIVE, date);
+        canonical.completeRegistration(userId, date, "invitee@example.com", "invitee", "password-hash",
+                "First", "Last", "First Last");
 
         ArgumentCaptor<Statement> statements = ArgumentCaptor.forClass(Statement.class);
-        verify(operations, times(2)).execute(statements.capture());
+        verify(operations, times(3)).execute(statements.capture());
         SimpleStatement canonicalStatement = (SimpleStatement) statements.getAllValues().get(0);
         SimpleStatement projectionStatement = (SimpleStatement) statements.getAllValues().get(1);
         assertThat(canonicalStatement.getQuery()).startsWith("UPDATE user_table SET last_login_date")
                 .contains("auth_api_token", "WHERE userid").doesNotContain("password", "first_name");
-        assertThat(projectionStatement.getQuery()).startsWith("UPDATE users_by_verification_status SET last_login_date")
+        assertThat(projectionStatement.getQuery().replaceAll("\\s+", " ").trim()).startsWith("UPDATE users_by_verification_status SET last_login_date")
                 .contains("account_verification_status", "status", "userid");
         var values = new ArrayList<>(projectionStatement.getPositionalValues());
         values.addAll(projectionStatement.getNamedValues().values());
         assertThat(values).contains("VERIFIED", "Active", userId);
+        SimpleStatement registration = (SimpleStatement) statements.getAllValues().get(2);
+        assertThat(registration.getQuery().replaceAll("\\s+", " ")).contains(
+                "IF status = 'Active' AND account_verification_status = 'PENDING' AND password = null");
+        var registrationValues = new ArrayList<>(registration.getPositionalValues());
+        registrationValues.addAll(registration.getNamedValues().values());
+        assertThat(registrationValues).contains(userId, "invitee@example.com", "invitee", "password-hash");
         verify(operations, never()).select(any(Statement.class), any(Class.class));
     }
 }

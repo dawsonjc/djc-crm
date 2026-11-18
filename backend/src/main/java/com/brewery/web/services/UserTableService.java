@@ -10,6 +10,12 @@ import com.brewery.web.model.UserRole;
 import com.brewery.web.model.user.UserIdsByEmail;
 import com.brewery.web.model.user.UserIdsByUsername;
 import com.brewery.web.model.user.UsersByVerificationStatus;
+import com.brewery.web.model.user.UsersByCompany;
+import com.brewery.web.model.user.UsersByCompanyVerificationStatus;
+import com.brewery.web.repositories.user.UsersByCompanyRepository;
+import com.brewery.web.repositories.user.UsersByCompanyVerificationStatusRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import com.brewery.web.repositories.UserTableRepository;
 import com.brewery.web.repositories.user.UserIdsByEmailRepository;
 import com.brewery.web.repositories.user.UserIdsByUsernameRepository;
@@ -38,6 +44,12 @@ public class UserTableService {
 
     @Autowired
     private UsersByVerificationStatusRepository usersByVerificationStatusRepository;
+
+    @Autowired
+    private UsersByCompanyRepository usersByCompanyRepository;
+
+    @Autowired
+    private UsersByCompanyVerificationStatusRepository usersByCompanyVerificationStatusRepository;
 
     @Autowired
     private UserRolesService userRolesService;
@@ -96,7 +108,7 @@ public class UserTableService {
 
     public User getUserByIdAndPassword(UUID id, String password) {
         User user = this.repo.findById(id).orElse(null);
-        if(user == null) {
+        if(user == null || user.getPassword() == null) {
             return null;
         }
 
@@ -133,12 +145,40 @@ public class UserTableService {
         return unverified;
     }
 
+    public Slice<UserDTO> getUsersByCompanyId(UUID companyId, Pageable pageable) {
+        validateCompanyPage(companyId, pageable);
+        return usersByCompanyRepository.findByCompanyId(companyId, pageable).map(UserDTO::from);
+    }
+
+    public Slice<UserDTO> getUsersByCompanyIdAndStatus(UUID companyId, RecordStatus status, Pageable pageable) {
+        validateCompanyPage(companyId, pageable);
+        Objects.requireNonNull(status, "Status is required");
+        return usersByCompanyRepository.findByCompanyIdAndStatus(companyId, status, pageable).map(UserDTO::from);
+    }
+
+    public Slice<UserDTO> getUsersByCompanyVerificationStatus(UUID companyId, User.VerificationStatus verification,
+                                                            RecordStatus status, Pageable pageable) {
+        validateCompanyPage(companyId, pageable);
+        Objects.requireNonNull(verification, "Verification status is required");
+        Objects.requireNonNull(status, "Status is required");
+        return usersByCompanyVerificationStatusRepository
+                .findByCompanyIdAndVerificationAndStatus(companyId, verification, status, pageable).map(UserDTO::from);
+    }
+
+    private void validateCompanyPage(UUID companyId, Pageable pageable) {
+        Objects.requireNonNull(companyId, "Company ID is required");
+        Objects.requireNonNull(pageable, "Paging is required");
+        if (pageable.isUnpaged() || pageable.getPageSize() > 500) {
+            throw new IllegalArgumentException("Request a page of at most 500 users");
+        }
+    }
+
     public User registerUser(CompanyUserFormData companyUserFormData) {
         Instant now = Instant.now();
 
         UUID userId = UUID.randomUUID();
 
-        Role defaultRole = this.roleService.getRoleByName(Role.Name.USER.toString());
+        Role defaultRole = this.roleService.getRoleByName(Role.Name.USER);
 
         UserRole userRole = new UserRole();
         userRole.setRoleId(defaultRole.getRoleId());
@@ -154,13 +194,15 @@ public class UserTableService {
                 .withUpdateDate(now)
                 .withStatus(RecordStatus.fromString(companyUserFormData.status()))
                 .withUsername(companyUserFormData.username())
-                .withEmail(companyUserFormData.email())
+                .withEmail(companyUserFormData.email().trim())
                 .withFirstName(companyUserFormData.firstName())
                 .withLastName(companyUserFormData.lastName())
                 .withFullName(companyUserFormData.firstName() + " " + companyUserFormData.lastName())
                 .withLanguagePreference(companyUserFormData.languagePreference())
                 .withTimezone(companyUserFormData.timezone())
                 .withAccountVerificationStatus(User.VerificationStatus.PENDING)
+                .withCompanyId(companyUserFormData.companyId())
+                .withCompanyName(companyUserFormData.companyName())
                 .withRoles(List.of(userRole))
                 .build();
 
@@ -170,19 +212,27 @@ public class UserTableService {
         return savedUser;
     }
 
-    public User authenticateRegisteredUser(RegisterFormData registerFormData) {
-        UUID userId = this.getUserIdByEmail(registerFormData.email());
-        User user = this.getUserById(userId);
-        User previous = user;
+    public User findPendingRegistrationUser(UUID userId, String email) {
+        return this.repo.findById(userId)
+                .filter(user -> canCompleteRegistration(user) && Objects.equals(user.getEmail(), email))
+                .orElse(null);
+    }
 
+    public static boolean canCompleteRegistration(User user) {
+        return user.getStatus() == RecordStatus.ACTIVE
+                && user.getAccountVerificationStatus() == User.VerificationStatus.PENDING
+                && user.getPassword() == null
+                && user.getUsername() != null && !user.getUsername().isBlank()
+                && user.getEmail() != null && !user.getEmail().isBlank();
+    }
+
+    public boolean authenticateRegisteredUser(User previous, RegisterFormData registerFormData) {
         Instant now = Instant.now();
 
         String hashed = BCrypt.hashpw(registerFormData.password(), BCrypt.gensalt(10));
 
-        user = user.toBuilder()
+        User user = previous.toBuilder()
                 .withUpdateDate(now)
-                .withStatus(RecordStatus.ACTIVE)
-                .withUsername(registerFormData.username())
                 .withPassword(hashed)
                 .withFirstName(registerFormData.firstName())
                 .withLastName(registerFormData.lastName())
@@ -190,16 +240,12 @@ public class UserTableService {
                 .withAccountVerificationStatus(User.VerificationStatus.VERIFIED)
                 .build();
 
-        this.repo.completeRegistration(user.getUserId(), now, user.getStatus(), user.getUsername(), hashed,
-                user.getFirstName(), user.getLastName(), user.getFullName(), user.getAccountVerificationStatus());
-        if (previous.getStatus() != user.getStatus()) {
-            replaceEmailLookup(previous, user);
-        }
-        if (previous.getStatus() != user.getStatus() || !Objects.equals(previous.getUsername(), user.getUsername())) {
-            replaceUsernameLookup(previous, user);
+        if (!this.repo.completeRegistration(user.getUserId(), now, user.getEmail(), user.getUsername(), hashed,
+                user.getFirstName(), user.getLastName(), user.getFullName()).wasApplied()) {
+            return false;
         }
         replaceVerificationProjection(previous, user);
-        return user;
+        return true;
     }
 
     /** Creation writes all query projections; updates use the operation-specific methods below. */
@@ -209,6 +255,7 @@ public class UserTableService {
         this.userIdsByEmailRepository.save(emailLookup(user));
         this.userIdsByUsernameRepository.save(usernameLookup(user));
         this.usersByVerificationStatusRepository.save(verificationProjection(user));
+        this.saveCompanyProjections(user);
 
         return savedUser;
     }
@@ -233,7 +280,7 @@ public class UserTableService {
         this.usersByVerificationStatusRepository.updateProfile(userId, previous.getAccountVerificationStatus(),
                 previous.getStatus(), firstName, lastName, fullName, languagePreference, timezone, now);
 
-        return previous.toBuilder()
+        User updated = previous.toBuilder()
                 .withFirstName(firstName)
                 .withLastName(lastName)
                 .withFullName(fullName)
@@ -241,6 +288,8 @@ public class UserTableService {
                 .withTimezone(timezone)
                 .withUpdateDate(now)
                 .build();
+        this.saveCompanyProjections(updated);
+        return updated;
     }
 
     public User changeEmail(UUID userId, String email) {
@@ -262,6 +311,7 @@ public class UserTableService {
         this.replaceEmailLookup(previous, updated);
         this.usersByVerificationStatusRepository.changeEmail(userId, previous.getAccountVerificationStatus(),
                 previous.getStatus(), email, now);
+        this.saveCompanyProjections(updated);
 
         return updated;
     }
@@ -282,6 +332,7 @@ public class UserTableService {
         this.replaceUsernameLookup(previous, updated);
         this.usersByVerificationStatusRepository.changeUsername(userId, previous.getAccountVerificationStatus(),
                 previous.getStatus(), username, now);
+        this.saveCompanyProjections(updated);
 
         return updated;
     }
@@ -325,6 +376,105 @@ public class UserTableService {
         return updated;
     }
 
+    private UsersByCompany companyProjection(User user) {
+        return UsersByCompany.builder()
+                .withUserId(user.getUserId())
+                .withCreateDate(user.getCreateDate())
+                .withUpdateDate(user.getUpdateDate())
+                .withStatus(user.getStatus())
+                .withUsername(user.getUsername())
+                .withEmail(user.getEmail())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withFullName(user.getFullName())
+                .withLanguagePreference(user.getLanguagePreference())
+                .withTimezone(user.getTimezone())
+                .withAccountVerificationStatus(user.getAccountVerificationStatus())
+                .withTwoFactorAuthentication(user.hasTwoFactorAuthentication())
+                .withCompanyId(user.getCompanyId())
+                .withCompanyName(user.getCompanyName())
+                .build();
+    }
+
+    private UsersByCompanyVerificationStatus companyVerificationProjection(User user) {
+        return UsersByCompanyVerificationStatus.builder()
+                .withUserId(user.getUserId())
+                .withCreateDate(user.getCreateDate())
+                .withUpdateDate(user.getUpdateDate())
+                .withStatus(user.getStatus())
+                .withUsername(user.getUsername())
+                .withEmail(user.getEmail())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withFullName(user.getFullName())
+                .withLanguagePreference(user.getLanguagePreference())
+                .withTimezone(user.getTimezone())
+                .withAccountVerificationStatus(user.getAccountVerificationStatus())
+                .withTwoFactorAuthentication(user.hasTwoFactorAuthentication())
+                .withCompanyId(user.getCompanyId())
+                .withCompanyName(user.getCompanyName())
+                .build();
+    }
+
+
+    /** Saves directory snapshots only; callers must first persist the canonical user.
+     * Users without a company (for example global administrators) have no directory rows. */
+    public void saveCompanyProjections(User user) {
+        if (user.getCompanyId() == null) return;
+        Objects.requireNonNull(user.getStatus(), "Status is required");
+        Objects.requireNonNull(user.getAccountVerificationStatus(), "Verification status is required");
+        usersByCompanyRepository.save(companyProjection(user));
+        usersByCompanyVerificationStatusRepository.save(companyVerificationProjection(user));
+    }
+
+    public User changeCompany(UUID userId, UUID companyId, String companyName) {
+        Objects.requireNonNull(companyId, "Company ID is required");
+        User previous = requireUser(userId);
+        if (Objects.equals(previous.getCompanyId(), companyId) && Objects.equals(previous.getCompanyName(), companyName)) return previous;
+        User updated = previous.toBuilder().withCompanyId(companyId).withCompanyName(companyName)
+                .withUpdateDate(Instant.now()).build();
+        repo.changeCompany(userId, companyId, companyName, updated.getUpdateDate());
+        usersByVerificationStatusRepository.save(verificationProjection(updated));
+        replaceCompanyProjections(previous, updated);
+        return updated;
+    }
+
+    private void replaceCompanyProjections(User previous, User updated) {
+        saveCompanyProjections(updated);
+        if (previous.getCompanyId() == null) return;
+        boolean movedCompany = !Objects.equals(previous.getCompanyId(), updated.getCompanyId());
+        boolean changedStatus = previous.getStatus() != updated.getStatus();
+        if (movedCompany || changedStatus) {
+            usersByCompanyRepository.delete(companyProjection(previous));
+        }
+        if (movedCompany || changedStatus
+                || previous.getAccountVerificationStatus() != updated.getAccountVerificationStatus()) {
+            usersByCompanyVerificationStatusRepository.delete(companyVerificationProjection(previous));
+        }
+    }
+
+    public void deleteCompanyUser(UUID companyId, UUID userId) {
+        User user = repo.findById(userId).orElse(null);
+        // Repeated deletion is successful. Keep the canonical row until cleanup succeeds for retries.
+        if (user == null) return;
+        if (!Objects.equals(user.getCompanyId(), companyId)) {
+            throw new IllegalArgumentException("User does not belong to this company");
+        }
+        usersByCompanyRepository.delete(companyProjection(user));
+        usersByCompanyVerificationStatusRepository.delete(companyVerificationProjection(user));
+        if (user.getEmail() != null && user.getStatus() != null) {
+            userIdsByEmailRepository.delete(emailLookup(user));
+        }
+        if (user.getUsername() != null && user.getStatus() != null) {
+            userIdsByUsernameRepository.delete(usernameLookup(user));
+        }
+        if (user.getAccountVerificationStatus() != null && user.getStatus() != null) {
+            usersByVerificationStatusRepository.delete(verificationProjection(user));
+        }
+        userRolesService.deleteForUser(userId);
+        repo.deleteById(userId);
+    }
+
     private User requireUser(UUID userId) {
         return this.repo.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
@@ -346,9 +496,9 @@ public class UserTableService {
     }
 
     private void replaceEmailLookup(User previous, User updated) {
-        this.userIdsByEmailRepository.save(emailLookup(updated));
+        this.userIdsByEmailRepository.save(this.emailLookup(updated));
         if(previous.getEmail() != null && previous.getStatus() != null) {
-            this.userIdsByEmailRepository.delete(emailLookup(previous));
+            this.userIdsByEmailRepository.delete(this.emailLookup(previous));
         }
     }
 
@@ -374,7 +524,7 @@ public class UserTableService {
                 .withTimezone(user.getTimezone())
                 .withLastLoginDate(user.getLastLoginDate())
                 .withAccountVerificationStatus(user.getAccountVerificationStatus())
-                .withTwoFactorAuthentication(user.isTwoFactorAuthentication())
+                .withTwoFactorAuthentication(user.hasTwoFactorAuthentication())
                 .withCompanyId(user.getCompanyId())
                 .withCompanyName(user.getCompanyName())
                 .build();
@@ -392,5 +542,6 @@ public class UserTableService {
                     .withStatus(previous.getStatus())
                     .build());
         }
+        this.replaceCompanyProjections(previous, updated);
     }
 }

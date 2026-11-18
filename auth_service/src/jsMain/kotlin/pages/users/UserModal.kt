@@ -1,6 +1,8 @@
 package org.example.pages.users
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.HTMLDialogElement
 import org.w3c.dom.events.Event
@@ -8,13 +10,14 @@ import org.w3c.dom.events.Event
 /** Mount conditionally. The native dialog handles focus, Escape and the backdrop. */
 @Composable
 internal fun UserModal(title: String, onClose: () -> Unit, content: @Composable () -> Unit) {
+    val currentOnClose by rememberUpdatedState(onClose)
     TagElement<HTMLDialogElement>("dialog", applyAttrs = {
         classes("border", "rounded-3", "shadow", "p-0", "bg-body", "text-body")
         attr("style", "width: min(720px, calc(100vw - 32px)); max-height: 90vh;")
         attr("aria-labelledby", "user-modal-title")
         ref { element ->
             element.showModal()
-            val cancel: (Event) -> Unit = { it.preventDefault(); onClose() }
+            val cancel: (Event) -> Unit = { it.preventDefault(); currentOnClose() }
             element.addEventListener("cancel", cancel)
             onDispose { element.removeEventListener("cancel", cancel); element.close() }
         }

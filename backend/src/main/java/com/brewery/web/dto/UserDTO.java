@@ -6,6 +6,8 @@ import com.brewery.web.model.record.RecordStatus;
 import com.brewery.web.model.user.UserIdsByEmail;
 import com.brewery.web.model.user.UserIdsByUsername;
 import com.brewery.web.model.user.UsersByVerificationStatus;
+import com.brewery.web.model.user.UsersByCompany;
+import com.brewery.web.model.user.UsersByCompanyVerificationStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
@@ -56,7 +58,7 @@ public record UserDTO(
                 .withTimezone(user.getTimezone())
                 .withLastLoginDate(user.getLastLoginDate())
                 .withAccountVerificationStatus(user.getAccountVerificationStatus())
-                .withTwoFactorAuthentication(user.isTwoFactorAuthentication())
+                .withTwoFactorAuthentication(user.hasTwoFactorAuthentication())
                 .withCompanyId(user.getCompanyId())
                 .withCompanyName(user.getCompanyName())
                 .withRoles(user.getRoles())
@@ -94,6 +96,46 @@ public record UserDTO(
                 .withLanguagePreference(user.getLanguagePreference())
                 .withTimezone(user.getTimezone())
                 .withLastLoginDate(user.getLastLoginDate())
+                .withAccountVerificationStatus(user.getAccountVerificationStatus())
+                .withTwoFactorAuthentication(user.isTwoFactorAuthentication())
+                .withCompanyId(user.getCompanyId())
+                .withCompanyName(user.getCompanyName())
+                .build();
+    }
+
+    public static UserDTO from(UsersByCompany user) {
+        return builder()
+                .withUserId(user.getUserId())
+                .withCreateDate(user.getCreateDate())
+                .withUpdateDate(user.getUpdateDate())
+                .withStatus(user.getStatus())
+                .withUsername(user.getUsername())
+                .withEmail(user.getEmail())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withFullName(user.getFullName())
+                .withLanguagePreference(user.getLanguagePreference())
+                .withTimezone(user.getTimezone())
+                .withAccountVerificationStatus(user.getAccountVerificationStatus())
+                .withTwoFactorAuthentication(user.isTwoFactorAuthentication())
+                .withCompanyId(user.getCompanyId())
+                .withCompanyName(user.getCompanyName())
+                .build();
+    }
+
+    public static UserDTO from(UsersByCompanyVerificationStatus user) {
+        return builder()
+                .withUserId(user.getUserId())
+                .withCreateDate(user.getCreateDate())
+                .withUpdateDate(user.getUpdateDate())
+                .withStatus(user.getStatus())
+                .withUsername(user.getUsername())
+                .withEmail(user.getEmail())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withFullName(user.getFullName())
+                .withLanguagePreference(user.getLanguagePreference())
+                .withTimezone(user.getTimezone())
                 .withAccountVerificationStatus(user.getAccountVerificationStatus())
                 .withTwoFactorAuthentication(user.isTwoFactorAuthentication())
                 .withCompanyId(user.getCompanyId())

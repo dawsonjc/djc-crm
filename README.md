@@ -217,6 +217,17 @@ The checked-in example constructs URLs from initially blank components. Sourcing
 
 The `AUTH_SERVICE_PROTOCOL/HOSTNAME/PORT/URL` entries are currently unused by application source; they do not change Kobweb's listening port. That port is configured in [conf.yaml](auth_service/.kobweb/conf.yaml).
 
+### Registration email
+
+Configure these environment variables on the CRM app that serves `/account/register`. Docker Compose passes them from `.env`.
+
+- Set `CRM_REGISTRATION_PUBLIC_URL` to the base URL recipients can open, including the context path if the app uses one.
+- Set `CRM_REGISTRATION_ENCODE_EMAIL_SECRET` to a randomly generated secret of at least 32 bytes. Use the same value across CRM app instances.
+- Set `SPRING_MAIL_HOST`, `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, and `SPRING_MAIL_PASSWORD` for your SMTP provider. Set `CRM_REGISTRATION_FROM` to an address the provider allows as a sender.
+- SMTP defaults to authentication and required STARTTLS. For an implicit TLS provider, set `CRM_SMTP_STARTTLS=false`, `CRM_SMTP_SSL=true`, and the provider's SMTP port.
+
+Creating an active user through the auth service sends a 24-hour link to the user's email address. If SMTP rejects the message, the auth service shows a delivery warning and the new account stays pending.
+
 ### Docker Compose
 
 From the repository root:

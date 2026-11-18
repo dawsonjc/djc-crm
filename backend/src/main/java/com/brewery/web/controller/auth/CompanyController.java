@@ -1,5 +1,6 @@
 package com.brewery.web.controller.auth;
 
+import com.brewery.web.dto.UserDTO;
 import com.brewery.web.dto.company.CompanyDTO;
 import com.brewery.web.dto.formdata.auth.CompanyFormData;
 import com.brewery.web.model.User;
@@ -9,6 +10,7 @@ import com.brewery.web.user.AuthSessionUser;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -99,4 +101,53 @@ public class CompanyController {
         return ResponseEntity.ok().body(respJson);
     }
 
+    @GetMapping(path = { "/{id}/users" })
+    public ResponseEntity<ObjectNode> getCompanyUsers(
+            @PathVariable(name = "id") String id,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        ObjectNode response = mapper.createObjectNode();
+        response.put("success", false);
+
+        UUID companyId;
+        try {
+            companyId = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            response.put("message", "Invalid company ID.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (page < 0 || size < 1 || size > 500) {
+            response.put("message", "Page must be nonnegative and size must be between 1 and 500.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (companyService.getCompanyById(companyId) == null) {
+            response.put("message", "Company not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        Slice<UserDTO> users = companyService.getCompanyUserPage(companyId, page, size);
+        ObjectNode data = response.putObject("data");
+        data.set("content", mapper.valueToTree(users.getContent()));
+        data.put("number", users.getNumber());
+        data.put("size", users.getSize());
+        data.put("last", users.isLast());
+        response.put("success", true);
+        return ResponseEntity.ok(response);
+    }
+    @DeleteMapping("/{id}/users/{userId}")
+    public ResponseEntity<ObjectNode> deleteCompanyUser(
+            @PathVariable("id") String id, @PathVariable("userId") String userId) {
+        ObjectNode response = mapper.createObjectNode();
+        response.put("success", false);
+        try {
+            companyService.deleteCompanyUser(UUID.fromString(id), UUID.fromString(userId));
+        } catch (IllegalArgumentException e) {
+            response.put("message", "Invalid company/user ID or user does not belong to this company.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        response.put("success", true);
+        response.put("message", "User deleted.");
+        return ResponseEntity.ok(response);
+    }
 }

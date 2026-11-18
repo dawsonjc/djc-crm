@@ -1,4 +1,14 @@
 spring:
+  mail:
+    properties:
+      "[mail.smtp.auth]": ${CRM_SMTP_AUTH:true}
+      "[mail.smtp.starttls.enable]": ${CRM_SMTP_STARTTLS:true}
+      "[mail.smtp.starttls.required]": ${CRM_SMTP_STARTTLS:true}
+      "[mail.smtp.ssl.enable]": ${CRM_SMTP_SSL:false}
+      "[mail.smtp.ssl.checkserveridentity]": true
+      "[mail.smtp.connectiontimeout]": 5000
+      "[mail.smtp.timeout]": 5000
+      "[mail.smtp.writetimeout]": 5000
   cassandra:
     contact-points: ${CASSANDRA_CONTACT_POINTS:localhost}
     port: ${CASSANDRA_PORT:9042}

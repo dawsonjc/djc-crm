@@ -37,7 +37,7 @@ suspend fun companyAdd(context: ApiContext) {
         return
     }
     val saved: Company = try {
-        CompanyStore(logger = context.logger).add(company, backendSessionId)
+        CompanyStore(logger = context.logger).add(backendSessionId, company)
     } catch (_: BackendSessionExpiredException) {
         respJson.message = "Please sign in again."
 
