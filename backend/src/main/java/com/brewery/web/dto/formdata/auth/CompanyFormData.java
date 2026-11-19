@@ -32,7 +32,4 @@ public record CompanyFormData(
         }
         return errors;
     }
-
-    @Override
-    public boolean verify() { return getErrors().isEmpty(); }
 }

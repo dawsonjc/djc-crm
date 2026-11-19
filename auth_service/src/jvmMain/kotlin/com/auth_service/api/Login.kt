@@ -29,13 +29,15 @@ private data class LoginRequest(
 
 @Api(routeOverride = "login")
 suspend fun login(context: ApiContext) {
+    val respJson: ApiResponse<JsonElement> = ApiResponse<JsonElement>();
+
     context.res.headers["Cache-Control"] = "no-store"
     if (context.req.method != HttpMethod.POST) {
         context.res.headers["Allow"] = "POST"
         context.res.status = 405
+        context.res.body = jsonBodyOf(respJson);
         return
     }
-    val respJson: ApiResponse<JsonElement> = ApiResponse<JsonElement>()
 
     val secretKey: String? = AUTH_SERVICE_SECRET_KEY.takeIf { it.isNotBlank() }
     if (secretKey == null) {
@@ -48,6 +50,7 @@ suspend fun login(context: ApiContext) {
     val requestBody = context.req.body
     if(requestBody == null) {
         context.res.status = 400
+        context.res.body = jsonBodyOf(respJson)
         return
     }
 

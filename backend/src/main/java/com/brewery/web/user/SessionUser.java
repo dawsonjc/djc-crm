@@ -10,7 +10,6 @@ public record SessionUser(
         String username,
         List<UserRole> roles
 ) {
-    public static final String SESSION_USER = "current_user";
-
-
+    public static final String SESSION_USER = "current-user";
+    public static final String SESSION_COMPANY = "current-company";
 }

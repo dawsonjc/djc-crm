@@ -39,22 +39,22 @@ public class MessagesService {
 
     public Message saveMessage(ObjectNode json) {
         Message message = new Message(MessageType.FILL_DEFAULT);
-        message.setConversationId(UUID.fromString(json.get("conversationId").asText()));
+        message.setConversationId(UUID.fromString(json.get("conversationId").asString()));
 
-        User user = this.userService.getUserById(UUID.fromString(json.get("fromUserId").asText()));
+        User user = this.userService.getUserById(UUID.fromString(json.get("fromUserId").asString()));
 
         if(user != null) {
             message.setFromUserId(user.getUserId());
             message.setFromUsername(user.getUsername());
         }
-        if(json.has("to-user-id") && !json.get("to-user-id").asText().isEmpty()) {
-            message.setToUserId(UUID.fromString(json.get("to-user-id").asText()));
+        if(json.has("to-user-id") && !json.get("to-user-id").asString().isEmpty()) {
+            message.setToUserId(UUID.fromString(json.get("to-user-id").asString()));
         }
-        if(json.has("to-username") && !json.get("to-username").asText().isEmpty()) {
-            message.setToUsername(json.get("to-username").asText());
+        if(json.has("to-username") && !json.get("to-username").asString().isEmpty()) {
+            message.setToUsername(json.get("to-username").asString());
         }
 
-        message.setContent(json.get("content").asText());
+        message.setContent(json.get("content").asString());
 
         String correctedContent = StringUtils.cleanseString(message.getContent());
 

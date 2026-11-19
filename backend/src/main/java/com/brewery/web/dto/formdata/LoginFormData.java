@@ -16,10 +16,4 @@ public record LoginFormData(String username, String password) implements FormDat
         
         return errors;
     }
-
-    @Override
-    public boolean verify() {
-        Map<String, String> errors = this.getErrors();
-        return errors.isEmpty();
-    }
 }

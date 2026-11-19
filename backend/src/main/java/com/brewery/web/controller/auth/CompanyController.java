@@ -135,9 +135,9 @@ public class CompanyController {
         response.put("success", true);
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping("/{id}/users/{userId}")
+    @DeleteMapping(path = { "/{id}/users/{userId}" })
     public ResponseEntity<ObjectNode> deleteCompanyUser(
-            @PathVariable("id") String id, @PathVariable("userId") String userId) {
+            @PathVariable(name = "id") String id, @PathVariable(name = "userId") String userId) {
         ObjectNode response = mapper.createObjectNode();
         response.put("success", false);
         try {

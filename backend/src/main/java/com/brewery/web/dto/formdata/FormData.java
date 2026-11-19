@@ -5,5 +5,7 @@ import java.util.Map;
 public interface FormData {
     Map<String, String> getErrors();
 
-    boolean verify();
+    default boolean verify() {
+        return this.getErrors().isEmpty();
+    };
 }

@@ -68,6 +68,17 @@ public class CompanyUserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respJson);
         }
 
+        if(this.userTableService.userExistsByEmail(companyUserFormData.email())) {
+            UUID potentialUserId = this.userTableService.getUserIdByEmail(companyUserFormData.email());
+            User potentialUser = this.userTableService.getUserById(potentialUserId);
+
+            if(companyUserFormData.companyId().equals(potentialUser.getCompanyId())) {
+                respJson.put("message", "User already Present in Company");
+
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(respJson);
+            }
+        }
+
         User registeredUser = this.userTableService.registerUser(companyUserFormData);
 
         if (UserTableService.canCompleteRegistration(registeredUser)) {

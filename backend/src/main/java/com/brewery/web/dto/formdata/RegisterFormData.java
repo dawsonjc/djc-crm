@@ -30,11 +30,4 @@ public record RegisterFormData(String firstName, String lastName, String usernam
 
         return errors;
     }
-
-    @Override
-    public boolean verify() {
-        Map<String, String> errors = this.getErrors();
-        
-        return errors.isEmpty();
-    }
 }

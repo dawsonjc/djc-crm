@@ -40,7 +40,7 @@ public class ConversationController {
     public String doGet(HttpServletRequest request, HttpServletResponse response,
                         @RequestParam(value = "conversationId") UUID conversationId
     ) {
-        User user = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
+        SessionUser user = (SessionUser) request.getSession(false).getAttribute(SessionUser.SESSION_USER);
         List<Message> messages = this.messagesService.getMessagesByConversationId(conversationId);
 
         ConversationDTO globalChat = this.conversationService.getGlobalChat();
@@ -48,54 +48,28 @@ public class ConversationController {
         if(!conversationId.equals(globalChat.conversationId())) {
             ConversationDTO convo = this.conversationService.getConversationById(conversationId);
 
-            if(convo == null || !convo.users().contains(user.getUserId())) {
+            if(convo == null || !convo.users().contains(user.userId())) {
                 return "redirect:/conversations?conversationId=" + globalChat.conversationId();
             }
         }
-        ArrayList<ConversationDTO> channels = new ArrayList<ConversationDTO>(user.getConversations());
+        //ArrayList<ConversationDTO> channels = new ArrayList<ConversationDTO>(users);
 
         request.setAttribute("Messages", messages);
-        request.setAttribute("Channels", channels);
+        // request.setAttribute("Channels", channels);
 
         return "chat";
     }
 
-    @PostMapping(value = { "/add-friend" })
+    @PostMapping(path = { "/add-friend" })
     @ResponseBody
     public ResponseEntity<ObjectNode> addFriend(HttpServletRequest request, @RequestParam(value = "userId") UUID potentialFriendId) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode responseJson = mapper.createObjectNode();
         responseJson.put("success", false);
-        responseJson.put("message", "");
-        ObjectNode data = responseJson.putObject("data");
+        responseJson.put("message", "Not Implemented");
+        responseJson.putObject("data");
 
-        User potentialFriend = this.userService.getUserById(potentialFriendId);
-
-        if(potentialFriendId == null || potentialFriend == null) {
-            responseJson.put("message", "Bad Data");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseJson);
-        }
-        User currentUser = (User) request.getSession().getAttribute(SessionUser.SESSION_USER);
-        Set<UUID> userIds = new HashSet<UUID>();
-        userIds.add(currentUser.getUserId());
-        userIds.add(potentialFriendId);
-
-        Conversation conversation = new Conversation();
-        conversation.setConversationId(UUID.randomUUID());
-        conversation.setCreateDate(java.time.Instant.now());
-        conversation.setUpdateDate(java.time.Instant.now());
-        conversation.setStatus(RecordStatus.ACTIVE);
-
-        String name = currentUser.getUsername() + "|" + potentialFriend.getUsername();
-
-        conversation.setName(name);
-        conversation.setUsers(userIds);
-
-        // this.conversationService.save(conversation);
-        System.err.println(conversation.toString());
-        responseJson.put("success", true);
-
-        return ResponseEntity.status(HttpStatus.OK).body(responseJson);
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(responseJson);
     }
 
     @GetMapping(value = { "/test" } )

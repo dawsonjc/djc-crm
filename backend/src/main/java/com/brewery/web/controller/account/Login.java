@@ -4,6 +4,8 @@ import com.brewery.web.dto.formdata.LoginFormData;
 import com.brewery.web.model.Role;
 import com.brewery.web.model.User;
 import com.brewery.web.model.UserRole;
+import com.brewery.web.model.company.Company;
+import com.brewery.web.services.auth.CompanyService;
 import com.brewery.web.services.UserTableService;
 import com.brewery.web.user.SessionUser;
 import tools.jackson.databind.ObjectMapper;
@@ -17,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -26,10 +29,15 @@ import java.util.regex.Pattern;
 @RequestMapping(value = { "/account" })
 public class Login {
 
-    @Autowired
-    private UserTableService userService;
+    private final UserTableService userService;
+    private final CompanyService companyService;
 
-    @GetMapping(value = { "/login" })
+    public Login(UserTableService userService, CompanyService companyService) {
+        this.userService = userService;
+        this.companyService = companyService;
+    }
+
+    @GetMapping(path = { "/login" })
     public String loginView(Model model, HttpServletRequest request) {
         model.addAttribute("new_user", User.builder().build());
         model.addAttribute("login_user", User.builder().build());
@@ -37,7 +45,7 @@ public class Login {
     }
     
     @ResponseBody
-    @PostMapping(value = { "/login" }, consumes = { "application/json" }, produces = {  "application/json" })
+    @PostMapping(path = { "/login" }, consumes = { "application/json" }, produces = {  "application/json" })
     public ResponseEntity<ObjectNode> login(
             HttpServletRequest request,
             @RequestBody LoginFormData formUser
@@ -77,6 +85,7 @@ public class Login {
         if(user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respJson);
         }
+
         user = this.userService.recordLogin(user, Instant.now(), UUID.randomUUID());
 
         respJson.put("success", true);
@@ -84,7 +93,17 @@ public class Login {
         data.put("userId", userId.toString());
         data.put("username", user.getUsername());
 
-        request.getSession(true).setAttribute(SessionUser.SESSION_USER, user.toSessionUser());
+        HttpSession session = request.getSession(true);
+        
+        session.setAttribute(SessionUser.SESSION_USER, user.toSessionUser());
+
+        if(user.getCompanyId() != null) {
+            Company userCompany = this.companyService.getCompanyById(user.getCompanyId());
+
+            if(userCompany != null) {
+                session.setAttribute(SessionUser.SESSION_COMPANY, userCompany);
+            }
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(respJson);
     }

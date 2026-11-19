@@ -64,9 +64,4 @@ public record CompanyUserFormData(
 
         return errors;
     }
-
-    @Override
-    public boolean verify() {
-        return getErrors().isEmpty();
-    }
 }

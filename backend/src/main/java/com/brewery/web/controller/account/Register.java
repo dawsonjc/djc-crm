@@ -28,7 +28,7 @@ public class Register {
         this.registrationEmailService = registrationEmailService;
     }
 
-    @GetMapping("/register")
+    @GetMapping(path = { "/register" })
     public String registerView(@RequestParam(name = "verification", required = false) String verification,
                                Model model, HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-store");
